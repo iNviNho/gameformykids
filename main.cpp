@@ -388,9 +388,15 @@ int main() {
         // render terrain
 
 
-        RenderText(textShader, "fps:" + std::to_string((int)fps), 25.0f, 25.0f, 0.4f,
-glm::vec3(0.0f, 0.0f, 0.0f));
         RenderText(textShader, "gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f,
+        glm::vec3(1, 1, 1));
+
+
+        RenderText(textShader, "fps:" + std::to_string((int)fps), 25.0f, 25.0f, 0.25f,
+        glm::vec3(1.0f, 1.0f, 1.0f));
+        RenderText(textShader,
+            "camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z),
+            25.0f, 50.0f, 0.25f,
         glm::vec3(1, 1, 1));
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
