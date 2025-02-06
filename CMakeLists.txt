@@ -27,16 +27,37 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(glm)
 
-#target_link_libraries(main PRIVATE glm::glm)
-
-add_executable(mygame main.cpp
-        glad.c
-        shader.h
-        customstb.cpp
-        add.cpp
-        camera.h
-        terrain.cpp
-        terrain.h
+# Download and include FreeType
+FetchContent_Declare(
+        freetype
+        GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+        GIT_TAG VER-2-10-4
 )
 
-target_link_libraries(mygame glfw3 glm::glm)
+FetchContent_MakeAvailable(freetype)
+
+
+# Download stb_image
+FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG        master
+)
+
+FetchContent_MakeAvailable(stb)
+
+add_executable(mygame main.cpp
+        src/shaders/shader.h
+        src/stbimage/stb.cpp
+        src/camera/camera.h
+        src/terrain/Terrain.cpp
+        src/terrain/Terrain.h
+        src/glad/glad.c
+)
+
+target_include_directories(mygame PRIVATE
+        ${GLFW_DIR}/include
+        ${stb_SOURCE_DIR}
+)
+
+target_link_libraries(mygame glfw3 glm::glm freetype)
