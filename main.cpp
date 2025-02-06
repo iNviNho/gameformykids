@@ -21,7 +21,7 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float lastX = 400, lastY = 300;
 bool firstMouse = false;
-Camera camera(glm::vec3(0.0f, 2.0f, 5.0f));
+Camera camera(glm::vec3(20.0f, 1.0f, 3.0f));
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 void processInput(GLFWwindow *window)
@@ -65,8 +65,6 @@ int main() {
     "/Users/vladino/CLionProjects/mygame/shaders/terrainShader.fs"
     );
 
-    Terrain terrain(0, 0);
-    Terrain terrain2(1, 0);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -146,12 +144,16 @@ int main() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     unsigned int texture = loadTexture("/Users/vladino/CLionProjects/mygame/container.jpg");
+    unsigned int textureGrass = loadTexture("/Users/vladino/CLionProjects/mygame/green-grass.jpg");
+
 
     glm::mat4 projection;
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+
+    Terrain terrain(0, 0);
 
     unsigned int terrainVAO, terrainVBO;
     glGenVertexArrays(1, &terrainVAO);
@@ -162,21 +164,23 @@ int main() {
 
     glBufferData(GL_ARRAY_BUFFER, terrain.GetDataPointsSize(), terrain.GetDataPoints(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-    ////
-    unsigned int terrainVAO2, terrainVBO2;
-    glGenVertexArrays(1, &terrainVAO2);
-    glGenBuffers(1, &terrainVBO2);
-
-    glBindVertexArray(terrainVAO2);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO2);
-
-    glBufferData(GL_ARRAY_BUFFER, terrain2.GetDataPointsSize(), terrain2.GetDataPoints(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
-    glEnableVertexAttribArray(0);
+    // ////
+    // unsigned int terrainVAO2, terrainVBO2;
+    // glGenVertexArrays(1, &terrainVAO2);
+    // glGenBuffers(1, &terrainVBO2);
+    //
+    // glBindVertexArray(terrainVAO2);
+    // glBindBuffer(GL_ARRAY_BUFFER, terrainVBO2);
+    //
+    // glBufferData(GL_ARRAY_BUFFER, terrain2.GetDataPointsSize(), terrain2.GetDataPoints(), GL_STATIC_DRAW);
+    //
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
+    // glEnableVertexAttribArray(0);
 
 
     while (!glfwWindowShouldClose(window)) {
@@ -204,67 +208,70 @@ int main() {
         glm::mat4 terrainModel = glm::mat4(1.0f);
         terrainShader.setMat4("model", terrainModel);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureGrass);
+
         glBindVertexArray(terrainVAO);
         glDrawArrays(GL_TRIANGLES, 0, terrain.GetCountOfVertices());
 
         terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, 1.0f, 0.0f));
         terrainShader.setMat4("model", terrainModel);
 
-        glBindVertexArray(terrainVAO2);
-        // glDrawArrays(GL_TRIANGLES, 0, terrain2.GetCountOfVertices());
-
-        myShader.use();
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        // light properties
-        myShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        myShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        myShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-        myShader.setVec3("light.position", lightPos);
-        myShader.setVec3("viewPos", camera.Position);
-
-        // material properties
-        myShader.setInt("material.diffuse", 0); // texture unit
-        myShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        myShader.setFloat("material.shininess", 64.0f);
-
-
-        // world transformation
-        // The next step is to transform the local coordinates to world-space coordinates which are
-        // coordinates in respect of the world origin.
-        // We can move object, rotate it, scale it, etc.
-        glm::mat4 model = glm::mat4(1.0f);
-        // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 2.0f));
-        myShader.setMat4("model", model);
-
-        // view transformation
-        // coordinates are modified in such a way that
-        // each coordinate is seen from cameras points of view
-        glm::mat4 view = camera.GetViewMatrix();
-        myShader.setMat4("view", view);
-
-        // projection transformation
-        projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
-        myShader.setMat4("projection", projection);
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // lightning shader
-        lightShader.use();
-
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
-
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-
-        lightShader.setMat4("model", model);
-
-        glBindVertexArray(VAO);
+        // // glBindVertexArray(terrainVAO2);
+        // // glDrawArrays(GL_TRIANGLES, 0, terrain2.GetCountOfVertices());
+        //
+        // myShader.use();
+        //
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D, texture);
+        //
+        // // light properties
+        // myShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        // myShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        // myShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        // myShader.setVec3("light.position", lightPos);
+        // myShader.setVec3("viewPos", camera.Position);
+        //
+        // // material properties
+        // myShader.setInt("material.diffuse", 0); // texture unit
+        // myShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        // myShader.setFloat("material.shininess", 64.0f);
+        //
+        //
+        // // world transformation
+        // // The next step is to transform the local coordinates to world-space coordinates which are
+        // // coordinates in respect of the world origin.
+        // // We can move object, rotate it, scale it, etc.
+        // glm::mat4 model = glm::mat4(1.0f);
+        // // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 2.0f));
+        // myShader.setMat4("model", model);
+        //
+        // // view transformation
+        // // coordinates are modified in such a way that
+        // // each coordinate is seen from cameras points of view
+        // glm::mat4 view = camera.GetViewMatrix();
+        // myShader.setMat4("view", view);
+        //
+        // // projection transformation
+        // projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+        // myShader.setMat4("projection", projection);
+        //
+        // glBindVertexArray(VAO);
         // glDrawArrays(GL_TRIANGLES, 0, 36);
+        //
+        // // lightning shader
+        // lightShader.use();
+        //
+        // lightShader.setMat4("projection", projection);
+        // lightShader.setMat4("view", view);
+        //
+        // model = glm::translate(model, lightPos);
+        // model = glm::scale(model, glm::vec3(0.2f));
+        //
+        // lightShader.setMat4("model", model);
+        //
+        // glBindVertexArray(VAO);
+        // // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // render terrain
 
