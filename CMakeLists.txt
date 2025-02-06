@@ -38,6 +38,8 @@ add_executable(mygame main.cpp
         src/camera/camera.h
         src/terrain/Terrain.cpp
         src/terrain/Terrain.h
+        src/text/TextRenderer.cpp
+        src/text/TextRenderer.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR})
