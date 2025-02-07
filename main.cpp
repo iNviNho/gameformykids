@@ -7,9 +7,11 @@
 
 #include "src/camera/camera.h"
 #include "src/shaders/shader.h"
-#include "stb_image.h"
+#include "src/fps/Fps.h"
 #include "src/terrain/Terrain.h"
+#include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
+#include "src/textures/TextureLoader.h"
 
 int add(int x, int y);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -65,14 +67,15 @@ int main() {
     "/Users/vladino/CLionProjects/mygame/src/shaders/files/lightShader.fs"
     );
 
-    Shader terrainShader(
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.vs",
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.fs"
-    );
-
     TextRenderer textRenderer(WIDTH, HEIGHT);
+    TerrainRenderer terrainRenderer(&camera);
+    Terrain terrain(0, 0);
+    Fps fps;
 
     glEnable(GL_DEPTH_TEST);
+
+    // enabling this will draw only lines
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     float vertices[] = {
         // positions          // normals           // texture coords
@@ -139,18 +142,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-
-    // // note that this is allowed, the call to glVertexAttribPointer registered VBO
-    // // as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    unsigned int texture = loadTexture("/Users/vladino/CLionProjects/mygame/container.jpg");
-    unsigned int textureGrass = loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass.jpg");
+    unsigned int texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/container.jpg");
 
     glm::mat4 projection;
 
@@ -158,52 +150,13 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    Terrain terrain(0, 0);
-
-    unsigned int terrainVAO, terrainVBO;
-    glGenVertexArrays(1, &terrainVAO);
-    glGenBuffers(1, &terrainVBO);
-
-    glBindVertexArray(terrainVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-
-    glBufferData(GL_ARRAY_BUFFER, terrain.GetDataPointsSize(), terrain.GetDataPoints(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // ////
-    // unsigned int terrainVAO2, terrainVBO2;
-    // glGenVertexArrays(1, &terrainVAO2);
-    // glGenBuffers(1, &terrainVBO2);
-    //
-    // glBindVertexArray(terrainVAO2);
-    // glBindBuffer(GL_ARRAY_BUFFER, terrainVBO2);
-    //
-    // glBufferData(GL_ARRAY_BUFFER, terrain2.GetDataPointsSize(), terrain2.GetDataPoints(), GL_STATIC_DRAW);
-    //
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
-    // glEnableVertexAttribArray(0);
-
-    // Add these variables
-    int frameCount = 0;
-    float fps = 0.0f;
-    float lastTime = 0.0f;
-
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Calculate FPS
-        frameCount++;
-        if (currentFrame - lastTime >= 1.0f) {
-            fps = frameCount / (currentFrame - lastTime);
-            frameCount = 0;
-            lastTime = currentFrame;
-        }
+        // fps calculation
+        fps.tick();
 
         // input
         // -----
@@ -214,25 +167,6 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        terrainShader.use();
-
-        projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
-        terrainShader.setMat4("projection", projection);
-
-        terrainShader.setMat4("view", camera.GetViewMatrix());
-
-        glm::mat4 terrainModel = glm::mat4(1.0f);
-        terrainShader.setMat4("model", terrainModel);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureGrass);
-
-        glBindVertexArray(terrainVAO);
-        glDrawArrays(GL_TRIANGLES, 0, terrain.GetCountOfVertices());
-
-        terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, 1.0f, 0.0f));
-        terrainShader.setMat4("model", terrainModel);
 
         // // glBindVertexArray(terrainVAO2);
         // // glDrawArrays(GL_TRIANGLES, 0, terrain2.GetCountOfVertices());
@@ -290,12 +224,13 @@ int main() {
         // glBindVertexArray(VAO);
         // // glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        // render terrain
-
+        terrainRenderer.render(terrain);
 
         textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
-        textRenderer.RenderBlackText("fps:" + std::to_string((int)fps), 25.0f, 25.0f, 0.25f);
+        textRenderer.RenderBlackText("fps:" + std::to_string(fps.getFps()), 25.0f, 25.0f, 0.25f);
         textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
+
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -315,37 +250,7 @@ int main() {
     return 0;
 }
 
-unsigned int loadTexture(char const* value) {
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load(value, &width, &height,
-    &nrChannels, 0);
 
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-        GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    stbi_set_flip_vertically_on_load(true);
-
-    return texture;
-}
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------

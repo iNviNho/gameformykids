@@ -40,6 +40,12 @@ add_executable(mygame main.cpp
         src/terrain/Terrain.h
         src/text/TextRenderer.cpp
         src/text/TextRenderer.h
+        src/terrain/TerrainRenderer.cpp
+        src/terrain/TerrainRenderer.h
+        src/textures/TextureLoader.h
+        src/textures/TextureLoader.h
+        src/fps/Fps.cpp
+        src/fps/Fps.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR})

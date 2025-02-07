@@ -1,7 +1,3 @@
-//
-// Created by Vladimír Vráb on 03.02.25.
-//
-
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
@@ -17,7 +13,11 @@ private:
     unsigned int zPos;
 
     float* dataPoints;
+    unsigned int VAO, VBO;
+    unsigned int texture;
 
+    void generateTexture();
+    void generateVaoVbo();
     void generateTerrain();
 public:
     Terrain(int xPos, int yPos);
@@ -27,6 +27,8 @@ public:
     [[nodiscard]] long GetDataPointsSize() const;
     [[nodiscard]] unsigned int XPos() const { return xPos; }
     [[nodiscard]] unsigned int ZPos() const { return zPos; }
+    [[nodiscard]] unsigned int GetVAO() const { return VAO; }
+    [[nodiscard]] unsigned int GetTexture() const { return texture; }
 };
 
 

@@ -1,17 +1,38 @@
-//
-// Created by Vladimír Vráb on 03.02.25.
-//
-
 #include "Terrain.h"
 #include "iostream"
 
-#include <algorithm>
+#include <glad/glad.h>
+
+#include "../textures/TextureLoader.h"
 
 Terrain::Terrain(const int xPos, const int zPos) {
     this->xPos = xPos * SIZE;
     this->zPos = zPos * SIZE;
     dataPoints = new float[VERTEX_COUNT * VERTEX_COUNT * 30];
+    generateTexture();
     generateTerrain();
+    generateVaoVbo();
+}
+
+void Terrain::generateTexture() {
+    this->texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass.jpg");
+    std::cout << "Texture loaded: " << texture << std::endl;
+}
+
+
+void Terrain::generateVaoVbo() {
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, GetDataPointsSize(), GetDataPoints(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void Terrain::generateTerrain() {
@@ -78,7 +99,6 @@ long Terrain::GetDataPointsSize() const {
 }
 
 const float Terrain::GetCountOfVertices() const {
-    // for each
     return VERTEX_COUNT * VERTEX_COUNT * 6;
 }
 
