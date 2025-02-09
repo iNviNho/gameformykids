@@ -11,7 +11,6 @@
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
-#include "src/textures/TextureLoader.h"
 
 int add(int x, int y);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -25,7 +24,7 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float lastX = 400, lastY = 300;
 bool firstMouse = false;
-Camera camera(glm::vec3(20.0f, 1.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int constexpr  WIDTH = 800;
@@ -69,7 +68,7 @@ int main() {
 
     TextRenderer textRenderer(WIDTH, HEIGHT);
     TerrainRenderer terrainRenderer(&camera);
-    Terrain terrain(0, 0);
+    Terrain terrain(0, 0, "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png");
     Fps fps;
 
     glEnable(GL_DEPTH_TEST);
@@ -142,7 +141,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    unsigned int texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/container.jpg");
+    // unsigned int texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/container.jpg");
 
     glm::mat4 projection;
 

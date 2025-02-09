@@ -46,6 +46,8 @@ add_executable(mygame main.cpp
         src/textures/TextureLoader.h
         src/fps/Fps.cpp
         src/fps/Fps.h
+        src/images/Image.cpp
+        src/images/Image.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR})

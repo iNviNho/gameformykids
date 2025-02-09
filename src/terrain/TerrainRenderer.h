@@ -1,7 +1,3 @@
-//
-// Created by Vladimír Vráb on 07.02.25.
-//
-
 #ifndef TERRAINRENDERER_H
 #define TERRAINRENDERER_H
 #include "Terrain.h"

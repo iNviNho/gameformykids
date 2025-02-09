@@ -1,7 +1,3 @@
-//
-// Created by Vladimír Vráb on 07.02.25.
-//
-
 #ifndef FPS_H
 #define FPS_H
 

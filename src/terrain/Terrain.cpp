@@ -1,21 +1,24 @@
 #include "Terrain.h"
+
 #include "iostream"
 
 #include <glad/glad.h>
 
+#include "../images/Image.h"
 #include "../textures/TextureLoader.h"
 
-Terrain::Terrain(const int xPos, const int zPos) {
+Terrain::Terrain(const int xPos, const int zPos, char const* heightMap) {
     this->xPos = xPos * SIZE;
     this->zPos = zPos * SIZE;
-    dataPoints = new float[VERTEX_COUNT * VERTEX_COUNT * 30];
+    dataPoints = new float[SIZE * SIZE * 30];
+    parseHeightMap(heightMap);
     generateTexture();
     generateTerrain();
     generateVaoVbo();
 }
 
 void Terrain::generateTexture() {
-    this->texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass.jpg");
+    this->texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass4.png");
     std::cout << "Texture loaded: " << texture << std::endl;
 }
 
@@ -35,57 +38,80 @@ void Terrain::generateVaoVbo() {
     glEnableVertexAttribArray(1);
 }
 
+float Terrain::getHeight(float x, float z) {
+    // TODO: why -z ???
+    z = -z;
+    if (x < 0 || z < 0 || x >= SIZE || z >= SIZE) {
+        return 0;
+    }
+
+    // gives value from 0 to 255
+    float grayscaleValue = heightMap->getGrayscaleValue(x, z);
+    // range from 0 to 1
+    grayscaleValue /= 255.0f;
+    // range from -0.5 to 0.5
+    grayscaleValue -= 0.5f;
+    // range from -MAX_HEIGHT/2.0f to MAX_HEIGHT/2.0f
+    grayscaleValue *= MAX_HEIGHT;
+    return grayscaleValue;
+}
+
+void Terrain::parseHeightMap(char const* heightMap) {
+    this->heightMap = new Image(heightMap);
+}
+
 void Terrain::generateTerrain() {
     int vertexPointer = 0;
     int numberOfPointsPerLoop = 2 * 3 * 5;
-    for (int x = 0; x < VERTEX_COUNT; x++) {
-        for (int z = 0; z < VERTEX_COUNT; z++) {
-        // first triangle
-            // 330 = 1 * 26
-        dataPoints[vertexPointer * numberOfPointsPerLoop] = float(x); // a
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = 0.0f; // a
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = -float(z); // a
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 0.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 4] = 1.0f; // b]
 
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 5] = float(x) + 1.0f; // b
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 6] = 0.0f;
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 7] = -float(z);
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 8] = 0.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 9] = 0.0f; // b]
+    for (int x = 0; x < SIZE; x++) {
+        for (int z = 0; z < SIZE; z++) {
+            const auto floatX = static_cast<float>(x);
+            const auto floatZ = static_cast<float>(z);
+            dataPoints[vertexPointer * numberOfPointsPerLoop] = floatX; // a
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = getHeight(floatX, -floatZ); // a
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = -floatZ; // a
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 4] = 1.0f; // b]
 
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 10] = float(x) + 1.0f; // c
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 11] = 0.0f;
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 12] = -float(z) - 1.0f;
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 13] = 1.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 14] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 5] = floatX + 1.0f; // b
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 6] = getHeight(floatX + 1.0f, -floatZ); // b
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 7] = -floatZ;
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 8] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 9] = 0.0f; // b]
 
-        // second triangle
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 15] = float(x); // a
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 16] = 0.0f; // a
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 17] = -float(z) - 1.0f; // a
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 18] = 1.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 19] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 10] = floatX + 1.0f; // c
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 11] = getHeight(floatX + 1.0f, -floatZ - 1.0f);
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 12] = -floatZ - 1.0f;
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 13] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 14] = 0.0f; // b]
 
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 20] = float(x) + 1.0f; // c
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 21] = 0.0f;
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 22] = -float(z) - 1.0f;
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 23] = 1.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 24] = 0.0f; // b]
+            // second triangle
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 15] = floatX; // a
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 16] = getHeight(x, -floatZ - 1.0f); // a
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 17] = -floatZ - 1.0f; // a
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 18] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 19] = 1.0f; // b]
 
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 25] = float(x); // d
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 26] = 0.0f;
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 27] = -float(z);
-        // tex coord
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 28] = 0.0f; // b]
-        dataPoints[vertexPointer * numberOfPointsPerLoop + 29] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 20] = floatX + 1.0f; // c
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 21] = getHeight(floatX + 1.0f, -floatZ - 1.0f);
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 22] = -floatZ - 1.0f;
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 23] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 24] = 0.0f; // b]
 
-        vertexPointer++;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 25] = floatX; // d
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 26] = getHeight(floatX, -floatZ);
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 27] = -floatZ;
+            // tex coord
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 28] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 29] = 1.0f; // b]
+
+            vertexPointer++;
         }
     }
 }
@@ -95,11 +121,11 @@ const float* Terrain::GetDataPoints() const {
 }
 
 long Terrain::GetDataPointsSize() const {
-    return sizeof(float) * VERTEX_COUNT * VERTEX_COUNT * 30;
+    return sizeof(float) * SIZE * SIZE * 30;
 }
 
 const float Terrain::GetCountOfVertices() const {
-    return VERTEX_COUNT * VERTEX_COUNT * 6;
+    return SIZE * SIZE * 6;
 }
 
 

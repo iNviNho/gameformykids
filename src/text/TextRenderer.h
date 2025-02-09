@@ -1,7 +1,3 @@
-//
-// Created by Vladimír Vráb on 06.02.25.
-//
-
 #ifndef TEXTRENDERER_H
 #define TEXTRENDERER_H
 #include <glm/glm.hpp>
