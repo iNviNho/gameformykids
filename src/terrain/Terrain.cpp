@@ -1,10 +1,10 @@
 #include "Terrain.h"
 
-#include "iostream"
 
 #include <glad/glad.h>
 
 #include "../images/Image.h"
+#include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 
 Terrain::Terrain(const int xPos, const int zPos, char const* heightMap) {
@@ -12,14 +12,17 @@ Terrain::Terrain(const int xPos, const int zPos, char const* heightMap) {
     this->zPos = zPos * SIZE;
     dataPoints = new float[SIZE * SIZE * 30];
     parseHeightMap(heightMap);
-    generateTexture();
+    generateTextures();
     generateTerrain();
     generateVaoVbo();
 }
 
-void Terrain::generateTexture() {
-    this->texture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass4.png");
-    std::cout << "Texture loaded: " << texture << std::endl;
+void Terrain::generateTextures() {
+    this->grassTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass4.png");
+    this->pathTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/path.png");
+    this->mudTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/mud.png");
+    this->flowersTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/grassFlowers.png");
+    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png");
 }
 
 
@@ -122,6 +125,25 @@ const float* Terrain::GetDataPoints() const {
 
 long Terrain::GetDataPointsSize() const {
     return sizeof(float) * SIZE * SIZE * 30;
+}
+
+void Terrain::activateTextures(Shader* shader) {
+    shader->use();
+    shader->setInt("grass", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->GetGrassTexture());
+    shader->setInt("path", 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, this->GetPathTexturre());
+    shader->setInt("mud", 2);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, this->GetMudTexture());
+    shader->setInt("flowers", 3);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, this->GetFlowersTexture());
+    shader->setInt("blendMap", 4);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, this->GetBlendMapTexture());
 }
 
 const float Terrain::GetCountOfVertices() const {

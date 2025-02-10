@@ -19,8 +19,9 @@ void TerrainRenderer::render(Terrain terrain) {
     glm::mat4 terrainModel = glm::mat4(1.0f);
     shader->setMat4("model", terrainModel);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, terrain.GetTexture());
+    terrain.activateTextures(shader);
+
+    shader->setFloat("terrainSize", terrain.GetSize());
 
     glBindVertexArray(terrain.GetVAO());
     glDrawArrays(GL_TRIANGLES, 0, terrain.GetCountOfVertices());
