@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.28)
 project(mygame)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-framework Cocoa -framework IOKit")
+
+find_library(COCOA_FRAMEWORK Cocoa)
+find_library(IOKIT_FRAMEWORK IOKit)
+mark_as_advanced(COCOA_FRAMEWORK IOKIT_FRAMEWORK)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -32,6 +35,10 @@ FetchContent_MakeAvailable(freetype)
 FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git)
 FetchContent_MakeAvailable(stb)
 
+# Download and include Assimp
+FetchContent_Declare(assimp GIT_REPOSITORY https://github.com/assimp/assimp.git)
+FetchContent_MakeAvailable(assimp)
+
 add_executable(mygame main.cpp
         src/shaders/shader.h
         src/stbimage/stb.cpp
@@ -48,8 +55,15 @@ add_executable(mygame main.cpp
         src/fps/Fps.h
         src/images/Image.cpp
         src/images/Image.h
+        src/models/Mesh.cpp
+        src/models/Mesh.h
+        src/models/Model.cpp
+        src/models/Model.h
+        src/models/ModelRenderer.cpp
+        src/models/ModelRenderer.h
 )
 
-target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR})
+target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )
 
-target_link_libraries(mygame glfw glm::glm freetype glad)
+target_link_libraries(mygame glfw glm::glm freetype glad assimp)
+

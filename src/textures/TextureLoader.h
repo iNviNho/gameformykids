@@ -7,6 +7,7 @@
 class TextureLoader {
 public:
     static unsigned int loadTexture(char const* value) {
+        std::cout << "Loading texture: " << value << std::endl;
         int width, height, nrChannels;
         unsigned char *data = stbi_load(value, &width, &height,
         &nrChannels, 0);

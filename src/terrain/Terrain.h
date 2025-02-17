@@ -24,8 +24,10 @@ private:
     void parseHeightMap(char const* heightMap);
     void generateTextures();
     void generateVaoVbo();
+
     void generateTerrain();
     float getHeight(float x, float z);
+    glm::vec3 calculateNormal(float x, float z);
 public:
     Terrain(int xPos, int yPos, char const* heightMap);
     ~Terrain() = default;

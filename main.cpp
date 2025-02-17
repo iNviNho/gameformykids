@@ -8,6 +8,8 @@
 #include "src/camera/camera.h"
 #include "src/shaders/shader.h"
 #include "src/fps/Fps.h"
+#include "src/models/Model.h"
+#include "src/models/ModelRenderer.h"
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
@@ -19,6 +21,7 @@ GLFWwindow* createAndConfigureWindow();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 unsigned int loadTexture(char const* value);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
+void processInput(GLFWwindow *window);
 
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -29,25 +32,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int constexpr  WIDTH = 800;
 int constexpr  HEIGHT = 600;
-
-void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, deltaTime);
-}
 
 int main() {
     // create and configure window
@@ -68,6 +52,7 @@ int main() {
 
     TextRenderer textRenderer(WIDTH, HEIGHT);
     TerrainRenderer terrainRenderer(&camera);
+    ModelRenderer modelRenderer(&camera);
     Terrain terrain(0, 0, "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png");
     Fps fps;
 
@@ -75,6 +60,10 @@ int main() {
 
     // enabling this will draw only lines
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    Model backpack(
+        "/Users/vladino/CLionProjects/mygame/resources/objects/backpack/backpack.obj"
+    );
 
     float vertices[] = {
         // positions          // normals           // texture coords
@@ -225,6 +214,8 @@ int main() {
 
         terrainRenderer.render(terrain);
 
+        modelRenderer.render(backpack);
+
         textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
         textRenderer.RenderBlackText("fps:" + std::to_string(fps.getFps()), 25.0f, 25.0f, 0.25f);
         textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
@@ -312,4 +303,23 @@ GLFWwindow* createAndConfigureWindow() {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime);
 }
