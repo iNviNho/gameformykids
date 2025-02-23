@@ -17,10 +17,14 @@ uniform Light light;
 
 void main()
 {
-    vec3 textureColor = texture(texture_diffuse1, TexCoords).rgb;
+    vec4 textureColor = texture(texture_diffuse1, TexCoords).rgba;
+
+    if (textureColor.a < 0.5) {
+        discard;
+    }
 
     // ambient
-    vec3 ambient = light.ambient * textureColor;
+    vec3 ambient = light.ambient * textureColor.rgb;
 
     // diffuse
     vec3 norm = normalize(aNormalPass);
@@ -31,9 +35,9 @@ void main()
     // the bigger the angle, the smaller the dot product
     // the smaller the angle, the bigger the dot product
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * light.diffuse * textureColor;
+    vec3 diffuse = diff * light.diffuse * textureColor.rgb;
 
     // TODO: specular
 
-    FragColor = vec4(ambient + diffuse, 1.0);
+    FragColor = vec4(ambient + diffuse, textureColor.a);
 }
