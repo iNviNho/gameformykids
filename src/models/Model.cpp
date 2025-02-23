@@ -7,9 +7,26 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
-Model::Model(char *modelPath)
-{
+Model::Model(glm::vec3 position, char *modelPath) {
+    this->position = position;
     loadModel(modelPath);
+}
+
+Model::Model(glm::vec3 position, char *modelPath, char *texturePath) {
+    this->position = position;
+    loadModel(modelPath);
+    loadSingleTexture(texturePath);
+}
+
+Model::Model(glm::vec3 position, char *modelPath, Texture *texture) {
+    this->position = position;
+    loadModel(modelPath);
+    loadSingleTexture(texture);
+}
+
+Model::Model(glm::vec3 position, Mesh &mesh) {
+    this->position = position;
+    meshes.push_back(mesh);
 }
 
 void Model::Draw(Shader &shader)
@@ -124,6 +141,24 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         }
     }
     return textures;
+}
+
+void Model::loadSingleTexture(char *texturePath) {
+    Texture texture;
+    texture.id = TextureLoader::loadTexture(texturePath);
+    texture.type = "texture_diffuse";
+    texture.path = texturePath;
+    texturesLoaded.push_back(texture);
+    for (unsigned int i = 0; i < meshes.size(); i++) {
+        meshes[i].textures.push_back(texture);
+    }
+}
+
+void Model::loadSingleTexture(Texture *texture) {
+    texturesLoaded.push_back(*texture);
+    for (unsigned int i = 0; i < meshes.size(); i++) {
+        meshes[i].textures.push_back(*texture);
+    }
 }
 
 
