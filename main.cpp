@@ -16,7 +16,6 @@
 #include "src/text/TextRenderer.h"
 #include "src/textures/TextureLoader.h"
 
-int add(int x, int y);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 GLFWwindow* createAndConfigureWindow();
@@ -24,6 +23,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 unsigned int loadTexture(char const* value);
 void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void processInput(GLFWwindow *window);
+void calculateDelta();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -32,8 +32,8 @@ bool firstMouse = false;
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-int constexpr  WIDTH = 800;
-int constexpr  HEIGHT = 600;
+int constexpr WIDTH = 800;
+int constexpr HEIGHT = 600;
 
 int main() {
     // create and configure window
@@ -45,7 +45,10 @@ int main() {
     TextRenderer textRenderer(WIDTH, HEIGHT);
     ModelRenderer modelRenderer(&camera);
     TerrainRenderer terrainRenderer(&camera, &modelRenderer);
-    Terrain terrain("/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png");
+    Terrain terrain(
+        "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
+        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png"
+    );
     Fps fps;
 
     glEnable(GL_DEPTH_TEST);
@@ -53,10 +56,10 @@ int main() {
     // enabling this will draw only lines
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    // Model backpack(
-    // glm::vec3(0.0f, 1.0f, 0.0f),
-    // "/Users/vladino/CLionProjects/mygame/resources/objects/backpack/backpack.obj"
-    // );
+    Model backpack(
+    glm::vec3(0.0f, 1.0f, 0.0f),
+    "/Users/vladino/CLionProjects/mygame/resources/objects/backpack/backpack.obj"
+    );
     Model cube = ModelGenerator::generateCube(
     glm::vec3(10.0f, 2.5f, 0.0f),
     "/Users/vladino/CLionProjects/mygame/resources/images/container.jpg"
@@ -67,9 +70,8 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
 
     while (!glfwWindowShouldClose(window)) {
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        // delta calculation
+        calculateDelta();
 
         // fps calculation
         fps.tick();
@@ -85,13 +87,14 @@ int main() {
 
         terrainRenderer.render(terrain);
 
-        // modelRenderer.render(backpack);
+        modelRenderer.render(backpack);
         modelRenderer.render(cube);
 
-        textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
-        textRenderer.RenderBlackText("fps:" + std::to_string(fps.getFps()), 25.0f, 25.0f, 0.25f);
-        textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
-
+        // textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
+        // TODO: Muted until I find more efficient way to render text
+        // textRenderer.RenderBlackText(fps.getFpsAsString(), 25.0f, 25.0f, 0.25f);
+        // textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
+        // std::cout << "camera x:" << camera.Position.x << " y:" << camera.Position.y << " z:" << camera.Position.z << std::endl;
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -187,4 +190,10 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+}
+
+void calculateDelta() {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
 }

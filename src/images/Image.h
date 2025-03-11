@@ -11,6 +11,8 @@ public:
     explicit Image(char const* path);
     ~Image() = default;
     float getGrayscaleValue(int x, int y);
+    bool isBlackColor(int x, int y);
+    [[nodiscard]] int getWidth() const { return width; }
 };
 
 

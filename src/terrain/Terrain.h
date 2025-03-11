@@ -1,16 +1,16 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
+#include "Grasses.h"
 #include "../images/Image.h"
+#include "../models/Model.h"
 #include "../shaders/shader.h"
 
 
 class Terrain
 {
 private:
-    static constexpr int SIZE = 128;
+    static constexpr int SIZE = 256;
     static constexpr float MAX_HEIGHT = 20.0f;
-    unsigned int xPos;
-    unsigned int zPos;
 
     float* dataPoints;
     unsigned int VAO, VBO;
@@ -20,16 +20,22 @@ private:
     unsigned int flowersTexture;
     unsigned int blendMapTexture;
     Image* heightMap;
+    Image* blendMap;
 
-    void parseHeightMap(char const* heightMap);
+    void parseHeightMap(char const *heightMap);
+    void parseBlendMap(char const* blendMap);
     void generateTextures();
     void generateVaoVbo();
 
     void generateTerrain();
     float getHeight(float x, float z);
     glm::vec3 calculateNormal(float x, float z);
+
+    Grasses grasses;
+    void generateGrasses();
+
 public:
-    Terrain(int xPos, int yPos, char const* heightMap);
+    Terrain(char const* heightMap, char const* blendMap);
     ~Terrain() = default;
     [[nodiscard]] const float* GetDataPoints() const;
     [[nodiscard]] const float GetCountOfVertices() const;
@@ -41,6 +47,7 @@ public:
     [[nodiscard]] unsigned int GetFlowersTexture() const { return flowersTexture; }
     [[nodiscard]] unsigned int GetBlendMapTexture() const { return blendMapTexture; }
     [[nodiscard]] float GetSize() const { return SIZE; }
+    [[nodiscard]] const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader* shader);
 };
 

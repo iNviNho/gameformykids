@@ -61,6 +61,13 @@ add_executable(mygame main.cpp
         src/models/Model.h
         src/models/ModelRenderer.cpp
         src/models/ModelRenderer.h
+        src/models/ModelGenerator.cpp
+        src/models/ModelGenerator.h
+        src/terrain/EntitiesHolder.h
+        src/objects/Entity.cpp
+        src/objects/Entity.h
+        src/terrain/Grasses.cpp
+        src/terrain/Grasses.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )

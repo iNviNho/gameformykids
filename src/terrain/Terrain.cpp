@@ -3,18 +3,24 @@
 
 #include <glad/glad.h>
 
+#include "EntitiesHolder.h"
+#include "Grasses.h"
 #include "../images/Image.h"
+#include "../models/Model.h"
+#include "../models/ModelGenerator.h"
 #include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 
-Terrain::Terrain(const int xPos, const int zPos, char const* heightMap) {
-    this->xPos = xPos * SIZE;
-    this->zPos = zPos * SIZE;
+Terrain::Terrain(char const* heightMap, char const* blendMap)
+    : grasses(EntitiesHolder(std::vector<Entity>())) {
+    std::cout << "here" << std::endl;
     dataPoints = new float[SIZE * SIZE * 30];
     parseHeightMap(heightMap);
+    parseBlendMap(blendMap);
     generateTextures();
     generateTerrain();
     generateVaoVbo();
+    generateGrasses();
 }
 
 void Terrain::generateTextures() {
@@ -41,6 +47,57 @@ void Terrain::generateVaoVbo() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
+}
+
+void Terrain::generateGrasses() {
+    std::cout << "Generating grasses" << std::endl;
+    Model grass = ModelGenerator::generateGrass(
+        glm::vec3(3.0f, 0.0f, 0.0f),
+        "/Users/vladino/CLionProjects/mygame/resources/objects/grass4/grass.png"
+    );
+
+    float density = 0.1;
+    int perTileEntities = 10 * density;
+    // random float between 0 and 1
+
+    // ❤️❤️❤️❤️❤️❤️❤️
+    std::vector<Entity> entities;
+    for (int x = 0; x < SIZE; x++) {
+        for (int z = 0; z < SIZE; z++) {
+            for (int p = 0; p < perTileEntities; p++) {
+                // random -1 or 1
+                float anyX = static_cast<float>(rand() % 100) / 100.0f;
+                float xpos = x + anyX;
+                float anyZ = static_cast<float>(rand() % 100) / 100.0f;
+                float zpos = -(z + anyZ);
+                float ypos = getHeight(xpos, zpos) + 0.35f;
+
+                // 1024 / 64 = 16
+                // so image is 16x bigger than terrain
+                int imageRatio = blendMap->getWidth() / SIZE;
+                int xPosRatio = xpos * imageRatio;
+                int zPosRatio = zpos * imageRatio;
+                if (!blendMap->isBlackColor(xPosRatio, -zPosRatio)) {
+                    continue;
+                }
+
+                glm::vec3 position = glm::vec3(xpos, ypos, zpos);
+                glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+                modelMatrix = glm::translate( modelMatrix, position);
+                Entity entity(
+                    grass,
+                    position,
+                    modelMatrix
+                );
+                entities.push_back(entity);
+            }
+        }
+    }
+
+    this->grasses = Grasses(EntitiesHolder(entities));
+    std::cout << "Grasses generated: ";
+    std::cout << entities.size() << std::endl;
 }
 
 float Terrain::getHeight(float x, float z) {
@@ -74,6 +131,10 @@ glm::vec3 Terrain::calculateNormal(float x, float z) {
 
 void Terrain::parseHeightMap(char const* heightMap) {
     this->heightMap = new Image(heightMap);
+}
+
+void Terrain::parseBlendMap(char const *blendMap) {
+    this->blendMap = new Image(blendMap);
 }
 
 void Terrain::generateTerrain() {
@@ -123,6 +184,9 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 22] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 23] = normal.z;
 
+            glm::vec3 a = glm::vec3(floatX, getHeight(floatX, floatZ), floatZ);
+            glm::vec3 b = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ), floatZ);
+            glm::vec3 c = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ - 1.0f), floatZ - 1.0f);
 
             // second triangle
             dataPoints[vertexPointer * numberOfPointsPerLoop + 24] = floatX; // a
