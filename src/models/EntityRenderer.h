@@ -2,22 +2,21 @@
 
 #ifndef MODELRENDERER_H
 #define MODELRENDERER_H
-#include "Model.h"
 #include "../camera/camera.h"
 #include "../shaders/shader.h"
 #include "../terrain/EntitiesHolder.h"
 
 
-class ModelRenderer {
+class EntityRenderer {
 private:
     Shader* singleInstanceShader;
     Shader* multiInstanceShader;
     Camera* camera;
 public:
-    ModelRenderer(Camera* camera);
-    ~ModelRenderer() = default;
+    explicit EntityRenderer(Camera* camera);
+    ~EntityRenderer() = default;
 
-    void render(Model model);
+    void render(Entity* entity);
     void renderBatch(const EntitiesHolder& modelsHolder);
 };
 

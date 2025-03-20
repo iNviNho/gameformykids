@@ -1,10 +1,10 @@
 
 
-#include "ModelRenderer.h"
+#include "EntityRenderer.h"
 
 #include "../objects/Entity.h"
 
-ModelRenderer::ModelRenderer(Camera* camera) {
+EntityRenderer::EntityRenderer(Camera* camera) {
     this->camera = camera;
     this->singleInstanceShader = new Shader(
         "/Users/vladino/CLionProjects/mygame/src/shaders/files/singleInstanceShader.vs",
@@ -16,7 +16,7 @@ ModelRenderer::ModelRenderer(Camera* camera) {
     );
 }
 
-void ModelRenderer::render(Model modelToDraw) {
+void EntityRenderer::render(Entity* entity) {
     singleInstanceShader->use();
 
     // view/projection transformations
@@ -28,13 +28,19 @@ void ModelRenderer::render(Model modelToDraw) {
 
     // render the loaded model
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, modelToDraw.GetPosition());
-    model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    model = glm::translate(model, entity->GetPosition());
+
+    model = glm::rotate(model, glm::radians(entity->GetRotationXAngle()), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(entity->GetRotationYAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(entity->GetRotationZAngle()), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // TODO: Implement scaling
+    // model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
     singleInstanceShader->setMat4("model", model);
-    modelToDraw.Draw(*singleInstanceShader);
+    entity->GetModel()->Draw(singleInstanceShader);
 }
 
-void ModelRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
+void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
 
     // enable culling
     // glEnable(GL_CULL_FACE);
@@ -50,9 +56,9 @@ void ModelRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
     multiInstanceShader->setMat4("view", view);
 
     // activate textures
-    Model firstModel = modelsHolder.GetEntities()[0].GetModel();
-    Mesh firstMesh = firstModel.GetMeshes()[0];
-    firstMesh.activateTextures(*multiInstanceShader);
+    const Model* firstModel = modelsHolder.GetEntities()[0].GetModel();
+    Mesh firstMesh = firstModel->GetMeshes()[0];
+    firstMesh.activateTextures(multiInstanceShader);
 
     // TODO: create sun class and move it there
     multiInstanceShader->setVec3("light.ambient", 0.45f, 0.45f, 0.45f);
@@ -60,12 +66,12 @@ void ModelRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
     multiInstanceShader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     multiInstanceShader->setVec3("light.position", glm::vec3(10.0f, 0.0f, 20.0f));
 
-    for (unsigned int i = 0; i < firstModel.GetMeshes().size(); i++)
+    for (unsigned int i = 0; i < firstModel->GetMeshes().size(); i++)
     {
-        glBindVertexArray(firstModel.GetMeshes()[i].VAO);
+        glBindVertexArray(firstModel->GetMeshes()[i].GetVAO());
         glDrawElementsInstanced(
             GL_TRIANGLES,
-            static_cast<unsigned int>(firstModel.GetMeshes()[i].indices.size()),
+            static_cast<unsigned int>(firstModel->GetMeshes()[i].GetIndices().size()),
             GL_UNSIGNED_INT,
             0,
             modelsHolder.GetEntities().size());

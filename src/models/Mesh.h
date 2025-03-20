@@ -20,18 +20,24 @@ struct Texture {
 };
 
 class Mesh {
-    public:
-        unsigned int VAO, VBO, EBO;
-        std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
+public:
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-        void Draw(Shader &shader);
-        void activateTextures(Shader &shader);
-        void bindVAO();
-    private:
-        void setupMesh();
+    void Draw(Shader *shader) const;
+    void activateTextures(Shader *shader) const;
+    void bindVAO() const;
+
+    const unsigned int &GetVAO() const {return VAO;}
+    std::vector<Texture> &getTextures() {return textures;}
+    const std::vector<Vertex> &getVertices() const {return vertices;}
+    const std::vector<unsigned int> &GetIndices() const {return indices;}
+private:
+    unsigned int VAO, VBO, EBO;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture> textures;
+
+    void setupMesh();
 };
 
 

@@ -1,14 +1,14 @@
 #include "TerrainRenderer.h"
 
-#include "../models/ModelRenderer.h"
+#include "../models/EntityRenderer.h"
 
-TerrainRenderer::TerrainRenderer(Camera* camera, ModelRenderer* modelRenderer) {
+TerrainRenderer::TerrainRenderer(Camera* camera, EntityRenderer* modelRenderer) {
     this->shader = new Shader(
     "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.vs",
     "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.fs"
     );
     this->camera = camera;
-    this->modelRenderer = modelRenderer;
+    this->entityRenderer = modelRenderer;
 }
 
 void TerrainRenderer::render(Terrain& terrain) {
@@ -43,5 +43,5 @@ void TerrainRenderer::render(Terrain& terrain) {
     // glDisable(GL_CULL_FACE);
 
     // render grasses
-    modelRenderer->renderBatch(terrain.GetGrasses().GetEntities());
+    entityRenderer->renderBatch(terrain.GetGrasses().GetEntities());
 }

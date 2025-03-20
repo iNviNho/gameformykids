@@ -8,8 +8,8 @@
 
 class ModelGenerator {
 public:
-    static Model generateCube(glm::vec3 position, char *texturePath);
-    static Model generateGrass(glm::vec3 position, char *texturePath);
+    static Model* generateCube(char *texturePath);
+    static Model* generateGrass(char *texturePath);
 };
 
 

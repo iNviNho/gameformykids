@@ -7,32 +7,28 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
-Model::Model(glm::vec3 position, char *modelPath) {
-    this->position = position;
+Model::Model(char *modelPath) {
     loadModel(modelPath);
 }
 
-Model::Model(glm::vec3 position, char *modelPath, char *texturePath) {
-    this->position = position;
+Model::Model(char *modelPath, char *texturePath) {
     loadModel(modelPath);
     loadSingleTexture(texturePath);
 }
 
-Model::Model(glm::vec3 position, char *modelPath, Texture *texture) {
-    this->position = position;
+Model::Model(char *modelPath, Texture *texture) {
     loadModel(modelPath);
     loadSingleTexture(texture);
 }
 
-Model::Model(glm::vec3 position, Mesh &mesh) {
-    this->position = position;
+Model::Model(Mesh &mesh) {
     meshes.push_back(mesh);
 }
 
-void Model::Draw(Shader &shader)
+void Model::Draw(Shader *shader) const
 {
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].Draw(shader);
+        GetMeshes()[i].Draw(shader);
     }
 }
 
@@ -150,14 +146,14 @@ void Model::loadSingleTexture(char *texturePath) {
     texture.path = texturePath;
     texturesLoaded.push_back(texture);
     for (unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].textures.push_back(texture);
+        meshes[i].getTextures().push_back(texture);
     }
 }
 
 void Model::loadSingleTexture(Texture *texture) {
     texturesLoaded.push_back(*texture);
     for (unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].textures.push_back(*texture);
+        meshes[i].getTextures().push_back(*texture);
     }
 }
 

@@ -9,19 +9,16 @@
 #include "src/shaders/shader.h"
 #include "src/fps/Fps.h"
 #include "src/models/Model.h"
-#include "src/models/ModelGenerator.h"
-#include "src/models/ModelRenderer.h"
+#include "src/models/EntityRenderer.h"
+#include "src/objects/Player.h"
+#include "src/objects/movers/RandomPlayerMover.h"
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
-#include "src/textures/TextureLoader.h"
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 GLFWwindow* createAndConfigureWindow();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-unsigned int loadTexture(char const* value);
-void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
 void processInput(GLFWwindow *window);
 void calculateDelta();
 
@@ -29,7 +26,7 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float lastX = 400, lastY = 300;
 bool firstMouse = false;
-Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int constexpr WIDTH = 800;
@@ -42,31 +39,35 @@ int main() {
         return -1;
     }
 
+    // Render instantiations
+    // ---------------------
     TextRenderer textRenderer(WIDTH, HEIGHT);
-    ModelRenderer modelRenderer(&camera);
-    TerrainRenderer terrainRenderer(&camera, &modelRenderer);
+    EntityRenderer entityRenderer(&camera);
+    TerrainRenderer terrainRenderer(&camera, &entityRenderer);
     Terrain terrain(
         "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
         "/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png"
     );
     Fps fps;
 
+    // Player related code
+    // -------------------
+    Model wolf("/Users/vladino/CLionProjects/mygame/resources/objects/animals/wolf2/Wolf_One_obj.obj");
+    Player player(
+        camera,
+        wolf,
+        glm::vec3(20.0f, 0.0f, -10.0f)
+    );
+    // TODO: Temp until we rotate player based on terrain angles
+    player.SetRotateX(1.0f);
+    RandomPlayerMover playerMover(player);
+
     glEnable(GL_DEPTH_TEST);
 
     // enabling this will draw only lines
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    Model backpack(
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    "/Users/vladino/CLionProjects/mygame/resources/objects/backpack/backpack.obj"
-    );
-    Model cube = ModelGenerator::generateCube(
-    glm::vec3(10.0f, 2.5f, 0.0f),
-    "/Users/vladino/CLionProjects/mygame/resources/images/container.jpg"
-    );
-
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     while (!glfwWindowShouldClose(window)) {
@@ -79,6 +80,7 @@ int main() {
         // input
         // -----
         processInput(window);
+        playerMover.move(deltaTime);
 
         // render
         // ------
@@ -86,15 +88,14 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         terrainRenderer.render(terrain);
-
-        modelRenderer.render(backpack);
-        modelRenderer.render(cube);
+        entityRenderer.render(&player);
 
         // textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
         // TODO: Muted until I find more efficient way to render text
         // textRenderer.RenderBlackText(fps.getFpsAsString(), 25.0f, 25.0f, 0.25f);
         // textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
         // std::cout << "camera x:" << camera.Position.x << " y:" << camera.Position.y << " z:" << camera.Position.z << std::endl;
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -106,31 +107,6 @@ int main() {
     glfwTerminate();
 
     return 0;
-}
-
-
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -173,23 +149,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow* window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 void calculateDelta() {

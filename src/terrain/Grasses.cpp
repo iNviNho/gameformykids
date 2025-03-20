@@ -14,12 +14,15 @@ void Grasses::prepare() {
         return;
     }
 
-    Model model = grasses.GetEntities()[0].GetModel();
+    const Model* model = grasses.GetEntities()[0].GetModel();
     glm::mat4 *modelMatrices;
     modelMatrices = new glm::mat4[entities.size()];
 
     for (int i = 0; i < entities.size(); i++) {
-        modelMatrices[i] = entities[i].GetModelMatrix();
+        // model matrix
+        auto localModel = glm::mat4(1.0f);
+        localModel = glm::translate(localModel, entities[i].GetPosition());
+        modelMatrices[i] = localModel;
     }
 
     unsigned int buffer;
@@ -27,9 +30,8 @@ void Grasses::prepare() {
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, entities.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
-    for (unsigned int i = 0; i < model.GetMeshes().size(); i++) {
-        model.GetMeshes()[i].bindVAO();
-        // vertex attributes
+    for (unsigned int i = 0; i < model->GetMeshes().size(); i++) {
+        model->GetMeshes()[i].bindVAO();
         std::size_t v4s = sizeof(glm::vec4);
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4*v4s, (void*)0);

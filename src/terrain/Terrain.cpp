@@ -51,10 +51,7 @@ void Terrain::generateVaoVbo() {
 
 void Terrain::generateGrasses() {
     std::cout << "Generating grasses" << std::endl;
-    Model grass = ModelGenerator::generateGrass(
-        glm::vec3(3.0f, 0.0f, 0.0f),
-        "/Users/vladino/CLionProjects/mygame/resources/objects/grass4/grass.png"
-    );
+    Model* grass = ModelGenerator::generateGrass("/Users/vladino/CLionProjects/mygame/resources/objects/grass4/grass.png");
 
     float density = 0.1;
     int perTileEntities = 10 * density;
@@ -82,13 +79,10 @@ void Terrain::generateGrasses() {
                 }
 
                 glm::vec3 position = glm::vec3(xpos, ypos, zpos);
-                glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-                modelMatrix = glm::translate( modelMatrix, position);
                 Entity entity(
-                    grass,
-                    position,
-                    modelMatrix
+                    *grass,
+                    position
                 );
                 entities.push_back(entity);
             }
@@ -148,6 +142,7 @@ void Terrain::generateTerrain() {
             // negate z because opengl is righthanded system
             // and we want to have terrain in front of us
             const auto floatZ = -static_cast<float>(z);
+
             dataPoints[vertexPointer * numberOfPointsPerLoop] = floatX; // a
             dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = getHeight(floatX, floatZ); // a
             dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = floatZ; // a

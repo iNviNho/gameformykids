@@ -59,8 +59,8 @@ add_executable(mygame main.cpp
         src/models/Mesh.h
         src/models/Model.cpp
         src/models/Model.h
-        src/models/ModelRenderer.cpp
-        src/models/ModelRenderer.h
+        src/models/EntityRenderer.cpp
+        src/models/EntityRenderer.h
         src/models/ModelGenerator.cpp
         src/models/ModelGenerator.h
         src/terrain/EntitiesHolder.h
@@ -68,6 +68,10 @@ add_executable(mygame main.cpp
         src/objects/Entity.h
         src/terrain/Grasses.cpp
         src/terrain/Grasses.h
+        src/objects/Player.cpp
+        src/objects/Player.h
+        src/objects/movers/RandomPlayerMover.cpp
+        src/objects/movers/RandomPlayerMover.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )

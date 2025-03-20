@@ -11,27 +11,19 @@
 class Model
 {
 public:
-    Model(glm::vec3 position, char *modelPath);
-    Model(glm::vec3 position, char *modelPath, char *texturePath);
-    Model(glm::vec3 position, char *modelPath, Texture *texture);
-    Model(glm::vec3 position, Mesh &mesh);
-    void Draw(Shader &shader);
-    void SetPosition(glm::vec3 position) {
-        this->position = position;
-    }
-    glm::vec3 GetPosition() {
-        return this->position;
-    }
-    std::vector<Mesh> GetMeshes() {
-        return this->meshes;
-    }
+    explicit Model(char *modelPath);
+    Model(char *modelPath, char *texturePath);
+    Model(char *modelPath, Texture *texture);
+    explicit Model(Mesh &mesh);
+
+    void Draw(Shader *shader) const;
+
+    const std::vector<Mesh> &GetMeshes() const { return this->meshes;}
 private:
-    // model data
     std::vector<Mesh> meshes;
-    std::string directory;
     std::vector<Texture> texturesLoaded;
-    // TODO: Abstract this to Object class that holds Model
-    glm::vec3 position;
+    std::string directory;
+
     void loadModel(std::string path);
     void processNode(aiNode *node, const aiScene *scene);
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);

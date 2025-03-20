@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "../textures/TextureLoader.h"
 
-Model ModelGenerator::generateCube(glm::vec3 position, char *texturePath) {
+Model* ModelGenerator::generateCube(char *texturePath) {
  // Vertices for a cube
  float vertices[] = {
   // positions          // normals           // texture coords
@@ -82,10 +82,10 @@ Model ModelGenerator::generateCube(glm::vec3 position, char *texturePath) {
 
    Mesh mesh(vectorVertices, vectorIndices, vectorTextures);
 
-   return Model{position, mesh};
+   return new Model(mesh);
 }
 
-Model ModelGenerator::generateGrass(glm::vec3 position, char *texturePath) {
+Model* ModelGenerator::generateGrass(char *texturePath) {
  float vertices[] = {
   // positions          // normals           // texture coords
   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
@@ -123,5 +123,5 @@ Model ModelGenerator::generateGrass(glm::vec3 position, char *texturePath) {
 
  Mesh mesh(vectorVertices, vectorIndices, vectorTextures);
 
- return Model{position, mesh};
+ return new Model(mesh);
 }
