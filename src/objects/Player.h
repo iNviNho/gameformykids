@@ -9,8 +9,6 @@
 class Player: public Entity {
     using Entity::Entity;
 private:
-    const static glm::vec3 CAMERA_OFFSET;
-
     Camera &camera;
     void updateCameraPosition();
     void UpdateCameraPitch();

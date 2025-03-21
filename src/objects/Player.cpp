@@ -2,15 +2,12 @@
 
 #include "Player.h"
 
-// TODO: x, z must be the same for some reason
-// This must be rewritten so that camera offset is defined by
-// - distance from palyer
-// - height of camera
-const glm::vec3 Player::CAMERA_OFFSET = glm::vec3(7.0f, 3.0f, 7.0f);
+constexpr float cameraDistance = 7.0f;
+constexpr float cameraHeight = 3.0f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
 void Player::updateCameraPosition() {
-    glm::vec3 newPosition = glm::vec3(0.0f);
+    auto newPosition = glm::vec3(0.0f);
 
     // Get the player's rotation angle in radians
     double radians = GetRotationYAngle() * (M_PI / 180.0);
@@ -19,20 +16,20 @@ void Player::updateCameraPosition() {
     // In right triangle sin(angle) = opposite / hypotenuse
     // In this case the hypotenuse is the camera offset x
     // and the opposite is the x position we are trying to find
-    float xMove = sin(radians) * CAMERA_OFFSET.x;
+    float xMove = sin(radians) * cameraDistance;
     newPosition.x = GetPosition().x - xMove;
 
     // Calculate the new z position based on the player's rotation
     // In right triangle cos(angle) = adjacent / hypotenuse
     // In this case the hypotenuse is the camera offset z
     // and the adjacent is the z position we are trying to find
-    float zMove = cos(radians) * CAMERA_OFFSET.z;
+    float zMove = cos(radians) * cameraDistance;
     newPosition.z = GetPosition().z - zMove;
 
     // Set the new y position based on the camera offset
     // TODO: This is a temporary solution to keep the camera above the terrain
     // Implement based on user y position & gravity
-    newPosition.y = CAMERA_OFFSET.y;
+    newPosition.y = cameraHeight;
 
     // Update the camera's position
     camera.UpdatePosition(newPosition);
@@ -40,10 +37,10 @@ void Player::updateCameraPosition() {
 
 void Player::UpdateCameraPitch() {
     float hypotenus = sqrt(
-        pow(CAMERA_OFFSET.x, 2) +
-        pow(CAMERA_OFFSET.y, 2)
+        pow(cameraDistance, 2) +
+        pow(cameraHeight, 2)
     );
-    float cosine = CAMERA_OFFSET.x / hypotenus;
+    float cosine = cameraDistance / hypotenus;
     float angleInRadians = std::acos(cosine);
     float angleInDegrees = angleInRadians * (180.0 / M_PI);
     camera.UpdatePitch(angleInDegrees * -1.0f);
