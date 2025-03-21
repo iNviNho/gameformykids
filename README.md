@@ -21,6 +21,8 @@ features, you can check the related commit that is attached with uploaded screen
 - Terrain generation based on blendMap [X]
 - Random grass placement on the terrain based on blendMa [X]
 - Camera following the player [X]
+- Terrain face culling [X]
+- Terrain EBO rendering [ ]
 - Player's terrain collision detection [ ]
 - Player's jump [ ]
 - Player's path following [ ]

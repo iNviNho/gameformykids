@@ -33,14 +33,14 @@ void TerrainRenderer::render(Terrain& terrain) {
     shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     shader->setVec3("light.position", glm::vec3(40.0f, 5.0f, -10.0f));
 
-    //enable culling
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
+    // enable culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     glBindVertexArray(terrain.GetVAO());
     glDrawArrays(GL_TRIANGLES, 0, terrain.GetCountOfVertices());
 
-    // glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
 
     // render grasses
     entityRenderer->renderBatch(terrain.GetGrasses().GetEntities());

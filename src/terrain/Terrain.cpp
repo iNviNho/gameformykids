@@ -131,6 +131,15 @@ void Terrain::parseBlendMap(char const *blendMap) {
     this->blendMap = new Image(blendMap);
 }
 
+// TODO: Implement
+const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPositionZ) const {
+    // we are going to find out in which square we are
+    // and then we are going to find out in which triangle we are
+    // and then we are going to calculate height of terrain
+    // based on that triangle
+    return 0.0f;
+}
+
 void Terrain::generateTerrain() {
     int vertexPointer = 0;
     int numberOfPointsPerLoop = 2 * 3 * 8;
@@ -143,77 +152,91 @@ void Terrain::generateTerrain() {
             // and we want to have terrain in front of us
             const auto floatZ = -static_cast<float>(z);
 
-            dataPoints[vertexPointer * numberOfPointsPerLoop] = floatX; // a
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = getHeight(floatX, floatZ); // a
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = floatZ; // a
+            // a is bottom left
+            glm::vec3 a = glm::vec3(floatX, getHeight(floatX, floatZ), floatZ);
+            // b is bottom right
+            glm::vec3 b = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ), floatZ);
+            // c is top right
+            glm::vec3 c = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ - 1.0f), floatZ - 1.0f);
+            // d is top left
+            glm::vec3 d = glm::vec3(floatX, getHeight(floatX, floatZ - 1.0f), floatZ - 1.0f);
+
+            // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+            // C,A,B
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop] = c.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = c.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = c.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 0.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 4] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 4] = 1.0f;
             // normals
             normal = calculateNormal(floatX, floatZ);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 5] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 6] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 7] = normal.z;
 
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 8] = floatX + 1.0f; // b
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 9] = getHeight(floatX + 1.0f, floatZ); // b
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 10] = floatZ;
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 8] = a.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 9] = a.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 10] = a.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 11] = 0.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 12] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 11] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 12] = 0.0f;
             // normals
             normal = calculateNormal(floatX + 1.0f, floatZ);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 13] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 14] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 15] = normal.z;
 
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 16] = floatX + 1.0f; // c
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 17] = getHeight(floatX + 1.0f, floatZ - 1.0f);
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 18] = floatZ - 1.0f;
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 16] = b.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 17] = b.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 18] = b.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 19] = 1.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 20] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 19] = 1.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 20] = 0.0f;
             // normals
             normal = calculateNormal(floatX + 1.0f, floatZ - 1.0f);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 21] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 22] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 23] = normal.z;
 
-            glm::vec3 a = glm::vec3(floatX, getHeight(floatX, floatZ), floatZ);
-            glm::vec3 b = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ), floatZ);
-            glm::vec3 c = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ - 1.0f), floatZ - 1.0f);
-
-            // second triangle
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 24] = floatX; // a
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 25] = getHeight(floatX, floatZ - 1.0f); // a
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 26] = floatZ - 1.0f; // a
+            // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+            // C,D,A
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 24] = c.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 25] = c.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 26] = c.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 27] = 1.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 28] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 27] = 1.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 28] = 1.0f;
             // normals
             normal = calculateNormal(floatX, floatZ - 1.0f);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 29] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 30] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 31] = normal.z;
 
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 32] = floatX + 1.0f; // c
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 33] = getHeight(floatX + 1.0f, floatZ - 1.0f);
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 34] = floatZ - 1.0f;
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 32] = d.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 33] = d.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 34] = d.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 35] = 1.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 36] = 0.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 35] = 1.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 36] = 0.0f;
             // normals
             normal = calculateNormal(floatX + 1.0f, floatZ - 1.0f);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 37] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 38] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 39] = normal.z;
 
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 40] = floatX; // d
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 41] = getHeight(floatX, floatZ);
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 42] = floatZ;
+            // vertices
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 40] = a.x;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 41] = a.y;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 42] = a.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 43] = 0.0f; // b]
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 44] = 1.0f; // b]
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 43] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 44] = 1.0f;
             // normals
             normal = calculateNormal(floatX, floatZ);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 45] = normal.x;
@@ -253,6 +276,8 @@ void Terrain::activateTextures(Shader* shader) {
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->GetBlendMapTexture());
 }
+
+
 
 const float Terrain::GetCountOfVertices() const {
     return SIZE * SIZE * 6;

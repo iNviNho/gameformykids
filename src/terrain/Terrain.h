@@ -49,6 +49,8 @@ public:
     [[nodiscard]] float GetSize() const { return SIZE; }
     [[nodiscard]] const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader* shader);
+
+    const float GetHeightOfTerrain(float x, float z) const;
 };
 
 

@@ -36,6 +36,7 @@ void Player::updateCameraPosition() {
 }
 
 void Player::UpdateCameraPitch() {
+    // TODO: It ignores players height
     float hypotenus = sqrt(
         pow(cameraDistance, 2) +
         pow(cameraHeight, 2)
@@ -51,10 +52,13 @@ void Player::UpdateCameraYaw() {
 }
 
 void Player::Move(glm::vec3 pos) {
+    // update y position based on terrain height
+    pos.y = terrain.GetHeightOfTerrain(pos.x, pos.z) - GetPosition().y;
     // we first move entity
     Entity::Move(pos);
     // then we offset camera
     updateCameraPosition();
+    UpdateCameraPitch();
 }
 
 void Player::SetRotateY(float angle) {

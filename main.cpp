@@ -55,6 +55,7 @@ int main() {
     Model wolf("/Users/vladino/CLionProjects/mygame/resources/objects/animals/wolf2/Wolf_One_obj.obj");
     Player player(
         camera,
+        terrain,
         wolf,
         glm::vec3(20.0f, 0.0f, -10.0f)
     );
