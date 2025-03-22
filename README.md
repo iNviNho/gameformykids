@@ -18,14 +18,17 @@ features, you can check the related commit that is attached with uploaded screen
 
 # Game features
 
+- Model loading using assimp library [X]
 - Terrain generation based on blendMap [X]
-- Random grass placement on the terrain based on blendMa [X]
-- Camera following the player [X]
+- Terrain height generation based on heightMap [X]
+- Random grass placement on the terrain based on blendMap [X]
+- Random player movement [X]
+- Camera following the player. Camera rotates based on player rotation. [X]
 - Terrain face culling [X]
 - Terrain EBO rendering [ ]
 - Player's terrain collision detection [ ]
 - Player's jump [ ]
-- Player's path following [ ]
+- Player's path following with start & end[ ]
 - Player's animation [ ]
 - Day Skybox [ ] 
 - Night Skybox [ ]
