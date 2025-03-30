@@ -27,6 +27,8 @@ private:
     Model* model;
     glm::vec3 position;
     glm::vec3 rotation;
+
+    void updateRotation(glm::vec3 dir);
 };
 
 

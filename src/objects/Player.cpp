@@ -35,11 +35,10 @@ void Player::updateCameraPosition() {
     camera.UpdatePosition(newPosition);
 }
 
-void Player::UpdateCameraPitch() {
-    // TODO: It ignores players height
+void Player::updateCameraPitch() {
     float hypotenus = sqrt(
         pow(cameraDistance, 2) +
-        pow(cameraHeight, 2)
+        pow(cameraHeight - GetPosition().y, 2)
     );
     float cosine = cameraDistance / hypotenus;
     float angleInRadians = std::acos(cosine);
@@ -47,30 +46,31 @@ void Player::UpdateCameraPitch() {
     camera.UpdatePitch(angleInDegrees * -1.0f);
 }
 
-void Player::UpdateCameraYaw() {
+void Player::updateCameraYaw() {
     camera.UpdateYaw(-90.0f - (GetRotationYAngle() - 180.0f));
 }
 
 void Player::Move(glm::vec3 pos) {
     // update y position based on terrain height
-    pos.y = terrain.GetHeightOfTerrain(pos.x, pos.z) - GetPosition().y;
+    pos.y = terrain.GetHeightOfTerrain(GetPosition().x, GetPosition().z) - GetPosition().y;
     // we first move entity
     Entity::Move(pos);
     // then we offset camera
     updateCameraPosition();
-    UpdateCameraPitch();
+    updateCameraPitch();
+    updateCameraYaw();
 }
 
 void Player::SetRotateY(float angle) {
     // we first rotate entity
     Entity::SetRotateY(angle);
     // then we update camera yaw
-    UpdateCameraYaw();
+    updateCameraYaw();
 }
 
 void Player::SetRotateX(float angle) {
     // we first rotate entity
     Entity::SetRotateX(angle);
     // then we update camera pitch
-    UpdateCameraPitch();
+    updateCameraPitch();
 }

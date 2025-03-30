@@ -57,10 +57,8 @@ int main() {
         camera,
         terrain,
         wolf,
-        glm::vec3(20.0f, 0.0f, -10.0f)
+        glm::vec3(15.0f, 0.0f, -15.0f)
     );
-    // TODO: Temp until we rotate player based on terrain angles
-    player.SetRotateX(1.0f);
     RandomPlayerMover playerMover(player);
 
     glEnable(GL_DEPTH_TEST);

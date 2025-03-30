@@ -13,11 +13,14 @@ private:
     Camera &camera;
     Terrain &terrain;
     void updateCameraPosition();
-    void UpdateCameraPitch();
-    void UpdateCameraYaw();
+    void updateCameraPitch();
+    void updateCameraYaw();
 public:
     Player(Camera &camera, Terrain &terrain, Model &model, glm::vec3 position):
-        Entity(model, position), terrain(terrain), camera(camera) {}
+        Entity(model, position), terrain(terrain), camera(camera) {
+        updateCameraPitch();
+        updateCameraYaw();
+    }
     void Move(glm::vec3 pos);
     void SetRotateY(float angle);
     void SetRotateX(float angle);

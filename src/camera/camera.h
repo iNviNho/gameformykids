@@ -89,11 +89,17 @@ public:
     }
 
     void UpdateYaw(float yaw) {
+        if (Yaw == yaw) {
+            return;
+        }
         Yaw = yaw;
         updateCameraVectors();
     }
 
     void UpdatePitch(float pitch) {
+        if (Pitch == pitch) {
+            return;
+        }
         Pitch = pitch;
         updateCameraVectors();
     }
