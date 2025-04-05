@@ -3,7 +3,7 @@
 #include "Player.h"
 
 constexpr float cameraDistance = 7.0f;
-constexpr float cameraHeight = 3.0f;
+constexpr float cameraHeight = 2.5f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
 void Player::updateCameraPosition() {
@@ -26,10 +26,7 @@ void Player::updateCameraPosition() {
     float zMove = cos(radians) * cameraDistance;
     newPosition.z = GetPosition().z - zMove;
 
-    // Set the new y position based on the camera offset
-    // TODO: This is a temporary solution to keep the camera above the terrain
-    // Implement based on user y position & gravity
-    newPosition.y = cameraHeight;
+    newPosition.y = cameraHeight + GetPosition().y;
 
     // Update the camera's position
     camera.UpdatePosition(newPosition);
@@ -38,7 +35,7 @@ void Player::updateCameraPosition() {
 void Player::updateCameraPitch() {
     float hypotenus = sqrt(
         pow(cameraDistance, 2) +
-        pow(cameraHeight - GetPosition().y, 2)
+        pow(cameraHeight, 2)
     );
     float cosine = cameraDistance / hypotenus;
     float angleInRadians = std::acos(cosine);
@@ -47,7 +44,11 @@ void Player::updateCameraPitch() {
 }
 
 void Player::updateCameraYaw() {
-    camera.UpdateYaw(-90.0f - (GetRotationYAngle() - 180.0f));
+    double yaw = -GetRotationYAngle() + 90.0f;
+    if (yaw < 0) {
+        yaw += 360.0;
+    }
+    camera.UpdateYaw(yaw);
 }
 
 void Player::Move(glm::vec3 pos) {
@@ -59,18 +60,4 @@ void Player::Move(glm::vec3 pos) {
     updateCameraPosition();
     updateCameraPitch();
     updateCameraYaw();
-}
-
-void Player::SetRotateY(float angle) {
-    // we first rotate entity
-    Entity::SetRotateY(angle);
-    // then we update camera yaw
-    updateCameraYaw();
-}
-
-void Player::SetRotateX(float angle) {
-    // we first rotate entity
-    Entity::SetRotateX(angle);
-    // then we update camera pitch
-    updateCameraPitch();
 }

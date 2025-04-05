@@ -57,7 +57,7 @@ int main() {
         camera,
         terrain,
         wolf,
-        glm::vec3(15.0f, 0.0f, -15.0f)
+        glm::vec3(50.0f, 0.0f, -50.0f)
     );
     RandomPlayerMover playerMover(player);
 
@@ -80,6 +80,7 @@ int main() {
         // -----
         processInput(window);
         playerMover.move(deltaTime);
+        camera.tick(deltaTime);
 
         // render
         // ------

@@ -14,5 +14,12 @@ void Entity::Move(glm::vec3 position) {
 }
 
 void Entity::updateRotation(glm::vec3 dir) {
-    SetRotateY(atan2(dir.x, dir.z) * (180.0 / M_PI));
+    // since we know the length of adjacent and opposite sides of the triangle
+    // we can use inverse of tan (arctan) to get the angle
+    double angle = atan2(dir.x, dir.z) * (180.0 / M_PI);
+    // we don't want to work with negative angles
+    if (angle < 0) {
+        angle += 360.0;
+    }
+    SetRotateY(angle);
 }

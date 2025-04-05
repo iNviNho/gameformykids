@@ -2,7 +2,7 @@
 
 #include "RandomPlayerMover.h"
 
-const float MOVEMENT_SPEED = 3.15f;
+const float MOVEMENT_SPEED = 6.55f;
 int iterations = 0;
 int lastRandom = 0;
 int maxIterations = 500;
@@ -14,25 +14,29 @@ void RandomPlayerMover::move(float deltaTime) {
     int random;
 
     if (iterations == 0) {
-        // random rotation between 170 and 190 degrees
-        float rotation = 170.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(190.0f-170.0f)));
-        random = rand() % 2;
+        random = rand() % 4;
         lastRandom = random;
     } else if (iterations != maxIterations) {
         random = lastRandom;
     } else {
         iterations = -1;
-        random = rand() % 2;
+        random = rand() % 4;
         lastRandom = random;
     }
 
     switch (random) {
         case 0:
-            position = glm::vec3(0.4f, 0.0f, -1.0f);
+            position = glm::vec3(0.3f, 0.0f, -0.3f);
             break;
         case 1:
-            position = glm::vec3(-0.4f, 0.0f, -1.0f);
+            position = glm::vec3(0.5f, 0.0f, -0.1f);
             break;
+        case 2:
+            position = glm::vec3(0.4f, 0.0f, -0.2f);
+        break;
+        case 3:
+            position = glm::vec3(0.1f, 0.0f, -0.5f);
+        break;
     }
     player.Move(position * velocity);
     iterations++;

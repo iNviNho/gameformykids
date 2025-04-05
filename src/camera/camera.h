@@ -28,12 +28,14 @@ class Camera
 public:
     // camera Attributes
     glm::vec3 Position;
+    glm::vec3 TargetPosition;
     glm::vec3 Front;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
     // euler Angles
     float Yaw;
+    float TargetYaw;
     float Pitch;
     // camera options
     float MovementSpeed;
@@ -41,20 +43,18 @@ public:
     float Zoom;
 
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(
+        glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+        float yaw = YAW,
+        float pitch = PITCH
+    ) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         Position = position;
+        TargetPosition = position;
         WorldUp = up;
         Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
-    // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
-        Position = glm::vec3(posX, posY, posZ);
-        WorldUp = glm::vec3(upX, upY, upZ);
-        Yaw = yaw;
+        TargetYaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
     }
@@ -84,16 +84,30 @@ public:
     //         Position -= Up * velocity;
     // }
 
+    void tick(float deltaTime) {
+        // we will move the camera towards the target position with a small velocity
+        glm::vec3 positionDiff = TargetPosition - Position;
+        Position += positionDiff * deltaTime;
+
+        float yawDiff = TargetYaw - Yaw;
+        Yaw += yawDiff * deltaTime;
+
+        // TODO: Only update once position or yaw diff is so small it doesn't make sense to continue
+        updateCameraVectors();
+    }
+
     void UpdatePosition(glm::vec3 position) {
-        Position = position;
+        if (position == TargetPosition) {
+            return;
+        }
+        TargetPosition = position;
     }
 
     void UpdateYaw(float yaw) {
-        if (Yaw == yaw) {
+        if (yaw == TargetYaw) {
             return;
         }
-        Yaw = yaw;
-        updateCameraVectors();
+        TargetYaw = yaw;
     }
 
     void UpdatePitch(float pitch) {
