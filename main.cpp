@@ -12,6 +12,7 @@
 #include "src/models/EntityRenderer.h"
 #include "src/objects/Player.h"
 #include "src/objects/movers/RandomPlayerMover.h"
+#include "src/skybox/SkyboxRenderer.h"
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
@@ -44,6 +45,8 @@ int main() {
     TextRenderer textRenderer(WIDTH, HEIGHT);
     EntityRenderer entityRenderer(&camera);
     TerrainRenderer terrainRenderer(&camera, &entityRenderer);
+    SkyboxRenderer skyboxRenderer(camera);
+    Skybox skybox("cloudy");
     Terrain terrain(
         "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
         "/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png"
@@ -87,6 +90,7 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        skyboxRenderer.render(skybox);
         terrainRenderer.render(terrain);
         entityRenderer.render(&player);
 
