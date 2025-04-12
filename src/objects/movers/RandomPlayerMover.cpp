@@ -2,7 +2,7 @@
 
 #include "RandomPlayerMover.h"
 
-const float MOVEMENT_SPEED = 6.55f;
+const float MOVEMENT_SPEED = 5.55f;
 int iterations = 0;
 int lastRandom = 0;
 int maxIterations = 500;

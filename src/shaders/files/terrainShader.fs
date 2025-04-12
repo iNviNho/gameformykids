@@ -24,7 +24,7 @@ uniform Light light;
 
 void main()
 {
-    vec2 coord = vec2(aPosPass.x / terrainSize, aPosPass.z / terrainSize);
+    vec2 coord = vec2(aPosPass.x / terrainSize, -aPosPass.z / terrainSize);
     vec3 blendMapColour = texture(blendMap, coord).rgb;
     vec3 mudColor = texture(mud, TexCoord).rgb * blendMapColour.r;
     vec3 flowersColor = texture(flowers, TexCoord).rgb * blendMapColour.g;

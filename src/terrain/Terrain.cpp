@@ -10,6 +10,7 @@
 #include "../models/ModelGenerator.h"
 #include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
+#include <glm/glm.hpp>
 
 Terrain::Terrain(char const* heightMap, char const* blendMap)
     : grasses(EntitiesHolder(std::vector<Entity>())) {
@@ -28,7 +29,7 @@ void Terrain::generateTextures() {
     this->pathTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/path.png");
     this->mudTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/mud.png");
     this->flowersTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/grassFlowers.png");
-    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png");
+    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap2.png");
 }
 
 
@@ -94,7 +95,7 @@ void Terrain::generateGrasses() {
     std::cout << entities.size() << std::endl;
 }
 
-float Terrain::getHeight(float x, float z) {
+const float Terrain::getHeight(float x, float z) const {
     // negate z because opengl is righthanded system
     // and z is negative when we generate terrain in from of us
     z = -z;
@@ -131,13 +132,48 @@ void Terrain::parseBlendMap(char const *blendMap) {
     this->blendMap = new Image(blendMap);
 }
 
-// TODO: Implement
+
+float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) {
+    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    if (det == 0.0f) {
+        // Handle the degenerate case (e.g., return a default value or throw an error)
+        return 0.0f; // Default value
+    }
+    float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    float l3 = 1.0f - l1 - l2;
+    return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+}
+
 const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPositionZ) const {
     // we are going to find out in which square we are
     // and then we are going to find out in which triangle we are
     // and then we are going to calculate height of terrain
     // based on that triangle
-    return 0.0f;
+    int playerPositionXInt = static_cast<int>(playerPositionX);
+    int playerPositionZInt = static_cast<int>(playerPositionZ);
+    // now we need to recreate 4 vertices a,b,c,d the same way like we created them
+    // in generateTerrain() method
+    auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
+    auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1.0f, playerPositionZInt), playerPositionZInt);
+    auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1.0f, playerPositionZInt - 1.0f), playerPositionZInt - 1.0f);
+    auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1.0f), playerPositionZInt - 1.0f);
+
+    float playerPositionXIntNormalized = playerPositionX - playerPositionXInt;
+    float playerPositionZIntNormalized = abs(playerPositionZ - playerPositionZInt);
+
+    if (playerPositionXIntNormalized < 1 - playerPositionZIntNormalized) {
+        // we are in the first triangle (C,A,B)
+        return barryCentric(
+            c, a, b,
+            glm::vec2(playerPositionX, playerPositionZ)
+        );
+    }
+    // we are in the second triangle (C,D,A)
+    return barryCentric(
+        c, d, a,
+        glm::vec2(playerPositionX, playerPositionZ)
+    );
 }
 
 void Terrain::generateTerrain() {
@@ -168,10 +204,10 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 1] = c.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 2] = c.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 3] = 1.0f;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 4] = 1.0f;
             // normals
-            normal = calculateNormal(floatX, floatZ);
+            normal = calculateNormal(c.x, c.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 5] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 6] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 7] = normal.z;
@@ -184,7 +220,7 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 11] = 0.0f;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 12] = 0.0f;
             // normals
-            normal = calculateNormal(floatX + 1.0f, floatZ);
+            normal = calculateNormal(a.x, a.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 13] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 14] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 15] = normal.z;
@@ -197,7 +233,7 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 19] = 1.0f;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 20] = 0.0f;
             // normals
-            normal = calculateNormal(floatX + 1.0f, floatZ - 1.0f);
+            normal = calculateNormal(b.x, b.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 21] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 22] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 23] = normal.z;
@@ -212,7 +248,7 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 27] = 1.0f;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 28] = 1.0f;
             // normals
-            normal = calculateNormal(floatX, floatZ - 1.0f);
+            normal = calculateNormal(c.x, c.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 29] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 30] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 31] = normal.z;
@@ -222,10 +258,10 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 33] = d.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 34] = d.z;
             // tex coord
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 35] = 1.0f;
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 36] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 35] = 0.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 36] = 1.0f;
             // normals
-            normal = calculateNormal(floatX + 1.0f, floatZ - 1.0f);
+            normal = calculateNormal(d.x, d.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 37] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 38] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 39] = normal.z;
@@ -236,9 +272,9 @@ void Terrain::generateTerrain() {
             dataPoints[vertexPointer * numberOfPointsPerLoop + 42] = a.z;
             // tex coord
             dataPoints[vertexPointer * numberOfPointsPerLoop + 43] = 0.0f;
-            dataPoints[vertexPointer * numberOfPointsPerLoop + 44] = 1.0f;
+            dataPoints[vertexPointer * numberOfPointsPerLoop + 44] = 0.0f;
             // normals
-            normal = calculateNormal(floatX, floatZ);
+            normal = calculateNormal(a.x, a.z);
             dataPoints[vertexPointer * numberOfPointsPerLoop + 45] = normal.x;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 46] = normal.y;
             dataPoints[vertexPointer * numberOfPointsPerLoop + 47] = normal.z;

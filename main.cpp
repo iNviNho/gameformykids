@@ -10,6 +10,7 @@
 #include "src/fps/Fps.h"
 #include "src/models/Model.h"
 #include "src/models/EntityRenderer.h"
+#include "src/models/ModelGenerator.h"
 #include "src/objects/Player.h"
 #include "src/objects/movers/RandomPlayerMover.h"
 #include "src/skybox/SkyboxRenderer.h"
@@ -49,7 +50,7 @@ int main() {
     Skybox skybox("cloudy");
     Terrain terrain(
         "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
-        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap.png"
+        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap2.png"
     );
     Fps fps;
 
@@ -60,7 +61,7 @@ int main() {
         camera,
         terrain,
         wolf,
-        glm::vec3(50.0f, 0.0f, -50.0f)
+        glm::vec3(40.0f, 0.0f, -20.0f)
     );
     RandomPlayerMover playerMover(player);
 

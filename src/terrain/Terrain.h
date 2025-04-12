@@ -10,7 +10,7 @@ class Terrain
 {
 private:
     static constexpr int SIZE = 256;
-    static constexpr float MAX_HEIGHT = 20.0f;
+    static constexpr float MAX_HEIGHT = 30.0f;
 
     float* dataPoints;
     unsigned int VAO, VBO;
@@ -28,7 +28,7 @@ private:
     void generateVaoVbo();
 
     void generateTerrain();
-    float getHeight(float x, float z);
+    const float getHeight(float x, float z) const;
     glm::vec3 calculateNormal(float x, float z);
 
     Grasses grasses;
