@@ -80,6 +80,8 @@ add_executable(mygame main.cpp
         src/pathing/Path.h
         src/objects/movers/PathPlayerMover.cpp
         src/objects/movers/PathPlayerMover.h
+        src/utils/Log.h
+        src/utils/Log.cpp
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )

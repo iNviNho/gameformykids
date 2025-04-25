@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stb_image.h>
 
+#include "../utils/Log.h"
+
 Image::Image(char const* path) {
     data = stbi_load(path, &width, &height, &nrChannels, 0);
     if (!data) {
@@ -23,6 +25,7 @@ float Image::getGrayscaleValue(int x, int y) const {
 
 bool Image::isBlackColor(int x, int y) const {
     if (x < 0 || y < 0 || x >= width || y >= height) {
+        Log::logWarning("Out of bounds access in isBlackColor");
         return false;
     }
     int index = (y * width + x) * nrChannels;

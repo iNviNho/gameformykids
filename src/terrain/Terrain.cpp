@@ -59,6 +59,7 @@ void Terrain::generateGrasses() {
 
     // ❤️❤️❤️❤️❤️❤️❤️❤️
     std::vector<Entity> entities;
+    int imageRatio = blendMap->getWidth() / SIZE;
     for (int x = 0; x < SIZE; x++) {
         for (int z = 0; z < SIZE; z++) {
             for (int p = 0; p < perTileEntities; p++) {
@@ -69,12 +70,9 @@ void Terrain::generateGrasses() {
                 float zpos = -(z + anyZ);
                 float ypos = getHeight(xpos, zpos) + 0.35f;
 
-                // 1024 / 64 = 16
-                // so image is 16x bigger than terrain
-                int imageRatio = blendMap->getWidth() / SIZE;
                 int xPosRatio = xpos * imageRatio;
-                int zPosRatio = zpos * imageRatio;
-                if (!blendMap->isBlackColor(xPosRatio, -zPosRatio)) {
+                int zPosRatio = blendMap->getHeight() - (zpos * imageRatio * -1);
+                if (!blendMap->isBlackColor(xPosRatio, zPosRatio)) {
                     continue;
                 }
 

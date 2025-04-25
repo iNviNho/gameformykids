@@ -35,7 +35,6 @@ void Path::generatePath(glm::vec3 startPosition, const char* blendMap, int terra
             if (blendMapImage.isRedColor(blendMapImageXpos, blendMapImageZpos)) {
                 latestPoint = glm::vec3(xPositionOnTheTerrain, 0.0f, zPositionOnTheTerrain);
                 path.push_back(latestPoint);
-                std::cout << "Pushing latestPoint.x : " << latestPoint.x << " latestPoint.z: " << latestPoint.z << std::endl;
                 break;
             }
         }
