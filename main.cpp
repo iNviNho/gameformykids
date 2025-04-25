@@ -10,9 +10,8 @@
 #include "src/fps/Fps.h"
 #include "src/models/Model.h"
 #include "src/models/EntityRenderer.h"
-#include "src/models/ModelGenerator.h"
 #include "src/objects/Player.h"
-#include "src/objects/movers/RandomPlayerMover.h"
+#include "src/objects/movers/PathPlayerMover.h"
 #include "src/skybox/SkyboxRenderer.h"
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
@@ -50,7 +49,7 @@ int main() {
     Skybox skybox("cloudy");
     Terrain terrain(
         "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
-        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap2.png"
+        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png"
     );
     Fps fps;
 
@@ -61,9 +60,9 @@ int main() {
         camera,
         terrain,
         wolf,
-        glm::vec3(40.0f, 0.0f, -20.0f)
+        glm::vec3(32.5f, 0.0f, -26.0f)
     );
-    RandomPlayerMover playerMover(player);
+    PathPlayerMover playerMover(player, terrain.GetSize());
 
     glEnable(GL_DEPTH_TEST);
 

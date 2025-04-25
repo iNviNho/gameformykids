@@ -76,6 +76,10 @@ add_executable(mygame main.cpp
         src/skybox/Skybox.h
         src/skybox/SkyboxRenderer.cpp
         src/skybox/SkyboxRenderer.h
+        src/pathing/Path.cpp
+        src/pathing/Path.h
+        src/objects/movers/PathPlayerMover.cpp
+        src/objects/movers/PathPlayerMover.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )

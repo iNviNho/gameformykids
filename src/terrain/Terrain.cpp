@@ -14,7 +14,6 @@
 
 Terrain::Terrain(char const* heightMap, char const* blendMap)
     : grasses(EntitiesHolder(std::vector<Entity>())) {
-    std::cout << "here" << std::endl;
     dataPoints = new float[SIZE * SIZE * 30];
     parseHeightMap(heightMap);
     parseBlendMap(blendMap);
@@ -29,7 +28,7 @@ void Terrain::generateTextures() {
     this->pathTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/path.png");
     this->mudTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/mud.png");
     this->flowersTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/grassFlowers.png");
-    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap2.png");
+    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png");
 }
 
 
@@ -58,7 +57,7 @@ void Terrain::generateGrasses() {
     int perTileEntities = 10 * density;
     // random float between 0 and 1
 
-    // ❤️❤️❤️❤️❤️❤️❤️
+    // ❤️❤️❤️❤️❤️❤️❤️❤️
     std::vector<Entity> entities;
     for (int x = 0; x < SIZE; x++) {
         for (int z = 0; z < SIZE; z++) {

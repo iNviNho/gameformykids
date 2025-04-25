@@ -46,7 +46,7 @@ public:
     [[nodiscard]] unsigned int GetMudTexture() const { return mudTexture; }
     [[nodiscard]] unsigned int GetFlowersTexture() const { return flowersTexture; }
     [[nodiscard]] unsigned int GetBlendMapTexture() const { return blendMapTexture; }
-    [[nodiscard]] float GetSize() const { return SIZE; }
+    [[nodiscard]] int GetSize() { return SIZE; }
     [[nodiscard]] const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader* shader);
 

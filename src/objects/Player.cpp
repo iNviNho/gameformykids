@@ -2,8 +2,8 @@
 
 #include "Player.h"
 
-constexpr float cameraDistance = 7.0f;
-constexpr float cameraHeight = 2.5f;
+constexpr float cameraDistance = 12.0f;
+constexpr float cameraHeight = 6.5f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
 void Player::updateCameraPosition() {
@@ -60,4 +60,13 @@ void Player::Move(glm::vec3 pos) {
     updateCameraPosition();
     updateCameraPitch();
     updateCameraYaw();
+}
+
+void Player::Move(glm::vec3 dir, float distance) {
+    float dirLengthSquared = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+    if (dirLengthSquared > 0.0001f) { // Avoid division by zero or moving in zero direction
+        glm::vec3 normalizedDir = glm::normalize(dir);
+
+        Move(normalizedDir * distance);
+    }
 }

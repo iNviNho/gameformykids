@@ -22,6 +22,7 @@ public:
         updateCameraYaw();
     }
     void Move(glm::vec3 pos);
+    void Move(glm::vec3 dir, float distance);
     void SetRotateY(float angle);
     void SetRotateX(float angle);
 };
