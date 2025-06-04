@@ -10,7 +10,7 @@ float distance = 2.5;
 int raysPerIteration = 180;
 int seeks = 300;
 
-void Path::generatePath(glm::vec3 startPosition, const char* blendMap, int terrainSize) {
+void Path::generatePath(glm::vec3 startPosition, const std::filesystem::path& blendMap, int terrainSize) {
     path = {
         startPosition
     };

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -16,6 +17,8 @@
 #include "src/terrain/Terrain.h"
 #include "src/terrain/TerrainRenderer.h"
 #include "src/text/TextRenderer.h"
+
+using path = std::filesystem::path;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 GLFWwindow* createAndConfigureWindow();
@@ -48,14 +51,14 @@ int main() {
     SkyboxRenderer skyboxRenderer(camera);
     Skybox skybox("cloudy");
     Terrain terrain(
-        "/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png",
-        "/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png"
+        path("/Users/vladino/CLionProjects/mygame/resources/images/heightmaps/heightmap.png"),
+        path("/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png")
     );
     Fps fps;
 
     // Player related code
     // -------------------
-    Model wolf("/Users/vladino/CLionProjects/mygame/resources/objects/animals/wolf2/Wolf_One_obj.obj");
+    Model wolf(path("/Users/vladino/CLionProjects/mygame/resources/objects/animals/wolf2/Wolf_One_obj.obj"));
     Player player(
         camera,
         terrain,

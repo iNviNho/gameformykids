@@ -6,23 +6,25 @@
 #include "../models/ModelGenerator.h"
 #include "../textures/TextureLoader.h"
 
+using path = std::filesystem::path;
+
 void Skybox::loadCubemap(const char* skyboxName) {
 
     // prepare faces
-    std::vector<std::string> faces;
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/left.png");
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/right.png");
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/top.png");
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/bottom.png");
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/front.png");
-    faces.push_back("/Users/vladino/CLionProjects/mygame/resources/images/skybox/" + std::string(skyboxName) + "/back.png");
+    std::vector<std::filesystem::path> faces;
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("left.png"));
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("right.png"));
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("top.png"));
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("bottom.png"));
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("front.png"));
+    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("back.png"));
 
     // Load cubemap texture
     glGenTextures(1, &cubemapTexture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
     for (unsigned int i = 0; i < faces.size(); i++) {
-        auto image = Image(faces[i].c_str());
+        auto image = Image(faces[i]);
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,

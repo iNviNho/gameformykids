@@ -2,6 +2,7 @@
 
 #ifndef MESH_H
 #define MESH_H
+#include <filesystem>
 #include "../shaders/shader.h"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
@@ -16,7 +17,7 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     std::string type;
-    std::string path;
+    std::filesystem::path path;
 };
 
 class Mesh {

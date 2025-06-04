@@ -1,11 +1,14 @@
 #include "TerrainRenderer.h"
 
+#include <filesystem>
 #include "../models/EntityRenderer.h"
+
+using path = std::filesystem::path;
 
 TerrainRenderer::TerrainRenderer(Camera* camera, EntityRenderer* modelRenderer) {
     this->shader = new Shader(
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.vs",
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.fs"
+    path("/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.vs"),
+    path("/Users/vladino/CLionProjects/mygame/src/shaders/files/terrainShader.fs")
     );
     this->camera = camera;
     this->entityRenderer = modelRenderer;
