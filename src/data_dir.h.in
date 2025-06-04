@@ -1,0 +1,13 @@
+#ifndef DATA_DIR_H
+#define DATA_DIR_H
+
+#include <filesystem>
+
+inline
+std::filesystem::path
+data_dir()
+{
+	return std::filesystem::path("${DATA_DIR}");
+}
+
+#endif

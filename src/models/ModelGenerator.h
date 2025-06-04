@@ -3,13 +3,14 @@
 #ifndef MODELGENERATOR_H
 #define MODELGENERATOR_H
 
+#include <filesystem>
 #include "Model.h"
 
 
 class ModelGenerator {
 public:
-    static Model* generateCube(char *texturePath);
-    static Model* generateGrass(char *texturePath);
+    static Model* generateCube(const std::filesystem::path& texturePath);
+    static Model* generateGrass(const std::filesystem::path& texturePath);
 };
 
 

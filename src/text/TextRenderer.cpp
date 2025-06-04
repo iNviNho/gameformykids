@@ -2,8 +2,12 @@
 
 #include <map>
 #include <utility>
+#include <filesystem>
 
 #include "glm/ext/matrix_clip_space.hpp"
+#include <data_dir.h>
+
+using path = std::filesystem::path;
 
 struct Character {
     unsigned int TextureID; // ID handle of the glyph texture
@@ -16,15 +20,15 @@ unsigned int textVAO, textVBO;
 
 TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
     shader = new Shader(
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/textShader.vs",
-    "/Users/vladino/CLionProjects/mygame/src/shaders/files/textShader.fs"
+    data_dir() /= path("src/shaders/files/textShader.vs"),
+    data_dir() /= path("src/shaders/files/textShader.fs")
     );
     if (FT_Init_FreeType(&ft)) {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" <<std::endl;
     }
     if (FT_New_Face(
         ft,
-        "/Users/vladino/CLionProjects/mygame/resources/fonts/Arial.ttf",
+        (data_dir() /= path("resources/fonts/Arial.ttf")).c_str(),
         0,
         &face)) {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;

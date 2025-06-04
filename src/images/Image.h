@@ -1,6 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <filesystem>
 
 
 class Image {
@@ -8,7 +9,7 @@ private:
     unsigned char* data;
     int width, height, nrChannels;
 public:
-    explicit Image(char const* path);
+    explicit Image(const std::filesystem::path& path);
     ~Image() = default;
     float getGrayscaleValue(int x, int y) const;
     bool isBlackColor(int x, int y) const;

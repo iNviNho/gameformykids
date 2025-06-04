@@ -1,5 +1,6 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
+#include <filesystem>
 #include "Grasses.h"
 #include "../images/Image.h"
 #include "../models/Model.h"
@@ -22,8 +23,8 @@ private:
     Image* heightMap;
     Image* blendMap;
 
-    void parseHeightMap(char const *heightMap);
-    void parseBlendMap(char const* blendMap);
+    void parseHeightMap(const std::filesystem::path& heightMap);
+    void parseBlendMap(const std::filesystem::path& blendMap);
     void generateTextures();
     void generateVaoVbo();
 
@@ -35,7 +36,7 @@ private:
     void generateGrasses();
 
 public:
-    Terrain(char const* heightMap, char const* blendMap);
+    Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
     [[nodiscard]] const float* GetDataPoints() const;
     [[nodiscard]] const float GetCountOfVertices() const;

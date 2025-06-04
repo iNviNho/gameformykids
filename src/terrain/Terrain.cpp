@@ -11,8 +11,11 @@
 #include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 #include <glm/glm.hpp>
+#include <data_dir.h>
 
-Terrain::Terrain(char const* heightMap, char const* blendMap)
+using path = std::filesystem::path;
+
+Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
     : grasses(EntitiesHolder(std::vector<Entity>())) {
     dataPoints = new float[SIZE * SIZE * 30];
     parseHeightMap(heightMap);
@@ -24,11 +27,11 @@ Terrain::Terrain(char const* heightMap, char const* blendMap)
 }
 
 void Terrain::generateTextures() {
-    this->grassTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/green-grass4.png");
-    this->pathTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/path.png");
-    this->mudTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/mud.png");
-    this->flowersTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/grassFlowers.png");
-    this->blendMapTexture = TextureLoader::loadTexture("/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png");
+    this->grassTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/green-grass4.png"));
+    this->pathTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/path.png"));
+    this->mudTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/mud.png"));
+    this->flowersTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/grassFlowers.png"));
+    this->blendMapTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/blendMap4.png"));
 }
 
 
@@ -51,7 +54,7 @@ void Terrain::generateVaoVbo() {
 
 void Terrain::generateGrasses() {
     std::cout << "Generating grasses" << std::endl;
-    Model* grass = ModelGenerator::generateGrass("/Users/vladino/CLionProjects/mygame/resources/objects/grass4/grass.png");
+    Model* grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
 
     float density = 0.1;
     int perTileEntities = 10 * density;
@@ -121,11 +124,11 @@ glm::vec3 Terrain::calculateNormal(float x, float z) {
     return glm::normalize(normal);
 }
 
-void Terrain::parseHeightMap(char const* heightMap) {
+void Terrain::parseHeightMap(const std::filesystem::path& heightMap) {
     this->heightMap = new Image(heightMap);
 }
 
-void Terrain::parseBlendMap(char const *blendMap) {
+void Terrain::parseBlendMap(const std::filesystem::path& blendMap) {
     this->blendMap = new Image(blendMap);
 }
 

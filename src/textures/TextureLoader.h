@@ -4,13 +4,14 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 #include <iostream>
+#include <filesystem>
 
 class TextureLoader {
 public:
-    static unsigned int loadTexture(char const* value) {
+    static unsigned int loadTexture(const std::filesystem::path& value) {
         std::cout << "Loading texture: " << value << std::endl;
         int width, height, nrChannels;
-        unsigned char *data = stbi_load(value, &width, &height,
+        unsigned char *data = stbi_load(value.c_str(), &width, &height,
         &nrChannels, 0);
 
         GLenum format;

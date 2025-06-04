@@ -2,8 +2,10 @@
 
 #ifndef PATHPLAYERMOVER_H
 #define PATHPLAYERMOVER_H
+#include <filesystem>
 #include "../Player.h"
 #include "../../pathing/Path.h"
+#include <data_dir.h>
 
 
 class PathPlayerMover {
@@ -17,7 +19,7 @@ public:
         player(player), path(path) {
         path = Path(
             player.GetPosition(),
-            "/Users/vladino/CLionProjects/mygame/resources/images/route.png",
+            data_dir() /= std::filesystem::path("resources/images/route.png"),
             terrainSize
         );
         // TODO: This may be NULL POINTER EXCEPTION

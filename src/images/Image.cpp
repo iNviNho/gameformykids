@@ -5,8 +5,9 @@
 
 #include "../utils/Log.h"
 
-Image::Image(char const* path) {
-    data = stbi_load(path, &width, &height, &nrChannels, 0);
+Image::Image(const std::filesystem::path& path) {
+    data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
     if (!data) {
         std::cerr << "Failed to load image: " << path << std::endl;
     }
