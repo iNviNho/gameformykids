@@ -39,6 +39,9 @@ FetchContent_MakeAvailable(stb)
 FetchContent_Declare(assimp GIT_REPOSITORY https://github.com/assimp/assimp.git)
 FetchContent_MakeAvailable(assimp)
 
+cmake_path(SET DATA_DIR "${PROJECT_SOURCE_DIR}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/data_dir.h.in" "${CMAKE_CURRENT_BINARY_DIR}/src/data_dir.h")
+
 add_executable(mygame main.cpp
         src/shaders/shader.h
         src/stbimage/stb.cpp
@@ -84,7 +87,7 @@ add_executable(mygame main.cpp
         src/utils/Log.cpp
 )
 
-target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} )
+target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src")
 
 target_link_libraries(mygame glfw glm::glm freetype glad assimp)
 

@@ -11,6 +11,7 @@
 #include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 #include <glm/glm.hpp>
+#include <data_dir.h>
 
 using path = std::filesystem::path;
 
@@ -26,11 +27,11 @@ Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::
 }
 
 void Terrain::generateTextures() {
-    this->grassTexture = TextureLoader::loadTexture(path("/Users/vladino/CLionProjects/mygame/resources/images/green-grass4.png"));
-    this->pathTexture = TextureLoader::loadTexture(path("/Users/vladino/CLionProjects/mygame/resources/images/path.png"));
-    this->mudTexture = TextureLoader::loadTexture(path("/Users/vladino/CLionProjects/mygame/resources/images/mud.png"));
-    this->flowersTexture = TextureLoader::loadTexture(path("/Users/vladino/CLionProjects/mygame/resources/images/grassFlowers.png"));
-    this->blendMapTexture = TextureLoader::loadTexture(path("/Users/vladino/CLionProjects/mygame/resources/images/blendMap4.png"));
+    this->grassTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/green-grass4.png"));
+    this->pathTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/path.png"));
+    this->mudTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/mud.png"));
+    this->flowersTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/grassFlowers.png"));
+    this->blendMapTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/blendMap4.png"));
 }
 
 
@@ -53,7 +54,7 @@ void Terrain::generateVaoVbo() {
 
 void Terrain::generateGrasses() {
     std::cout << "Generating grasses" << std::endl;
-    Model* grass = ModelGenerator::generateGrass(path("/Users/vladino/CLionProjects/mygame/resources/objects/grass4/grass.png"));
+    Model* grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
 
     float density = 0.1;
     int perTileEntities = 10 * density;

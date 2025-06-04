@@ -5,6 +5,7 @@
 #include "../images/Image.h"
 #include "../models/ModelGenerator.h"
 #include "../textures/TextureLoader.h"
+#include <data_dir.h>
 
 using path = std::filesystem::path;
 
@@ -12,12 +13,12 @@ void Skybox::loadCubemap(const char* skyboxName) {
 
     // prepare faces
     std::vector<std::filesystem::path> faces;
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("left.png"));
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("right.png"));
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("top.png"));
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("bottom.png"));
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("front.png"));
-    faces.push_back(path("/Users/vladino/CLionProjects/mygame/resources/images/skybox") /= path(skyboxName) /= path("back.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("left.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("right.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("top.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("bottom.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("front.png"));
+    faces.push_back(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("back.png"));
 
     // Load cubemap texture
     glGenTextures(1, &cubemapTexture);
