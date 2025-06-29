@@ -57,8 +57,14 @@ private:
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
     void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
-    const float getHeight(float x, float z) const;
-    glm::vec3 calculateNormal(float x, float z);
+
+    /**
+	 * @param[in] x height map column coordinate
+	 * @param[in] z height map negated row coordinate
+	 * @return terrain height at (x,z) coordinate
+     */
+    float getHeight(const int x, int z) const;
+    glm::vec3 calculateNormal(const int x, const int z);
 
     Grasses grasses;
     void generateGrasses();
