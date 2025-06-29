@@ -17,12 +17,13 @@ using path = std::filesystem::path;
 
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
     : grasses(EntitiesHolder(std::vector<Entity>())) {
-    dataPoints = new float[SIZE * SIZE * DATA_PER_LOC];
+    const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
+    const std::unique_ptr<float[]> dataPoints(new float[dataPointsSz]);
     parseHeightMap(heightMap);
     parseBlendMap(blendMap);
     generateTextures();
-    generateTerrain();
-    generateVaoVbo();
+    generateTerrain(dataPoints);
+    generateVaoVbo(dataPoints, dataPointsSz);
     generateGrasses();
 }
 
@@ -35,14 +36,14 @@ void Terrain::generateTextures() {
 }
 
 
-void Terrain::generateVaoVbo() {
+void Terrain::generateVaoVbo(const std::unique_ptr<float[]>& dataPoints, const GLsizeiptr dataPointsSz) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, GetDataPointsSize(), GetDataPoints(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, dataPointsSz * sizeof(float), dataPoints.get(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -176,7 +177,7 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
     );
 }
 
-void Terrain::generateTerrain() {
+void Terrain::generateTerrain(const std::unique_ptr<float[]>& dataPoints) {
     int vertexPointer = 0;
     glm::vec3 normal;
 
@@ -281,16 +282,6 @@ void Terrain::generateTerrain() {
             vertexPointer++;
         }
     }
-}
-
-
-
-const float* Terrain::GetDataPoints() const {
-    return dataPoints;
-}
-
-long Terrain::GetDataPointsSize() const {
-    return sizeof(float) * SIZE * SIZE * DATA_PER_LOC;
 }
 
 void Terrain::activateTextures(Shader* shader) {

@@ -1,5 +1,6 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
+#include <memory>
 #include <filesystem>
 #include "Grasses.h"
 #include "../images/Image.h"
@@ -28,7 +29,6 @@ private:
      */
     static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC; 
 
-    float* dataPoints;
     unsigned int VAO, VBO;
     unsigned int grassTexture;
     unsigned int pathTexture;
@@ -41,9 +41,9 @@ private:
     void parseHeightMap(const std::filesystem::path& heightMap);
     void parseBlendMap(const std::filesystem::path& blendMap);
     void generateTextures();
-    void generateVaoVbo();
+    void generateVaoVbo(const std::unique_ptr<float[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
-    void generateTerrain();
+    void generateTerrain(const std::unique_ptr<float[]>& dataPoints);
     const float getHeight(float x, float z) const;
     glm::vec3 calculateNormal(float x, float z);
 
@@ -53,9 +53,7 @@ private:
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
-    [[nodiscard]] const float* GetDataPoints() const;
     [[nodiscard]] const float GetCountOfVertices() const;
-    [[nodiscard]] long GetDataPointsSize() const;
     [[nodiscard]] unsigned int GetVAO() const { return VAO; }
     [[nodiscard]] unsigned int GetGrassTexture() const { return grassTexture; }
     [[nodiscard]] unsigned int GetPathTexturre() const { return pathTexture; }
