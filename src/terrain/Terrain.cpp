@@ -22,7 +22,7 @@ Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
-    generateTerrain(dataPoints);
+	generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
     generateGrasses();
 }
@@ -114,7 +114,7 @@ float Terrain::getHeight(const int x, int z) const {
     return grayscaleValue;
 }
 
-glm::vec3 Terrain::calculateNormal(const int x, const int z) {
+glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
     // calculate normal using finite difference method
     float heightL = getHeight(x - 1, z);
     float heightR = getHeight(x + 1, z);
@@ -167,113 +167,162 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
     );
 }
 
+void Terrain::setVertexData(const std::unique_ptr<GLfloat[]>& dataPoints) {
+    constexpr const int x = 0;
+    constexpr const int z = 0;
+
+    // data start for location (x, z)
+    GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+    GLfloat* dataPtr = dataPtrStart;
+    
+	constexpr const int xPlus1 = x + 1;
+	constexpr const int zPlus1 = z + 1;
+
+    constexpr const float floatX = static_cast<float>(x);
+    constexpr const float floatXPlus1 = static_cast<float>(xPlus1);
+
+    // negate z because opengl is righthanded system
+    // and we want to have terrain in front of us
+    constexpr const float floatZ = -static_cast<float>(z);
+    constexpr const float floatZPlus1 = -static_cast<float>(zPlus1);
+
+    // a is bottom left
+    const glm::vec3 a = glm::vec3(floatX, getHeight(x, -z), floatZ);
+    // b is bottom right
+    const glm::vec3 b = glm::vec3(floatXPlus1, getHeight(xPlus1, -z), floatZ);
+    // c is top right
+    const glm::vec3 c = glm::vec3(floatXPlus1, getHeight(xPlus1, -zPlus1), floatZPlus1);
+    // d is top left
+    const glm::vec3 d = glm::vec3(floatX, getHeight(x, -zPlus1), floatZPlus1);
+
+    // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+    // C,A,B
+    dataPtr = setGLVertexData(dataPtr, c, glm::vec<2, int>{xPlus1, -zPlus1}, 1.0f, 1.0f);
+    dataPtr = setGLVertexData(dataPtr, a, glm::vec<2, int>{x, -z}, 0.0f, 0.0f);
+    dataPtr = setGLVertexData(dataPtr, b, glm::vec<2, int>{xPlus1, -z}, 1.0f, 0.0f);
+
+    // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+    // C,D,A
+	dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
+	dataPtr = setGLVertexData(dataPtr, d, glm::vec<2, int>{x, -zPlus1}, 0.0f, 1.0f);
+    dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
+}
+
+void Terrain::setVertexData_x(const std::unique_ptr<GLfloat[]>& dataPoints, const int x) {
+    constexpr const int z = 0;
+
+    // data start for location (x, z)
+    GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+    GLfloat* dataPtr = dataPtrStart;
+    const GLfloat* const dataPtrXMinus1 = dataPoints.get() + ((x-1) * DATA_PER_LOC);
+    
+    const int xPlus1 = x + 1;
+    constexpr const int zPlus1 = z + 1;
+
+    const float floatXPlus1 = static_cast<float>(xPlus1);
+
+    // b is bottom right
+    const glm::vec3 b = glm::vec3(floatXPlus1, getHeight(xPlus1, -z), -static_cast<float>(z));
+    // c is top right
+    const glm::vec3 c = glm::vec3(floatXPlus1, getHeight(xPlus1, -zPlus1), -static_cast<float>(zPlus1));
+
+    // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+    // C,A,B
+    dataPtr = setGLVertexData(dataPtr, c, glm::vec<2, int>{xPlus1, -zPlus1}, 1.0f, 1.0f);
+    // vertex 'a' is equal to vertex 'b' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrXMinus1 + 2 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
+    dataPtr = setGLVertexData(dataPtr, b, glm::vec<2, int>{xPlus1, -z}, 1.0f, 0.0f);
+
+    // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+    // C,D,A
+    dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
+	// vertex 'd' is equal to vertex 'c' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrXMinus1 + 0 * DATA_PER_GL_VERTEX, 0.0f, 1.0f);
+    dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
+}
+
+void Terrain::setVertexData_z(const std::unique_ptr<GLfloat[]>& dataPoints, const int z) {
+    constexpr const int x = 0;
+
+    // data start for location (x, z)
+    GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+    GLfloat* dataPtr = dataPtrStart;
+    const GLfloat* const dataPtrZMinus1 = dataPoints.get() + ((z-1) * SIZE * DATA_PER_LOC);
+	
+    constexpr const int xPlus1 = 1;
+    const int zPlus1 = z + 1;
+
+    // negate z because opengl is righthanded system
+    // and we want to have terrain in front of us
+    const float floatZPlus1 = -static_cast<float>(zPlus1);
+
+    // c is top right
+    const glm::vec3 c = glm::vec3(static_cast<float>(xPlus1), getHeight(xPlus1, -zPlus1), floatZPlus1);
+    // d is top left
+    const glm::vec3 d = glm::vec3(static_cast<float>(x), getHeight(x, -zPlus1), floatZPlus1);
+
+    // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+    // C,A,B
+    dataPtr = setGLVertexData(dataPtr, c, glm::vec<2, int>{xPlus1, -zPlus1}, 1.0f, 1.0f);
+	// vertex 'a' is equal to vertex 'd' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrZMinus1 + 4 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
+    // vertex 'b' is equal to vertex 'c' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrZMinus1 + 0 * DATA_PER_GL_VERTEX, 1.0f, 0.0f);
+
+    // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+    // C,D,A
+    dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
+	dataPtr = setGLVertexData(dataPtr, d, glm::vec<2, int>{x, -zPlus1}, 0.0f, 1.0f);
+    dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
+}
+
+void Terrain::setVertexData_xz(const std::unique_ptr<GLfloat[]>& dataPoints, const int x, const int z) {
+    // data start for location (x, z)
+    GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+    GLfloat* dataPtr = dataPtrStart;
+    const GLfloat* const dataPtrXMinus1 = dataPoints.get() + (z * SIZE * DATA_PER_LOC + (x-1) * DATA_PER_LOC);
+    const GLfloat* const dataPtrZMinus1 = dataPoints.get() + ((z-1) * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+
+    const int xPlus1 = x + 1;
+    const int zPlus1 = z + 1;
+
+    const float floatXPlus1 = static_cast<float>(xPlus1);
+
+    // negate z because opengl is righthanded system
+    // and we want to have terrain in front of us
+    const float floatZPlus1 = -static_cast<float>(zPlus1);
+
+    // c is top right
+    const glm::vec3 c = glm::vec3(floatXPlus1, getHeight(xPlus1, -zPlus1), floatZPlus1);
+
+    // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+    // C,A,B
+    dataPtr = setGLVertexData(dataPtr, c, glm::vec<2, int>{xPlus1, -zPlus1}, 1.0f, 1.0f);
+    // vertex 'a' is equal to vertex 'b' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrXMinus1 + 2 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
+    // vertex 'b' is equal to vertex 'c' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrZMinus1 + 0 * DATA_PER_GL_VERTEX, 1.0f, 0.0f);
+
+    // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+    // C,D,A
+    dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
+    // vertex 'd' is equal to vertex 'c' of a previously computed location
+    dataPtr = copyGLVertexData(dataPtr, dataPtrXMinus1 + 0 * DATA_PER_GL_VERTEX, 0.0f, 1.0f);
+    dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
+}
+
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
-    int vertexPointer = 0;
-    glm::vec3 normal;
+    setVertexData(dataPoints);
 
-    for (int x = 0; x < SIZE; x++) {
-		const int xP1 = x + 1;
-        for (int z = 0; z < SIZE; z++) {
-            const int zP1 = z + 1;
-            const auto floatX = static_cast<float>(x);
-            // negate z because opengl is righthanded system
-            // and we want to have terrain in front of us
-            const auto floatZ = -static_cast<float>(z);
+    for(int x = 1; x < SIZE; ++x)
+        setVertexData_x(dataPoints, x);
 
-            // a is bottom left
-            glm::vec3 a = glm::vec3(floatX, getHeight(x, -z), floatZ);
-            // b is bottom right
-            glm::vec3 b = glm::vec3(floatX + 1.0f, getHeight(xP1, -z), floatZ);
-            // c is top right
-            glm::vec3 c = glm::vec3(floatX + 1.0f, getHeight(xP1, -zP1), floatZ - 1.0f);
-            // d is top left
-            glm::vec3 d = glm::vec3(floatX, getHeight(x, -zP1), floatZ - 1.0f);
+    for (int z = 1; z < SIZE; ++z)
+        setVertexData_z(dataPoints, z);
 
-            // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
-            // C,A,B
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC] = c.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 1] = c.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 2] = c.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 3] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 4] = 1.0f;
-            // normals
-            normal = calculateNormal(xP1, -zP1);
-            dataPoints[vertexPointer * DATA_PER_LOC + 5] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 6] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 7] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 8] = a.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 9] = a.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 10] = a.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 11] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 12] = 0.0f;
-            // normals
-            normal = calculateNormal(x, -z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 13] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 14] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 15] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 16] = b.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 17] = b.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 18] = b.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 19] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 20] = 0.0f;
-            // normals
-            normal = calculateNormal(xP1, -z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 21] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 22] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 23] = normal.z;
-
-            // Let's define SECOND triangle in COUNTER-CLOCKWISE order
-            // C,D,A
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 24] = c.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 25] = c.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 26] = c.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 27] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 28] = 1.0f;
-            // normals
-            normal = calculateNormal(xP1, -zP1);
-            dataPoints[vertexPointer * DATA_PER_LOC + 29] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 30] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 31] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 32] = d.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 33] = d.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 34] = d.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 35] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 36] = 1.0f;
-            // normals
-            normal = calculateNormal(x, -zP1);
-            dataPoints[vertexPointer * DATA_PER_LOC + 37] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 38] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 39] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 40] = a.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 41] = a.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 42] = a.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 43] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 44] = 0.0f;
-            // normals
-            normal = calculateNormal(x, -z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 45] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 46] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 47] = normal.z;
-
-            vertexPointer++;
-        }
-    }
+    for (int z = 1; z < SIZE; z++)
+        for (int x = 1; x < SIZE; x++)
+            setVertexData_xz(dataPoints, x, z);
 }
 
 void Terrain::activateTextures(Shader& shader) {

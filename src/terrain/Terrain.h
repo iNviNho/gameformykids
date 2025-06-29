@@ -57,14 +57,60 @@ private:
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
     void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
+    
+    GLfloat* setGLVertexData(GLfloat* dataPtr, const glm::vec3& pos, const glm::vec<2,int> posInt, const float u, const float v) const
+    {
+        return setGLVertexData(dataPtr, pos, u, v, calculateNormal(posInt.x, posInt.y));
+    }
 
+    static constexpr GLfloat* setGLVertexData(GLfloat* dataPtr, const glm::vec3& pos, const float u, const float v, const glm::vec3& normal) noexcept
+    {
+        // position
+        *dataPtr++ = pos.x;
+        *dataPtr++ = pos.y;
+        *dataPtr++ = pos.z;
+
+        // texture coordinate
+        *dataPtr++ = u;
+        *dataPtr++ = v;
+
+        // normal
+        *dataPtr++ = normal.x;
+        *dataPtr++ = normal.y;
+        *dataPtr++ = normal.z;
+
+        return dataPtr;
+    }
+
+    static GLfloat* copyGLVertexData(GLfloat* dataPtr, const GLfloat * const src, const float u, const float v) noexcept
+    {
+        dataPtr = std::copy(src, src + DATA_PER_GL_VERTEX, dataPtr);
+        *(dataPtr - 5) = u;
+        *(dataPtr - 4) = v;
+        return dataPtr;
+    }
+
+    void setVertexData(const std::unique_ptr<GLfloat[]>& dataPoints);
+    
+    /**
+     *  'z' is 0
+     */
+    void setVertexData_x(const std::unique_ptr<GLfloat[]>& dataPoints, const int x);
+    
+    /**
+     *  'x' is 0
+	 */
+    void setVertexData_z(const std::unique_ptr<GLfloat[]>& dataPoints, const int z);
+
+    void setVertexData_xz(const std::unique_ptr<GLfloat[]>& dataPoints, const int x, const int z);
     /**
 	 * @param[in] x height map column coordinate
 	 * @param[in] z height map negated row coordinate
 	 * @return terrain height at (x,z) coordinate
      */
     float getHeight(const int x, int z) const;
-    glm::vec3 calculateNormal(const int x, const int z);
+
+    glm::vec3 calculateNormal(const int x, const int z) const;
 
     Grasses grasses;
     void generateGrasses();
