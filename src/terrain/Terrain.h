@@ -41,9 +41,9 @@ private:
     void parseHeightMap(const std::filesystem::path& heightMap);
     void parseBlendMap(const std::filesystem::path& blendMap);
     void generateTextures();
-    void generateVaoVbo(const std::unique_ptr<float[]>& dataPoints, const GLsizeiptr dataPointsSz);
+    void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
-    void generateTerrain(const std::unique_ptr<float[]>& dataPoints);
+    void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
     const float getHeight(float x, float z) const;
     glm::vec3 calculateNormal(float x, float z);
 

@@ -18,7 +18,7 @@ using path = std::filesystem::path;
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
     : grasses(EntitiesHolder(std::vector<Entity>())) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
-    const std::unique_ptr<float[]> dataPoints(new float[dataPointsSz]);
+    const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     parseHeightMap(heightMap);
     parseBlendMap(blendMap);
     generateTextures();
@@ -36,20 +36,20 @@ void Terrain::generateTextures() {
 }
 
 
-void Terrain::generateVaoVbo(const std::unique_ptr<float[]>& dataPoints, const GLsizeiptr dataPointsSz) {
+void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, dataPointsSz * sizeof(float), dataPoints.get(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, dataPointsSz * sizeof(GLfloat), dataPoints.get(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(float), (void*)(5 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 }
 
@@ -177,7 +177,7 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
     );
 }
 
-void Terrain::generateTerrain(const std::unique_ptr<float[]>& dataPoints) {
+void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
     int vertexPointer = 0;
     glm::vec3 normal;
 
