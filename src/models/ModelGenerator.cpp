@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "../textures/TextureLoader.h"
 
-Model* ModelGenerator::generateCube(char *texturePath) {
+Model* ModelGenerator::generateCube(const std::filesystem::path& texturePath) {
  // Vertices for a cube
  float vertices[] = {
   // positions          // normals           // texture coords
@@ -85,7 +85,7 @@ Model* ModelGenerator::generateCube(char *texturePath) {
    return new Model(mesh);
 }
 
-Model* ModelGenerator::generateGrass(char *texturePath) {
+Model* ModelGenerator::generateGrass(const std::filesystem::path& texturePath) {
  float vertices[] = {
   // positions          // normals           // texture coords
   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,

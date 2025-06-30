@@ -7,16 +7,16 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
-Model::Model(char *modelPath) {
+Model::Model(const std::filesystem::path& modelPath) {
     loadModel(modelPath);
 }
 
-Model::Model(char *modelPath, char *texturePath) {
+Model::Model(const std::filesystem::path& modelPath, const std::filesystem::path& texturePath) {
     loadModel(modelPath);
     loadSingleTexture(texturePath);
 }
 
-Model::Model(char *modelPath, Texture *texture) {
+Model::Model(const std::filesystem::path& modelPath, Texture *texture) {
     loadModel(modelPath);
     loadSingleTexture(texture);
 }
@@ -32,7 +32,7 @@ void Model::Draw(Shader *shader) const
     }
 }
 
-void Model::loadModel(std::string modelPath)
+void Model::loadModel(const std::filesystem::path& modelPath)
 {
     Assimp::Importer importer;
     // few other post processing options are
@@ -43,14 +43,14 @@ void Model::loadModel(std::string modelPath)
     // smaller meshes.
     // aiProcess_OptimizeMeshes: does the reverse by trying to join several meshes into
     // one larger mesh, reducing drawing calls for optimization
-    const aiScene *scene = importer.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(modelPath.native(), aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
         return;
     }
 
-    directory = std::filesystem::path(modelPath).parent_path().string();
+    directory = modelPath.parent_path();
 
     processNode(scene->mRootNode, scene);
 }
@@ -117,9 +117,10 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
+        const std::filesystem::path str_path(str.C_Str());
         bool skip = false;
         for (unsigned int j = 0; j < texturesLoaded.size(); j++) {
-            if (std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0) {
+            if (texturesLoaded[j].path == str_path) {
                 textures.push_back(texturesLoaded[j]);
                 skip = true;
                 break;
@@ -127,11 +128,10 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
         }
         if (!skip) {
             Texture texture;
-            std::string fullPath = std::string(this->directory + "/") + str.C_Str();
-            char const *value = fullPath.c_str();
-            texture.id = TextureLoader::loadTexture(value);
+            const std::filesystem::path fullPath = std::filesystem::path(this->directory) /= str_path;
+            texture.id = TextureLoader::loadTexture(fullPath);
             texture.type = typeName;
-            texture.path = str.C_Str();
+            texture.path = str_path;
             textures.push_back(texture);
             texturesLoaded.push_back(texture);
         }
@@ -139,7 +139,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     return textures;
 }
 
-void Model::loadSingleTexture(char *texturePath) {
+void Model::loadSingleTexture(const std::filesystem::path& texturePath) {
     Texture texture;
     texture.id = TextureLoader::loadTexture(texturePath);
     texture.type = "texture_diffuse";

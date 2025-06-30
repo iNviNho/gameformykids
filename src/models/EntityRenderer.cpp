@@ -2,17 +2,21 @@
 
 #include "EntityRenderer.h"
 
+#include <filesystem>
 #include "../objects/Entity.h"
+#include <data_dir.h>
+
+using path = std::filesystem::path;
 
 EntityRenderer::EntityRenderer(Camera* camera) {
     this->camera = camera;
     this->singleInstanceShader = new Shader(
-        "/Users/vladino/CLionProjects/mygame/src/shaders/files/singleInstanceShader.vs",
-        "/Users/vladino/CLionProjects/mygame/src/shaders/files/modelShader.fs"
+        data_dir() /= path("src/shaders/files/singleInstanceShader.vs"),
+        data_dir() /= path("src/shaders/files/modelShader.fs")
     );
     this->multiInstanceShader = new Shader(
-        "/Users/vladino/CLionProjects/mygame/src/shaders/files/multiInstanceShader.vs",
-        "/Users/vladino/CLionProjects/mygame/src/shaders/files/modelShader.fs"
+        data_dir() /= path("src/shaders/files/multiInstanceShader.vs"),
+        data_dir() /= path("src/shaders/files/modelShader.fs")
     );
 }
 
