@@ -16,11 +16,9 @@
 using path = std::filesystem::path;
 
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
-    : grasses(EntitiesHolder(std::vector<Entity>())) {
+    : heightMap(heightMap), blendMap(blendMap), grasses(EntitiesHolder(std::vector<Entity>())) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
-    parseHeightMap(heightMap);
-    parseBlendMap(blendMap);
     generateTextures();
     generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
@@ -63,7 +61,7 @@ void Terrain::generateGrasses() {
 
     // ❤️❤️❤️❤️❤️❤️❤️❤️
     std::vector<Entity> entities;
-    int imageRatio = blendMap->getWidth() / SIZE;
+    int imageRatio = blendMap.getWidth() / SIZE;
     for (int x = 0; x < SIZE; x++) {
         for (int z = 0; z < SIZE; z++) {
             for (int p = 0; p < perTileEntities; p++) {
@@ -75,8 +73,8 @@ void Terrain::generateGrasses() {
                 float ypos = getHeight(xpos, zpos) + 0.35f;
 
                 int xPosRatio = xpos * imageRatio;
-                int zPosRatio = blendMap->getHeight() - (zpos * imageRatio * -1);
-                if (!blendMap->isBlackColor(xPosRatio, zPosRatio)) {
+                int zPosRatio = blendMap.getHeight() - (zpos * imageRatio * -1);
+                if (!blendMap.isBlackColor(xPosRatio, zPosRatio)) {
                     continue;
                 }
 
@@ -105,7 +103,7 @@ const float Terrain::getHeight(float x, float z) const {
     }
 
     // gives value from 0 to 255
-    float grayscaleValue = heightMap->getGrayscaleValue(x, z);
+    float grayscaleValue = heightMap.getGrayscaleValue(x, z);
     // range from 0 to 1
     grayscaleValue /= 255.0f;
     // range from -0.5 to 0.5
@@ -124,15 +122,6 @@ glm::vec3 Terrain::calculateNormal(float x, float z) {
     glm::vec3 normal = glm::vec3(heightL - heightR, 2.0f, heightD - heightU);
     return glm::normalize(normal);
 }
-
-void Terrain::parseHeightMap(const std::filesystem::path& heightMap) {
-    this->heightMap = new Image(heightMap);
-}
-
-void Terrain::parseBlendMap(const std::filesystem::path& blendMap) {
-    this->blendMap = new Image(blendMap);
-}
-
 
 float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) {
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);

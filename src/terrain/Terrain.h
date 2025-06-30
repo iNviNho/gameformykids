@@ -35,11 +35,9 @@ private:
     unsigned int mudTexture;
     unsigned int flowersTexture;
     unsigned int blendMapTexture;
-    Image* heightMap;
-    Image* blendMap;
+    Image heightMap;
+    Image blendMap;
 
-    void parseHeightMap(const std::filesystem::path& heightMap);
-    void parseBlendMap(const std::filesystem::path& blendMap);
     void generateTextures();
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
