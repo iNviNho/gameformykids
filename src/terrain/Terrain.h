@@ -70,23 +70,23 @@ private:
         *dataPtr++ = pos.y;
         *dataPtr++ = pos.z;
 
-        // texture coordinate
-        *dataPtr++ = u;
-        *dataPtr++ = v;
-
         // normal
         *dataPtr++ = normal.x;
         *dataPtr++ = normal.y;
         *dataPtr++ = normal.z;
+
+        // texture coordinate
+        *dataPtr++ = u;
+        *dataPtr++ = v;
 
         return dataPtr;
     }
 
     static GLfloat* copyGLVertexData(GLfloat* dataPtr, const GLfloat * const src, const float u, const float v) noexcept
     {
-        dataPtr = std::copy(src, src + DATA_PER_GL_VERTEX, dataPtr);
-        *(dataPtr - 5) = u;
-        *(dataPtr - 4) = v;
+        dataPtr = std::copy(src, src + DATA_PER_GL_VERTEX - 2, dataPtr);
+        *dataPtr++ = u;
+        *dataPtr++ = v;
         return dataPtr;
     }
 

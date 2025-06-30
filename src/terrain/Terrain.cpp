@@ -47,9 +47,9 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 }
 
