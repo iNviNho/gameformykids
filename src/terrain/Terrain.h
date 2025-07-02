@@ -1,5 +1,6 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
+#include <memory>
 #include <filesystem>
 #include "Grasses.h"
 #include "../images/Image.h"
@@ -13,22 +14,34 @@ private:
     static constexpr int SIZE = 256;
     static constexpr float MAX_HEIGHT = 30.0f;
 
-    float* dataPoints;
+    /**
+     * Terrain is modeled with a triangular mesh (2 triangles, 3 vertices per triangle)
+     */
+    static constexpr int GL_VERTICES_PER_LOC = 2 * 3;
+
+    /**
+     * 8 data per vertex (x,y,z,u,v,nx,ny,nz)
+     */
+    static constexpr int DATA_PER_GL_VERTEX = 8;
+
+    /**
+     * GL data per location
+     */
+    static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC; 
+
     unsigned int VAO, VBO;
     unsigned int grassTexture;
     unsigned int pathTexture;
     unsigned int mudTexture;
     unsigned int flowersTexture;
     unsigned int blendMapTexture;
-    Image* heightMap;
-    Image* blendMap;
+    Image heightMap;
+    Image blendMap;
 
-    void parseHeightMap(const std::filesystem::path& heightMap);
-    void parseBlendMap(const std::filesystem::path& blendMap);
     void generateTextures();
-    void generateVaoVbo();
+    void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
-    void generateTerrain();
+    void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
     const float getHeight(float x, float z) const;
     glm::vec3 calculateNormal(float x, float z);
 
@@ -38,9 +51,7 @@ private:
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
-    [[nodiscard]] const float* GetDataPoints() const;
     [[nodiscard]] const float GetCountOfVertices() const;
-    [[nodiscard]] long GetDataPointsSize() const;
     [[nodiscard]] unsigned int GetVAO() const { return VAO; }
     [[nodiscard]] unsigned int GetGrassTexture() const { return grassTexture; }
     [[nodiscard]] unsigned int GetPathTexturre() const { return pathTexture; }
