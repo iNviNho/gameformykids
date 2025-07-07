@@ -11,8 +11,19 @@
 class Terrain
 {
 private:
+
+    /**
+     * Size of the terrain in vertices.
+     * Must be one of 128, 256, 512, 1024 ...
+     */
     static constexpr int SIZE = 256;
     static constexpr float MAX_HEIGHT = 30.0f;
+
+    /**
+     * Defines how much terrain is covered with grass.
+     * e.g. 1 means 10%
+     */
+    static constexpr int GRASS_DENSITY = 1;
 
     /**
      * Terrain is modeled with a triangular mesh (2 triangles, 3 vertices per triangle)
