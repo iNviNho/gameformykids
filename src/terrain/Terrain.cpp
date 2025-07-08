@@ -55,7 +55,7 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
 
 void Terrain::generateGrasses() {
     Log::logInfo("Generating grasses");
-    Model* grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
+    std::shared_ptr<Model> grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
 
     std::vector<Entity> entities;
     int blendMapWidthToTerrainSizeRatio = blendMap.getWidth() / SIZE;
@@ -85,7 +85,7 @@ void Terrain::generateGrasses() {
                     continue;
                 }
 
-                entities.emplace_back(*grass, glm::vec3(xpos, ypos, zpos));
+                entities.emplace_back(grass, glm::vec3(xpos, ypos, zpos));
             }
         }
     }

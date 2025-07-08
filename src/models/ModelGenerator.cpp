@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "../textures/TextureLoader.h"
 
-Model* ModelGenerator::generateCube(const std::filesystem::path& texturePath) {
+std::shared_ptr<Model> ModelGenerator::generateCube(const std::filesystem::path& texturePath) {
  // Vertices for a cube
  float vertices[] = {
   // positions          // normals           // texture coords
@@ -82,10 +82,10 @@ Model* ModelGenerator::generateCube(const std::filesystem::path& texturePath) {
 
    Mesh mesh(vectorVertices, vectorIndices, vectorTextures);
 
-   return new Model(mesh);
+   return std::make_shared<Model>(mesh);
 }
 
-Model* ModelGenerator::generateGrass(const std::filesystem::path& texturePath) {
+std::shared_ptr<Model> ModelGenerator::generateGrass(const std::filesystem::path& texturePath) {
  float vertices[] = {
   // positions          // normals           // texture coords
   -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
@@ -123,5 +123,5 @@ Model* ModelGenerator::generateGrass(const std::filesystem::path& texturePath) {
 
  Mesh mesh(vectorVertices, vectorIndices, vectorTextures);
 
- return new Model(mesh);
+ return std::make_shared<Model>(mesh);
 }

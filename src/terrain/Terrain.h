@@ -17,6 +17,10 @@ private:
      * Must be one of 128, 256, 512, 1024 ...
      */
     static constexpr int SIZE = 256;
+
+    /**
+     * Defines minimum and maximum height of the terrain.
+     */
     static constexpr float MAX_HEIGHT = 30.0f;
 
     /**
@@ -38,7 +42,7 @@ private:
     /**
      * GL data per location
      */
-    static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC; 
+    static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC;
 
     unsigned int VAO, VBO;
     unsigned int grassTexture;
