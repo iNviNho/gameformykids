@@ -15,7 +15,7 @@ Image::Image(const std::filesystem::path& path) {
 }
 
 float Image::getGrayscaleValue(int x, int y) const {
-    if (x < 0 || y < 0 || x > width || y > height) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         throw std::out_of_range("Coordinates out of bounds in getGrayscaleValue method: (" + std::to_string(x) + ", " + std::to_string(y) + ")");
     }
     int index = (y * width + x) * nrChannels;
@@ -26,7 +26,7 @@ float Image::getGrayscaleValue(int x, int y) const {
 }
 
 bool Image::isBlackColor(int x, int y) const {
-    if (x < 0 || y < 0 || x > width || y > height) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         throw std::out_of_range("Coordinates out of bounds in isBlackColor method: (x: " + std::to_string(x) + ", y: " + std::to_string(y) + ")");
     }
     int index = (y * width + x) * nrChannels;
@@ -37,7 +37,7 @@ bool Image::isBlackColor(int x, int y) const {
 }
 
 bool Image::isBlueColor(int x, int y) const {
-    if (x < 0 || y < 0 || x > width || y > height) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         throw std::out_of_range("Coordinates out of bounds in isBlueColor method: (x: " + std::to_string(x) + ", y: " + std::to_string(y) + ")");
     }
     int index = (y * width + x) * nrChannels;
@@ -48,7 +48,7 @@ bool Image::isBlueColor(int x, int y) const {
 }
 
 bool Image::isRedColor(int x, int y) const {
-    if (x < 0 || y < 0 || x > width || y > height) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
         throw std::out_of_range("Coordinates out of bounds in isRedColor method: (x: " + std::to_string(x) + ", y: " + std::to_string(y) + ")");
     }
     int index = (y * width + x) * nrChannels;
