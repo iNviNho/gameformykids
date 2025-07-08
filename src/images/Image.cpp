@@ -3,11 +3,13 @@
 #include <iostream>
 #include <stb_image.h>
 
+#include "../utils/Log.h"
+
 Image::Image(const std::filesystem::path& path) {
     data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 
     if (!data) {
-        std::cerr << "Failed to load image: " << path << std::endl;
+        Log::logError("Failed to load image: " + path.string());
     }
     if (nrChannels < 3) {
         throw std::runtime_error("Image with path: " + path.string() + " does not have enough channels: " + std::to_string(nrChannels));

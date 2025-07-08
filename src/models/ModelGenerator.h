@@ -9,8 +9,8 @@
 
 class ModelGenerator {
 public:
-    static Model* generateCube(const std::filesystem::path& texturePath);
-    static Model* generateGrass(const std::filesystem::path& texturePath);
+    static std::shared_ptr<Model> generateCube(const std::filesystem::path& texturePath);
+    static std::shared_ptr<Model> generateGrass(const std::filesystem::path& texturePath);
 };
 
 
