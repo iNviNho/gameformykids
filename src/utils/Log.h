@@ -5,9 +5,8 @@
 
 #include <iostream>
 
-
-
 class Log {
+    static std::string getIsoTime();
 public:
     static void log(const std::string& message) {
         std::cout << message << std::endl;
@@ -18,17 +17,16 @@ public:
     }
 
     static void logError(const std::string& message) {
-        std::cerr << "ERROR: " << message << std::endl;
+        std::cerr << getIsoTime() << " ERROR: " << message << std::endl;
     }
 
     static void logWarning(const std::string& message) {
-        std::cerr << "WARNING: " << message << std::endl;
+        std::cerr << getIsoTime() << " WARNING: " << message << std::endl;
     }
 
     static void logInfo(const std::string& message) {
-        std::cout << "INFO: " << message << std::endl;
+        std::cout << "[" << getIsoTime() << "] " <<  "INFO: " << message << std::endl;
     }
-
 };
 
 
