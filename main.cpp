@@ -59,7 +59,7 @@ int main() {
 
     // Player related code
     // -------------------
-    Model wolf(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
+    std::shared_ptr<Model> wolf = std::make_shared<Model>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
     Player player(
         camera,
         terrain,

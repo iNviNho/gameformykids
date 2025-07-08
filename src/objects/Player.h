@@ -16,7 +16,7 @@ private:
     void updateCameraPitch();
     void updateCameraYaw();
 public:
-    Player(Camera &camera, Terrain &terrain, Model &model, glm::vec3 position):
+    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
         Entity(model, position), terrain(terrain), camera(camera) {
         updateCameraPitch();
         updateCameraYaw();
