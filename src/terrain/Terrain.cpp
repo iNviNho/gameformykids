@@ -150,9 +150,9 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
     auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1.0f), playerPositionZInt - 1.0f);
 
     float playerPositionXIntNormalized = playerPositionX - playerPositionXInt;
-    float playerPositionZIntNormalized = abs(playerPositionZ - playerPositionZInt);
+    float playerPositionZIntNormalized = playerPositionZ - playerPositionZInt;
 
-    if (playerPositionXIntNormalized < 1 - playerPositionZIntNormalized) {
+    if (-playerPositionZIntNormalized < playerPositionXIntNormalized) {
         // we are in the first triangle (C,A,B)
         return barryCentric(
             c, a, b,
