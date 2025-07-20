@@ -90,7 +90,7 @@ void Terrain::generateGrasses() {
         }
     }
 
-    this->grasses = Grasses(EntitiesHolder(entities));
+    this->grasses = Grasses{EntitiesHolder{entities}};
     Log::logInfo("Generated grasses: " + std::to_string(entities.size()));
 }
 
@@ -273,21 +273,21 @@ void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
     }
 }
 
-void Terrain::activateTextures(Shader* shader) {
-    shader->use();
-    shader->setInt("grass", 0);
+void Terrain::activateTextures(Shader& shader) {
+    shader.use();
+    shader.setInt("grass", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->GetGrassTexture());
-    shader->setInt("path", 1);
+    shader.setInt("path", 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, this->GetPathTexturre());
-    shader->setInt("mud", 2);
+    shader.setInt("mud", 2);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, this->GetMudTexture());
-    shader->setInt("flowers", 3);
+    shader.setInt("flowers", 3);
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, this->GetFlowersTexture());
-    shader->setInt("blendMap", 4);
+    shader.setInt("blendMap", 4);
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, this->GetBlendMapTexture());
 }

@@ -6,7 +6,6 @@
 
 #include "../models/Model.h"
 #include "../objects/Entity.h"
-#include "glm/detail/func_packing_simd.inl"
 
 void Grasses::prepare() {
     std::vector<Entity> entities = grasses.GetEntities();
@@ -14,14 +13,13 @@ void Grasses::prepare() {
         return;
     }
 
-    const Model* model = grasses.GetEntities()[0].GetModel();
-    glm::mat4 *modelMatrices;
-    modelMatrices = new glm::mat4[entities.size()];
+    const std::shared_ptr<Model> model = grasses.GetEntities().front().GetModel();
+    auto modelMatrices = std::make_unique<glm::mat4[]>(entities.size());
 
     for (int i = 0; i < entities.size(); i++) {
         // model matrix
         auto localModel = glm::mat4(1.0f);
-        localModel = glm::translate(localModel, entities[i].GetPosition());
+        localModel = glm::translate(localModel, entities.at(i).GetPosition());
         modelMatrices[i] = localModel;
     }
 

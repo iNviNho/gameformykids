@@ -75,7 +75,7 @@ public:
     [[nodiscard]] unsigned int GetBlendMapTexture() const { return blendMapTexture; }
     [[nodiscard]] int GetSize() { return SIZE; }
     [[nodiscard]] const Grasses& GetGrasses() const { return grasses;}
-    void activateTextures(Shader* shader);
+    void activateTextures(Shader& shader);
 
     const float GetHeightOfTerrain(float x, float z) const;
 };

@@ -8,6 +8,7 @@
 // (tree, grass, bridge, house, player, animal etc)
 class Entity {
 public:
+    // TODO: Does this have to be shrd pointer?
     Entity(const std::shared_ptr<Model> &model, glm::vec3 position):
         model(model), position(position), rotation(glm::vec3(0.0f)) {}
     ~Entity() = default;

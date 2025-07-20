@@ -31,8 +31,8 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float lastX = 400, lastY = 300;
 bool firstMouse = false;
-Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f)};
+glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
 
 int constexpr WIDTH = 800;
 int constexpr HEIGHT = 600;
@@ -47,10 +47,10 @@ int main() {
     // Render instantiations
     // ---------------------
     TextRenderer textRenderer(WIDTH, HEIGHT);
-    EntityRenderer entityRenderer(&camera);
-    TerrainRenderer terrainRenderer(&camera, &entityRenderer);
+    EntityRenderer entityRenderer(camera);
+    TerrainRenderer terrainRenderer(camera, entityRenderer);
     SkyboxRenderer skyboxRenderer(camera);
-    Skybox skybox("cloudy");
+    Skybox skybox{"cloudy"};
     Terrain terrain(
         data_dir() /= path("resources/images/heightmaps/heightmap.png"),
         data_dir() /= path("resources/images/blendMap4.png")
@@ -67,6 +67,7 @@ int main() {
         glm::vec3(32.5f, 0.0f, -26.0f)
     );
     PathPlayerMover playerMover(player, terrain.GetSize());
+    glm::vec3 blackColor{0.0f, 0.0f, 0.0f};
 
     glEnable(GL_DEPTH_TEST);
 
@@ -76,6 +77,7 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetScrollCallback(window, scroll_callback);
 
+    auto title = "gameformykids";
     while (!glfwWindowShouldClose(window)) {
         // delta calculation
         calculateDelta();
@@ -96,14 +98,12 @@ int main() {
 
         skyboxRenderer.render(skybox);
         terrainRenderer.render(terrain);
-        entityRenderer.render(&player);
+        entityRenderer.render(player);
 
-        // textRenderer.RenderBlackText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f);
         // TODO: Muted until I find more efficient way to render text
+        // textRenderer.RenderText(title, WIDTH - 170, HEIGHT - 30, 0.45f, blackColor);
         // textRenderer.RenderBlackText(fps.getFpsAsString(), 25.0f, 25.0f, 0.25f);
-        // textRenderer.RenderBlackText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f);
-        // std::cout << "camera x:" << camera.Position.x << " y:" << camera.Position.y << " z:" << camera.Position.z << std::endl;
-
+        // textRenderer.RenderText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f, blackColor);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

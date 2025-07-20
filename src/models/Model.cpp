@@ -16,7 +16,7 @@ Model::Model(const std::filesystem::path& modelPath, const std::filesystem::path
     loadSingleTexture(texturePath);
 }
 
-Model::Model(const std::filesystem::path& modelPath, Texture *texture) {
+Model::Model(const std::filesystem::path& modelPath, Texture& texture) {
     loadModel(modelPath);
     loadSingleTexture(texture);
 }
@@ -25,10 +25,10 @@ Model::Model(Mesh &mesh) {
     meshes.push_back(mesh);
 }
 
-void Model::Draw(Shader *shader) const
+void Model::Draw(Shader& shader) const
 {
-    for(unsigned int i = 0; i < meshes.size(); i++) {
-        GetMeshes()[i].Draw(shader);
+    for(unsigned int i = 0; i < GetMeshes().size(); i++) {
+        GetMeshes().at(i).Draw(shader);
     }
 }
 
@@ -150,10 +150,10 @@ void Model::loadSingleTexture(const std::filesystem::path& texturePath) {
     }
 }
 
-void Model::loadSingleTexture(Texture *texture) {
-    texturesLoaded.push_back(*texture);
+void Model::loadSingleTexture(Texture& texture) {
+    texturesLoaded.push_back(texture);
     for (unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].getTextures().push_back(*texture);
+        meshes.at(i).getTextures().push_back(texture);
     }
 }
 

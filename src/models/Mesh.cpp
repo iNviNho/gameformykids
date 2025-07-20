@@ -32,7 +32,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-void Mesh::Draw(Shader *shader) const
+void Mesh::Draw(Shader& shader) const
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -41,19 +41,19 @@ void Mesh::Draw(Shader *shader) const
         glActiveTexture(GL_TEXTURE0 + i); // activate texture unit first
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
-        std::string name = textures[i].type;
+        std::string name = textures.at(i).type;
         if(name == "texture_diffuse")
             number = std::to_string(diffuseNr++);
         else if(name == "texture_specular")
             number = std::to_string(specularNr++);
-        shader->setFloat(("material." + name + number).c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        shader.setFloat(("material." + name + number).c_str(), i);
+        glBindTexture(GL_TEXTURE_2D, textures.at(i).id);
     }
     // TODO: create sun class and move it there
-    shader->setVec3("light.ambient", 0.45f, 0.45f, 0.45f);
-    shader->setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
-    shader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-    shader->setVec3("light.position", glm::vec3(10.0f, 0.0f, 20.0f));
+    shader.setVec3("light.ambient", 0.45f, 0.45f, 0.45f);
+    shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
+    shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    shader.setVec3("light.position", glm::vec3(10.0f, 0.0f, 20.0f));
 
     // draw mesh
     glBindVertexArray(VAO);
@@ -64,7 +64,7 @@ void Mesh::Draw(Shader *shader) const
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::activateTextures(Shader *shader) const {
+void Mesh::activateTextures(Shader& shader) const {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     for(unsigned int i = 0; i < textures.size(); i++)
@@ -72,13 +72,13 @@ void Mesh::activateTextures(Shader *shader) const {
         glActiveTexture(GL_TEXTURE0 + i); // activate texture unit first
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
-        std::string name = textures[i].type;
+        std::string name = textures.at(i).type;
         if(name == "texture_diffuse")
             number = std::to_string(diffuseNr++);
         else if(name == "texture_specular")
             number = std::to_string(specularNr++);
-        shader->setFloat(("material." + name + number).c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        shader.setFloat(("material." + name + number).c_str(), i);
+        glBindTexture(GL_TEXTURE_2D, textures.at(i).id);
     }
 }
 

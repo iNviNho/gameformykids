@@ -25,7 +25,7 @@ void Skybox::loadCubemap(const char* skyboxName) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
     for (unsigned int i = 0; i < faces.size(); i++) {
-        auto image = Image(faces[i]);
+        auto image = Image{faces.at(i)};
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,
