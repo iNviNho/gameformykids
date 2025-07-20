@@ -79,8 +79,8 @@ void Terrain::generateGrasses() {
                 int xPosRatio = static_cast<int>(std::floor(xpos)) * blendMapWidthToTerrainSizeRatio;
                 int zPosRatio =
                     // we do this because image is flipped vertically
-                    blendMap.getHeight() -
-                    static_cast<int>(std::floor(zpos)) * blendMapWidthToTerrainSizeRatio * -1;
+                    blendMap.getHeight() - 1 -
+                    static_cast<int>(std::floor(zpos)) * blendMapWidthToTerrainSizeRatio * - 1;
                 if (!blendMap.isBlackColor(xPosRatio, zPosRatio)) {
                     continue;
                 }
