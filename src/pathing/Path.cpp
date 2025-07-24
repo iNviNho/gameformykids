@@ -31,7 +31,7 @@ void Path::generatePath(glm::vec3 startPosition, const std::filesystem::path& bl
             int blendMapImageXpos = xPositionOnTheTerrain * imageRatio;
             int blendMapImageZpos = -zPositionOnTheTerrain * imageRatio;
 
-            // if any point has blue color, we take that point as next point and we move on
+            // if any point has red color, we take that point as next point and we move on
             if (blendMapImage.isRedColor(blendMapImageXpos, blendMapImageZpos)) {
                 latestPoint = glm::vec3(xPositionOnTheTerrain, 0.0f, zPositionOnTheTerrain);
                 path.push_back(latestPoint);

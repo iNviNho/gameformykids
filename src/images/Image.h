@@ -2,6 +2,7 @@
 #define IMAGE_H
 
 #include <filesystem>
+#include <stb_image.h>
 
 
 class Image {
@@ -10,7 +11,11 @@ private:
     int width, height, nrChannels;
 public:
     explicit Image(const std::filesystem::path& path);
-    ~Image() = default;
+    ~Image() {
+        if (data) {
+            stbi_image_free(data);
+        }
+    }
     float getGrayscaleValue(int x, int y) const;
     bool isBlackColor(int x, int y) const;
     bool isBlueColor(int x, int y) const;
