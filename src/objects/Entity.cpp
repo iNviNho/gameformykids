@@ -13,6 +13,10 @@ void Entity::Move(glm::vec3 position) {
     updateRotation(position);
 }
 
+void Entity::SetPosition(glm::vec3 position) {
+    this->position = position;
+}
+
 void Entity::updateRotation(glm::vec3 dir) {
     // since we know the length of adjacent and opposite sides of the triangle
     // we can use inverse of tan (arctan) to get the angle

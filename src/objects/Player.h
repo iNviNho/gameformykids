@@ -12,6 +12,8 @@ class Player: public Entity {
 private:
     Camera &camera;
     Terrain &terrain;
+    bool jumped = false;
+    double jumpedAt = 0.0f;
     void updateCameraPosition();
     void updateCameraPitch();
     void updateCameraYaw();
@@ -25,6 +27,9 @@ public:
     void Move(glm::vec3 dir, float distance);
     void SetRotateY(float angle);
     void SetRotateX(float angle);
+
+    void Jump();
+    void handleJump(float deltaTime);
 };
 
 #endif //PLAYER_H

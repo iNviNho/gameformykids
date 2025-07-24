@@ -58,7 +58,7 @@ void Terrain::generateGrasses() {
     std::shared_ptr<Model> grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
 
     std::vector<Entity> entities;
-    int blendMapWidthToTerrainSizeRatio = blendMap.getWidth() / SIZE;
+    float blendMapWidthToTerrainSizeRatio = blendMap.getWidth() / SIZE;
     // TODO: All of this could be precomputated during build time instead of
     // doing it at runtime to increase start time
     for (int x = 0; x < SIZE; x++) {
@@ -76,11 +76,11 @@ void Terrain::generateGrasses() {
                 // so this method works with any kind of models
                 float ypos = getHeight(xpos, zpos) + 0.35f;
 
-                int xPosRatio = static_cast<int>(std::floor(xpos)) * blendMapWidthToTerrainSizeRatio;
+                int xPosRatio = static_cast<int>(xpos * blendMapWidthToTerrainSizeRatio);
                 int zPosRatio =
                     // we do this because image is flipped vertically
                     blendMap.getHeight() - 1 -
-                    static_cast<int>(std::floor(zpos)) * blendMapWidthToTerrainSizeRatio * - 1;
+                    static_cast<int>(zpos * blendMapWidthToTerrainSizeRatio * -1);
                 if (!blendMap.isBlackColor(xPosRatio, zPosRatio)) {
                     continue;
                 }
