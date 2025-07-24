@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../utils/Log.h"
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -56,13 +58,21 @@ public:
         Yaw = yaw;
         TargetYaw = yaw;
         Pitch = pitch;
-        updateCameraVectors();
     }
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const
     {
         return glm::lookAt(Position, Position + Front, Up);
+    }
+
+
+    glm::vec3 GetTargetPosition() const {
+        return TargetPosition;
+    }
+
+    float GetTargetYaw() const {
+        return TargetYaw;
     }
 
     // Not needed for this game, camera moves based on player position
@@ -96,18 +106,18 @@ public:
         updateCameraVectors();
     }
 
-    void UpdatePosition(glm::vec3 position) {
-        if (position == TargetPosition) {
-            return;
-        }
+    void UpdatePosition(glm::vec3 position, bool animated) {
         TargetPosition = position;
+        if (!animated) {
+            Position = position;
+        }
     }
 
-    void UpdateYaw(float yaw) {
-        if (yaw == TargetYaw) {
-            return;
-        }
+    void UpdateYaw(float yaw, bool animated = true) {
         TargetYaw = yaw;
+        if (!animated) {
+            Yaw = yaw;
+        }
     }
 
     void UpdatePitch(float pitch) {

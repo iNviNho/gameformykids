@@ -15,7 +15,7 @@ float currentJumpHeight = 0.0f;
 float velocityY = 0.0f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
-void Player::updateCameraPosition() {
+void Player::UpdateCameraPosition(bool animated) {
     auto newPosition = glm::vec3(0.0f);
 
     // Get the player's rotation angle in radians
@@ -38,11 +38,10 @@ void Player::updateCameraPosition() {
     newPosition.y = cameraHeight + GetPosition().y;
 
     // Update the camera's position
-    camera.UpdatePosition(newPosition);
+    camera.UpdatePosition(newPosition, animated);
 }
 
 void Player::updateCameraPitch() {
-    // TODO: Player is not in the middle
     float hypotenus = sqrt(
         pow(cameraDistance, 2) +
         pow(cameraHeight, 2)
@@ -53,29 +52,34 @@ void Player::updateCameraPitch() {
     camera.UpdatePitch(angleInDegrees * -1.0f);
 }
 
-void Player::updateCameraYaw() {
+void Player::UpdateCameraYaw(bool animated) {
     double yaw = -GetRotationYAngle() + 90.0f;
     if (yaw < 0) {
         yaw += 360.0;
     }
-    camera.UpdateYaw(yaw);
+    camera.UpdateYaw(yaw, animated);
 }
 
+// TODO: Refactor move methods and streamline usage
 void Player::Move(glm::vec3 pos) {
     // update y position based on terrain height
     pos.y = terrain.GetHeightOfTerrain(GetPosition().x, GetPosition().z) - GetPosition().y;
     // we first move entity
     Entity::Move(pos);
     // then we offset camera
-    updateCameraPosition();
+    UpdateCameraPosition();
     updateCameraPitch();
-    updateCameraYaw();
+    UpdateCameraYaw();
 }
 
 void Player::Move(glm::vec3 dir, float distance) {
     float dirLengthSquared = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
     if (dirLengthSquared > 0.0001f) { // Avoid division by zero or moving in zero direction
         glm::vec3 normalizedDir = glm::normalize(dir);
+
+        // Clamp distance to prevent large movements due to high deltaTime
+        float maxDistance = 1.0f; // Adjust as needed
+        distance = glm::min(distance, maxDistance);
 
         Move(normalizedDir * distance);
     }

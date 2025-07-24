@@ -14,22 +14,24 @@ private:
     Terrain &terrain;
     bool jumped = false;
     double jumpedAt = 0.0f;
-    void updateCameraPosition();
+    float speed = 4.0f;
     void updateCameraPitch();
-    void updateCameraYaw();
 public:
     Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
         Entity(model, position), terrain(terrain), camera(camera) {
-        updateCameraPitch();
-        updateCameraYaw();
     }
     void Move(glm::vec3 pos);
     void Move(glm::vec3 dir, float distance);
-    void SetRotateY(float angle);
-    void SetRotateX(float angle);
+
+    void UpdateCameraPosition(bool animated = true);
+    void UpdateCameraYaw(bool animated = true);
+
 
     void Jump();
     void handleJump(float deltaTime);
+
+    float GetSpeed() const { return speed;}
+    Camera& GetCamera() { return camera;}
 };
 
 #endif //PLAYER_H

@@ -19,6 +19,8 @@
 #include "src/text/TextRenderer.h"
 #include <data_dir.h>
 
+#include "src/utils/Log.h"
+
 using path = std::filesystem::path;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -31,7 +33,7 @@ float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float lastX = 400, lastY = 300;
 bool firstMouse = false;
-Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f)};
+Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f) };
 glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
 
 int constexpr WIDTH = 800;
@@ -67,7 +69,6 @@ int main() {
         glm::vec3(32.5f, 0.0f, -26.0f)
     );
     PathPlayerMover playerMover(player, terrain.GetSize());
-    glm::vec3 blackColor{0.0f, 0.0f, 0.0f};
 
     glEnable(GL_DEPTH_TEST);
 
@@ -77,7 +78,7 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetScrollCallback(window, scroll_callback);
 
-    auto title = "gameformykids";
+    Log::logInfo("Starting game loop");
     while (!glfwWindowShouldClose(window)) {
         // delta calculation
         calculateDelta();
@@ -88,9 +89,9 @@ int main() {
         // input
         // -----
         processInput(window, player);
-        playerMover.move(deltaTime);
+        playerMover.move(deltaTime * player.GetSpeed());
         player.handleJump(deltaTime);
-        camera.tick(deltaTime);
+        camera.tick(deltaTime * player.GetSpeed());
 
         // render
         // ------

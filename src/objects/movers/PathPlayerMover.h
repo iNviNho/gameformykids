@@ -13,6 +13,7 @@ private:
     Path path;
     glm::vec3 movingTowards{};
     int pointer = 1;
+    void setToStart();
 public:
     explicit PathPlayerMover(Player& player, int terrainSize):
         player(player),
@@ -24,7 +25,11 @@ public:
         if (path.getPath().size() < pointer) {
             throw std::runtime_error("Pointer bigger than path size. This happens if path couldn't be generated.");
         }
-        movingTowards = path.getPath().at(pointer);
+        // player starts at pointer 0
+        player.SetPosition(path.getPath().at(0));
+        // he will move towards pointer 1
+        movingTowards = path.getPath().at(1);
+        setToStart();
     }
     void move(float deltaTime);
 };
