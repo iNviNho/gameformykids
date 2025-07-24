@@ -12,13 +12,16 @@
 class SkyboxRenderer {
 private:
     using path = std::filesystem::path;
-    Shader shader;
     Camera& camera;
+    Shader shader;
 public:
-    explicit SkyboxRenderer(Camera& camera) : shader(
-    data_dir() /= path("src/shaders/files/skyboxShader.vs"),
-    data_dir() /= path("src/shaders/files/skyboxShader.fs")
-    ), camera(camera) {}
+    explicit SkyboxRenderer(Camera& camera):
+    shader(Shader{
+        data_dir() /= path("src/shaders/files/skyboxShader.vs"),
+        data_dir() /= path("src/shaders/files/skyboxShader.fs")
+    }),
+    camera(camera) {}
+
     ~SkyboxRenderer() = default;
     const void render(Skybox& skybox);
 };

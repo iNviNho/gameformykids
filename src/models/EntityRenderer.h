@@ -9,14 +9,14 @@
 
 class EntityRenderer {
 private:
-    Shader* singleInstanceShader;
-    Shader* multiInstanceShader;
-    Camera* camera;
+    Shader singleInstanceShader;
+    Shader multiInstanceShader;
+    const Camera& camera;
 public:
-    explicit EntityRenderer(Camera* camera);
+    explicit EntityRenderer(const Camera& camera);
     ~EntityRenderer() = default;
 
-    void render(Entity* entity);
+    void render(const Entity& entity);
     void renderBatch(const EntitiesHolder& modelsHolder);
 };
 

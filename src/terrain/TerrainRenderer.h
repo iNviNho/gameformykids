@@ -8,11 +8,11 @@
 
 class TerrainRenderer {
 private:
-    Shader* shader;
-    Camera* camera;
-    EntityRenderer* entityRenderer;
+    Camera& camera;
+    EntityRenderer& entityRenderer;
+    Shader shader;
 public:
-    TerrainRenderer(Camera* camera, EntityRenderer* modelRenderer);
+    TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer);
     ~TerrainRenderer() = default;
 
     void render(Terrain& terrain);

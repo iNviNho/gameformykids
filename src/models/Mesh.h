@@ -24,8 +24,8 @@ class Mesh {
 public:
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
-    void Draw(Shader *shader) const;
-    void activateTextures(Shader *shader) const;
+    void Draw(Shader& shader) const;
+    void activateTextures(Shader& shader) const;
     void bindVAO() const;
 
     const unsigned int &GetVAO() const {return VAO;}

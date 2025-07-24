@@ -18,11 +18,11 @@ struct Character {
 std::map<GLchar, Character> Characters;
 unsigned int textVAO, textVBO;
 
-TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
-    shader = new Shader(
+TextRenderer::TextRenderer(int screenWidth, int screenHeight):
+    shader(Shader{
     data_dir() /= path("src/shaders/files/textShader.vs"),
     data_dir() /= path("src/shaders/files/textShader.fs")
-    );
+    }) {
     if (FT_Init_FreeType(&ft)) {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" <<std::endl;
     }
@@ -37,9 +37,9 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     textProjection = glm::ortho(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight));
-    shader->use();
-    shader->setMat4("projection", textProjection);
-        // disable byte-alignment restriction
+    shader.use();
+    shader.setMat4("projection", textProjection);
+    // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     // load first 128 characters of ASCII set
@@ -72,7 +72,7 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // now store character for later use
-        Character character = {
+        Character character {
             textTexture,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
@@ -88,7 +88,6 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
     glGenVertexArrays(1, &textVAO);
     glGenBuffers(1, &textVBO);
     glBindVertexArray(textVAO);
@@ -100,15 +99,15 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight) {
     glBindVertexArray(0);
 }
 
-void TextRenderer::RenderBlackText(std::string text, float x, float y, float scale) {
-    this->RenderText(std::move(text), x, y, scale, glm::vec3(0.0f, 0.0f, 0.0f));
-}
+// void TextRenderer::RenderBlackText(const std::string text, float x, float y, float scale) {
+    // this->RenderText(text, x, y, scale, glm::vec3(0.0f, 0.0f, 0.0f));
+// }
 
 
-void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color) {
+void TextRenderer::RenderText(const std::string& text, float x, float y, float scale, glm::vec3& color) {
     // activate corresponding render state
-    shader->use();
-    glUniform3f(glGetUniformLocation(shader->ID, "textColor"), color.x, color.y, color.z);
+    shader.use();
+    glUniform3f(glGetUniformLocation(shader.ID, "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(textVAO);
 
