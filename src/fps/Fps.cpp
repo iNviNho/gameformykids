@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+#include "../utils/Log.h"
 #include "GLFW/glfw3.h"
 
 Fps::Fps() {
@@ -21,6 +22,6 @@ void Fps::tick() {
         frameCount = 0;
         lastTime = currentFrame;
         fpsAsString = "fps: " + std::to_string(fps);
-        std::cout << fpsAsString << std::endl;
+        Log::logInfo(fpsAsString);
     }
 }

@@ -24,7 +24,7 @@ using path = std::filesystem::path;
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 GLFWwindow* createAndConfigureWindow();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, Player& player);
 void calculateDelta();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -87,8 +87,9 @@ int main() {
 
         // input
         // -----
-        processInput(window);
+        processInput(window, player);
         playerMover.move(deltaTime);
+        player.handleJump(deltaTime);
         camera.tick(deltaTime);
 
         // render
@@ -157,10 +158,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Player& player)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        player.Jump();
+    }
 }
 
 void calculateDelta() {

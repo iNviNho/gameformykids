@@ -3,13 +3,14 @@
 
 #include <glad/glad.h>
 #include <stb_image.h>
-#include <iostream>
 #include <filesystem>
+
+#include "../utils/Log.h"
 
 class TextureLoader {
 public:
     static unsigned int loadTexture(const std::filesystem::path& value) {
-        std::cout << "Loading texture: " << value << std::endl;
+        Log::logInfo("Loading texture: " + std::string(value));
         int width, height, nrChannels;
         unsigned char *data = stbi_load(value.c_str(), &width, &height,
         &nrChannels, 0);
@@ -41,7 +42,7 @@ public:
         }
         else
         {
-            std::cout << "Failed to load texture" << std::endl;
+            Log::logError("Failed to load texture: " + std::string(value));
         }
         stbi_image_free(data);
 

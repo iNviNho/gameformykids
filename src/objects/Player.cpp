@@ -2,8 +2,17 @@
 
 #include "Player.h"
 
+#include "../utils/Log.h"
+#include "GLFW/glfw3.h"
+
 constexpr float cameraDistance = 12.0f;
 constexpr float cameraHeight = 6.5f;
+
+// for higher jumps, increase
+constexpr float JUMP_FORCE = 5.0f;
+constexpr float GRAVITY = -9.8f;
+float currentJumpHeight = 0.0f;
+float velocityY = 0.0f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
 void Player::updateCameraPosition() {
@@ -33,6 +42,7 @@ void Player::updateCameraPosition() {
 }
 
 void Player::updateCameraPitch() {
+    // TODO: Player is not in the middle
     float hypotenus = sqrt(
         pow(cameraDistance, 2) +
         pow(cameraHeight, 2)
@@ -68,5 +78,38 @@ void Player::Move(glm::vec3 dir, float distance) {
         glm::vec3 normalizedDir = glm::normalize(dir);
 
         Move(normalizedDir * distance);
+    }
+}
+
+void Player::Jump() {
+    if (!jumped) {
+        Log::logInfo("Player jumped");
+        jumped = true;
+        jumpedAt = glfwGetTime();
+        velocityY = JUMP_FORCE;
+    }
+}
+
+void Player::handleJump(float deltaTime) {
+    if (jumped) {
+        // get current position
+        glm::vec3 newPos = GetPosition();
+
+        // apply gravity
+        velocityY += GRAVITY * deltaTime;
+        float heightToAdd = velocityY * deltaTime;
+        newPos.y += heightToAdd + currentJumpHeight;
+        // we need to keep track of currentJumpHeight
+        // because PathPlayerMover changes("resets") y position with
+        // every new frame to match the terrain
+        currentJumpHeight += heightToAdd;
+
+        if (newPos.y <= GetPosition().y) {
+            jumped = false;
+            jumpedAt = glfwGetTime();
+            currentJumpHeight = 0.0f;
+        } else {
+            SetPosition(newPos);
+        }
     }
 }
