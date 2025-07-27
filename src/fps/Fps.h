@@ -14,7 +14,7 @@ public:
     ~Fps() = default;
     void tick();
     float getFps() const { return fps; }
-    std::string getFpsAsString() const { return fpsAsString; }
+    const std::string& getFpsAsString() const { return fpsAsString; }
 };
 
 

@@ -10,7 +10,7 @@ private:
     EntitiesHolder grasses;
     void prepare();
 public:
-    explicit Grasses(const EntitiesHolder& grasses) : grasses(grasses) {
+    explicit Grasses(EntitiesHolder&& grasses) : grasses(std::move(grasses)) {
         this->prepare();
     }
     [[nodiscard]] const EntitiesHolder& GetEntities() const {return grasses;}

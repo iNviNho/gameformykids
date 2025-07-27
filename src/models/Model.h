@@ -15,7 +15,7 @@ public:
     explicit Model(const std::filesystem::path& modelPath);
     Model(const std::filesystem::path& modelPath, const std::filesystem::path& texturePath);
     Model(const std::filesystem::path& modelPath, Texture& texture);
-    explicit Model(Mesh &mesh);
+    explicit Model(Mesh&& mesh);
 
     void Draw(Shader& shader) const;
 
@@ -28,7 +28,7 @@ private:
     void loadModel(const std::filesystem::path& path);
     void processNode(aiNode *node, const aiScene *scene);
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);
-    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+    void loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures);
     void loadSingleTexture(const std::filesystem::path& texturePath);
     void loadSingleTexture(Texture& texture);
 };

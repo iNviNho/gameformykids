@@ -90,8 +90,8 @@ void Terrain::generateGrasses() {
         }
     }
 
-    this->grasses = Grasses{EntitiesHolder{entities}};
     Log::logInfo("Generated grasses: " + std::to_string(entities.size()));
+    this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
 const float Terrain::getHeight(float x, float z) const {

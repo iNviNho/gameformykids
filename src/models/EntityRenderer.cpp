@@ -61,7 +61,7 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
     // activate textures
     // const std::shared_ptr<Model> firstModel = modelsHolder.GetEntities()[0].GetModel();
     const std::shared_ptr<Model> firstModel = modelsHolder.GetEntities().front().GetModel();
-    Mesh firstMesh = firstModel->GetMeshes().front();
+    const Mesh& firstMesh = firstModel->GetMeshes().front();
     firstMesh.activateTextures(multiInstanceShader);
 
     // TODO: create sun class and move it there
