@@ -42,18 +42,13 @@ void Player::UpdateCameraPosition(bool animated) {
 }
 
 void Player::updateCameraPitch() {
-    float hypotenus = sqrt(
-        pow(cameraDistance, 2) +
-        pow(cameraHeight, 2)
-    );
-    float cosine = cameraDistance / hypotenus;
-    float angleInRadians = std::acos(cosine);
+    float angleInRadians = std::atan(cameraHeight /  cameraDistance);
     float angleInDegrees = angleInRadians * (180.0 / M_PI);
-    camera.UpdatePitch(angleInDegrees * -1.0f);
+    camera.UpdatePitch(angleInDegrees);
 }
 
 void Player::UpdateCameraYaw(bool animated) {
-    double yaw = -GetRotationYAngle() + 90.0f;
+    double yaw = 180.0 - GetRotationYAngle();
     if (yaw < 0) {
         yaw += 360.0;
     }
