@@ -25,7 +25,7 @@ void EntityRenderer::render(const Entity& entity) {
     // view/projection transformations
     // TODO: Does it always have to be generated?
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
-    glm::mat4 view = camera.GetViewMatrix();
+    const glm::mat4& view = camera.GetViewMatrix();
     singleInstanceShader.setMat4("projection", projection);
     singleInstanceShader.setMat4("view", view);
 
@@ -54,7 +54,7 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
     // view/projection transformations
     // TODO: Does it always have to be generated?
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
-    glm::mat4 view = camera.GetViewMatrix();
+    const glm::mat4& view = camera.GetViewMatrix();
     multiInstanceShader.setMat4("projection", projection);
     multiInstanceShader.setMat4("view", view);
 
