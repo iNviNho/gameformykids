@@ -8,7 +8,7 @@
 #include "../objects/Entity.h"
 
 void Grasses::prepare() {
-    std::vector<Entity> entities = grasses.GetEntities();
+    const std::vector<Entity>& entities = grasses.GetEntities();
     if (entities.empty()) {
         return;
     }
