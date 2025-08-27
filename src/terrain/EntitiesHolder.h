@@ -9,7 +9,7 @@ class EntitiesHolder {
 public:
     EntitiesHolder(std::vector<Entity> entities): entities(std::move(entities)) {}
     ~EntitiesHolder() = default;
-    [[nodiscard]] const std::vector<Entity>& GetEntities() const { return entities; }
+    const std::vector<Entity>& GetEntities() const { return entities; }
 private:
     std::vector<Entity> entities;
 };

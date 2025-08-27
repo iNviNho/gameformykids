@@ -20,7 +20,7 @@ public:
         generatePath(startPosition, blendMap, terrainSize);
     }
     ~Path() = default;
-    [[nodiscard]] const std::vector<glm::vec3>& getPath() const { return path; }
+    const std::vector<glm::vec3>& getPath() const { return path; }
 };
 
 

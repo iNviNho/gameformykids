@@ -66,15 +66,15 @@ private:
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
-    [[nodiscard]] const float GetCountOfVertices() const;
-    [[nodiscard]] unsigned int GetVAO() const { return VAO; }
-    [[nodiscard]] unsigned int GetGrassTexture() const { return grassTexture; }
-    [[nodiscard]] unsigned int GetPathTexturre() const { return pathTexture; }
-    [[nodiscard]] unsigned int GetMudTexture() const { return mudTexture; }
-    [[nodiscard]] unsigned int GetFlowersTexture() const { return flowersTexture; }
-    [[nodiscard]] unsigned int GetBlendMapTexture() const { return blendMapTexture; }
-    [[nodiscard]] int GetSize() { return SIZE; }
-    [[nodiscard]] const Grasses& GetGrasses() const { return grasses;}
+    const float GetCountOfVertices() const;
+    unsigned int GetVAO() const { return VAO; }
+    unsigned int GetGrassTexture() const { return grassTexture; }
+    unsigned int GetPathTexturre() const { return pathTexture; }
+    unsigned int GetMudTexture() const { return mudTexture; }
+    unsigned int GetFlowersTexture() const { return flowersTexture; }
+    unsigned int GetBlendMapTexture() const { return blendMapTexture; }
+    int GetSize() { return SIZE; }
+    const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader& shader);
 
     const float GetHeightOfTerrain(float x, float z) const;

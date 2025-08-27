@@ -20,9 +20,9 @@ public:
     bool isBlackColor(int x, int y) const;
     bool isBlueColor(int x, int y) const;
     bool isRedColor(int x, int y) const;
-    [[nodiscard]] int getWidth() const { return width; }
-    [[nodiscard]] int getHeight() const { return height; }
-    [[nodiscard]] const unsigned char* getData() const { return data; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+    const unsigned char* getData() const { return data; }
 };
 
 
