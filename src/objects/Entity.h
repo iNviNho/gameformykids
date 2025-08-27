@@ -20,7 +20,7 @@ public:
     void RotateZ(float angle) { rotation.z += angle; }
     void Move(glm::vec3 position);
     void SetPosition(glm::vec3 position);
-    std::shared_ptr<Model> GetModel() const { return model; }
+    const Model& GetModel() const { return *model; }
     const glm::vec3& GetPosition() const { return position; }
     float GetRotationXAngle() const { return rotation.x; }
     float GetRotationYAngle() const { return rotation.y; }
