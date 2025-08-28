@@ -13,7 +13,7 @@ void Grasses::prepare() {
         return;
     }
 
-    const std::shared_ptr<Model> model = grasses.GetEntities().front().GetModel();
+    const Model& model = grasses.GetEntities().front().GetModel();
     auto modelMatrices = std::make_unique<glm::mat4[]>(entities.size());
 
     for (int i = 0; i < entities.size(); i++) {
@@ -28,8 +28,8 @@ void Grasses::prepare() {
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, entities.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
-    for (unsigned int i = 0; i < model->GetMeshes().size(); i++) {
-        model->GetMeshes()[i].bindVAO();
+    for (unsigned int i = 0; i < model.GetMeshes().size(); i++) {
+        model.GetMeshes().at(i).bindVAO();
         std::size_t v4s = sizeof(glm::vec4);
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4*v4s, (void*)0);

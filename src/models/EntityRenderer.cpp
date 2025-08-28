@@ -40,7 +40,7 @@ void EntityRenderer::render(const Entity& entity) {
     // TODO: Implement scaling
     // model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
     singleInstanceShader.setMat4("model", model);
-    entity.GetModel()->Draw(singleInstanceShader);
+    entity.GetModel().Draw(singleInstanceShader);
 }
 
 void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
@@ -60,8 +60,8 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
 
     // activate textures
     // const std::shared_ptr<Model> firstModel = modelsHolder.GetEntities()[0].GetModel();
-    const std::shared_ptr<Model> firstModel = modelsHolder.GetEntities().front().GetModel();
-    const Mesh& firstMesh = firstModel->GetMeshes().front();
+    const Model& firstModel = modelsHolder.GetEntities().front().GetModel();
+    const Mesh& firstMesh = firstModel.GetMeshes().front();
     firstMesh.activateTextures(multiInstanceShader);
 
     // TODO: create sun class and move it there
@@ -70,12 +70,12 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
     multiInstanceShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     multiInstanceShader.setVec3("light.position", glm::vec3(10.0f, 0.0f, 20.0f));
 
-    for (unsigned int i = 0; i < firstModel->GetMeshes().size(); i++)
+    for (unsigned int i = 0; i < firstModel.GetMeshes().size(); i++)
     {
-        glBindVertexArray(firstModel->GetMeshes().at(i).GetVAO());
+        glBindVertexArray(firstModel.GetMeshes().at(i).GetVAO());
         glDrawElementsInstanced(
             GL_TRIANGLES,
-            static_cast<unsigned int>(firstModel->GetMeshes().at(i).GetIndices().size()),
+            static_cast<unsigned int>(firstModel.GetMeshes().at(i).GetIndices().size()),
             GL_UNSIGNED_INT,
             0,
             modelsHolder.GetEntities().size());
