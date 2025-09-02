@@ -57,10 +57,11 @@ void Terrain::generateGrasses() {
     Log::logInfo("Generating grasses");
     std::shared_ptr<Model> grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
 
+    // capacity unknown at this point
     std::vector<Entity> entities;
     float blendMapWidthToTerrainSizeRatio = blendMap.getWidth() / SIZE;
     // TODO: All of this could be precomputated during build time instead of
-    // doing it at runtime to increase start time
+    // doing it at runtime to speed up start time
     for (int x = 0; x < SIZE; x++) {
         for (int z = 0; z < SIZE; z++) {
             for (int p = 0; p < GRASS_DENSITY; p++) {
