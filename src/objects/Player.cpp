@@ -67,17 +67,8 @@ void Player::Move(glm::vec3 pos) {
     UpdateCameraYaw();
 }
 
-void Player::Move(glm::vec3 dir, float distance) {
-    float dirLengthSquared = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
-    if (dirLengthSquared > 0.0001f) { // Avoid division by zero or moving in zero direction
-        glm::vec3 normalizedDir = glm::normalize(dir);
-
-        // Clamp distance to prevent large movements due to high deltaTime
-        float maxDistance = 1.0f; // Adjust as needed
-        distance = glm::min(distance, maxDistance);
-
-        Move(normalizedDir * distance);
-    }
+void Player::Move(glm::vec3 normalizedDir, float distance) {
+    Move(normalizedDir * distance);
 }
 
 void Player::Jump() {
