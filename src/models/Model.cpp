@@ -43,6 +43,9 @@ void Model::loadModel(const std::filesystem::path& modelPath)
     // smaller meshes.
     // aiProcess_OptimizeMeshes: does the reverse by trying to join several meshes into
     // one larger mesh, reducing drawing calls for optimization
+    //
+    // if aiProcess_Triangulate is removed, also Mesh.cpp has to be updated as each face could have potentially
+    // more vertices
     const aiScene *scene = importer.ReadFile(modelPath.native(), aiProcess_Triangulate | aiProcess_FlipUVs);
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -71,7 +74,9 @@ void Model::processNode(aiNode *node, const aiScene *scene) {
 
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     std::vector<Vertex> vertices;
+    vertices.reserve(mesh->mNumVertices);
     std::vector<unsigned int> indices;
+    indices.reserve(mesh->mNumFaces * 3);
     std::vector<Texture> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -91,7 +96,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         } else {
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
-        vertices.push_back(vertex);
+        vertices.emplace_back(vertex);
     }
     // assimp stores all the mesh’s faces in the mFaces array
     // each face is basically a triangle

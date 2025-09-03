@@ -35,6 +35,7 @@ float lastX = 400, lastY = 300;
 bool firstMouse = false;
 Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f) };
 glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
+constexpr glm::vec3 whiteColor{1.0f, 1.0f, 1.0f};
 
 int constexpr WIDTH = 800;
 int constexpr HEIGHT = 600;
@@ -102,10 +103,9 @@ int main() {
         terrainRenderer.render(terrain);
         entityRenderer.render(player);
 
-        // TODO: Muted until I find more efficient way to render text
-        // textRenderer.RenderText(title, WIDTH - 170, HEIGHT - 30, 0.45f, blackColor);
-        // textRenderer.RenderBlackText(fps.getFpsAsString(), 25.0f, 25.0f, 0.25f);
-        // textRenderer.RenderText("camera x:" + std::to_string(camera.Position.x) + " y:" + std::to_string(camera.Position.y) + " z:" + std::to_string(camera.Position.z), 25.0f, 50.0f, 0.25f, blackColor);
+        textRenderer.RenderText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f, whiteColor);
+        // TODO: Still unoptimized
+        // textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

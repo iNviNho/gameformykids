@@ -11,7 +11,7 @@ public:
     TextRenderer(int screenWidth, int screenHeight);
     ~TextRenderer() = default;
     // void RenderBlackText(std::string text, float x, float y, float scale);
-    void RenderText(const std::string& text, float x, float y, float scale, glm::vec3& color);
+    void RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
 private:
     Shader shader;
     FT_Library ft;

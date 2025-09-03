@@ -104,7 +104,7 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight):
 // }
 
 
-void TextRenderer::RenderText(const std::string& text, float x, float y, float scale, glm::vec3& color) {
+void TextRenderer::RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
     // activate corresponding render state
     shader.use();
     glUniform3f(glGetUniformLocation(shader.ID, "textColor"), color.x, color.y, color.z);
