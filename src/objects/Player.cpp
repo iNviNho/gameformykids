@@ -55,19 +55,28 @@ void Player::UpdateCameraYaw(bool animated) {
     camera.UpdateYaw(yaw, animated);
 }
 
-// TODO: Refactor move methods and streamline usage
-void Player::Move(glm::vec3 pos) {
-    // update y position based on terrain height
-    pos.y = terrain.GetHeightOfTerrain(GetPosition().x, GetPosition().z) - GetPosition().y;
+/**
+ * Moves player by given position vector.
+ *
+ * It also updates camera position, pitch and yaw to match the new player position.
+ */
+void Player::MoveBy(glm::vec3& moveVector) {
     // we first move entity
-    Entity::Move(pos);
+    Entity::MoveBy(moveVector);
+
+    // then we update player's height accordingly
+    Entity::MoveTo(glm::vec3{ GetPosition().x, terrain.GetHeightOfTerrain(GetPosition().x, GetPosition().z), GetPosition().z });
+
     // then we offset camera
     UpdateCameraPosition();
     updateCameraPitch();
     UpdateCameraYaw();
 }
 
-void Player::Move(glm::vec3 dir, float distance) {
+/**
+ * Moves player in given direction by given distance.
+ */
+void Player::MoveIn(const glm::vec3& dir, float& distance) {
     float dirLengthSquared = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
     if (dirLengthSquared > 0.0001f) { // Avoid division by zero or moving in zero direction
         glm::vec3 normalizedDir = glm::normalize(dir);
@@ -76,7 +85,8 @@ void Player::Move(glm::vec3 dir, float distance) {
         float maxDistance = 1.0f; // Adjust as needed
         distance = glm::min(distance, maxDistance);
 
-        Move(normalizedDir * distance);
+        glm::vec3 movement = normalizedDir * distance;
+        MoveBy(movement);
     }
 }
 
@@ -108,7 +118,7 @@ void Player::handleJump(float deltaTime) {
             jumpedAt = glfwGetTime();
             currentJumpHeight = 0.0f;
         } else {
-            SetPosition(newPos);
+            MoveTo(newPos);
         }
     }
 }
