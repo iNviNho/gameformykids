@@ -31,7 +31,7 @@ public:
         movingTowards = path.getPath().at(1);
         setToStart();
     }
-    void move(float deltaTime);
+    void move(float distance);
 };
 
 
