@@ -10,7 +10,7 @@ void PathPlayerMover::move(float deltaTime) {
     flatPlayerPosition.y = 1.0f;
     glm::vec3 movePoint = flatMovingTowards - flatPlayerPosition;
 
-    player.Move(movePoint, deltaTime);
+    player.MoveIn(movePoint, deltaTime);
 
     if (abs(player.GetPosition().x - movingTowards.x ) < 0.5f &&
         abs(player.GetPosition().z - movingTowards.z) < 0.5f &&

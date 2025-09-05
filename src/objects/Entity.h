@@ -18,8 +18,8 @@ public:
     void RotateY(float angle) { rotation.y += angle; }
     void SetRotateY(float angle) { rotation.y = angle; }
     void RotateZ(float angle) { rotation.z += angle; }
-    void Move(glm::vec3 position);
-    void SetPosition(glm::vec3 position);
+    void MoveBy(const glm::vec3& moveVector);
+    void MoveTo(const glm::vec3& position);
     const Model& GetModel() const { return *model; }
     const glm::vec3& GetPosition() const { return position; }
     float GetRotationXAngle() const { return rotation.x; }
@@ -30,7 +30,7 @@ private:
     glm::vec3 position;
     glm::vec3 rotation;
 
-    void updateRotation(glm::vec3 dir);
+    void updateRotation(const glm::vec3& direction);
 };
 
 

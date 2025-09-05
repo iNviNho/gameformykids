@@ -38,6 +38,7 @@ void RandomPlayerMover::move(float deltaTime) {
             position = glm::vec3(0.1f, 0.0f, -0.5f);
         break;
     }
-    player.Move(position * velocity);
+    glm::vec3 movement = position * velocity;
+    player.MoveBy(movement);
     iterations++;
 }

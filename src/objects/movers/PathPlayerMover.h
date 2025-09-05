@@ -26,7 +26,7 @@ public:
             throw std::runtime_error("Pointer bigger than path size. This happens if path couldn't be generated.");
         }
         // player starts at pointer 0
-        player.SetPosition(path.getPath().at(0));
+        player.MoveTo(path.getPath().at(0));
         // he will move towards pointer 1
         movingTowards = path.getPath().at(1);
         setToStart();

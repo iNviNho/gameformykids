@@ -20,8 +20,8 @@ public:
     Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
         Entity(model, position), terrain(terrain), camera(camera) {
     }
-    void Move(glm::vec3 pos);
-    void Move(glm::vec3 dir, float distance);
+    void MoveBy(glm::vec3& moveVector);
+    void MoveIn(const glm::vec3& dir, float& distance);
 
     void UpdateCameraPosition(bool animated = true);
     void UpdateCameraYaw(bool animated = true);

@@ -37,4 +37,13 @@ features, you can check the related commit that is attached with uploaded screen
 - Player's animal selection [ ]
 - ...
 
+# Having issues with CMake?
+
+If you are having issues with CMake, try to set the policy version to 3.5.
+
+Go to Settings → Build, Execution, Deployment → CMake → CMake options
+Add:
+```
+-DCMAKE_POLICY_VERSION_MINIMUM=3.5
+```
 
