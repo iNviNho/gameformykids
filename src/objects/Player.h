@@ -10,8 +10,8 @@
 class Player: public Entity {
     using Entity::Entity;
 private:
-    Camera &camera;
-    Terrain &terrain;
+    Camera& camera;
+    Terrain& terrain;
     bool jumped = false;
     double jumpedAt = 0.0f;
     float speed = 4.0f;
@@ -30,8 +30,8 @@ public:
     void Jump();
     void handleJump(float deltaTime);
 
-    float GetSpeed() const { return speed;}
-    Camera& GetCamera() { return camera;}
+    const float& GetSpeed() const { return speed;}
+    Camera& GetCamera() const { return camera;}
 };
 
 #endif //PLAYER_H
