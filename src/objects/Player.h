@@ -30,7 +30,7 @@ public:
     void Jump();
     void handleJump(float deltaTime);
 
-    const float& GetSpeed() const { return speed;}
+    float GetSpeed() const { return speed;}
     Camera& GetCamera() const { return camera;}
 };
 

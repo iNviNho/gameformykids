@@ -15,7 +15,7 @@ private:
     int pointer = 1;
     void setToStart();
 public:
-    explicit PathPlayerMover(Player& player, const int& terrainSize):
+    explicit PathPlayerMover(Player& player, int terrainSize):
         player(player),
         path(Path{
             data_dir() /= std::filesystem::path("resources/paths/path.svg"),
