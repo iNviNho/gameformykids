@@ -19,6 +19,7 @@
 #include "src/text/TextRenderer.h"
 #include <data_dir.h>
 
+#include "lunasvg.h"
 #include "src/utils/Log.h"
 
 using path = std::filesystem::path;
@@ -67,7 +68,7 @@ int main() {
         camera,
         terrain,
         wolf,
-        glm::vec3(32.5f, 0.0f, -26.0f)
+        glm::vec3(0.0f, 0.0f, 0.0f)
     );
     PathPlayerMover playerMover(player, terrain.GetSize());
 
@@ -105,7 +106,7 @@ int main() {
 
         textRenderer.RenderText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f, whiteColor);
         // TODO: Still unoptimized
-        // textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
+        textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

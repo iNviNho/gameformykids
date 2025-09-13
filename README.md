@@ -37,4 +37,46 @@ features, you can check the related commit that is attached with uploaded screen
 - Player's animal selection [ ]
 - ...
 
+# Having issues with CMake?
+
+If you are having issues with CMake, try to set the policy version to 3.5.
+
+Go to Settings → Build, Execution, Deployment → CMake → CMake options
+Add:
+```
+-DCMAKE_POLICY_VERSION_MINIMUM=3.5
+```
+
+# GOTCHA's
+
+## Const before member function (const-qualified return type)
+
+In C++, **const** before a function means the return value is constant (e.g., const int func()), so the caller cannot
+modify the returned value **if it is a reference or pointer**.
+
+```c++
+const Player& getPlayer() {
+    player.TraceGetted();
+    return player;
+}
+
+getPlayer().SetHealth(100); // Error: cannot modify a const return value
+getPlayer().GetHealth(); // OK
+```
+
+## Const after member function (const member function)
+
+Then **const** after a member function (e.g., int func() const) means the function does not modify any member variables
+of the class (except those marked as mutable). It guarantees the method is read-only with respect to the object's state.
+This allows calling the function on const instances of the class.
+
+```c++
+const Player& getPlayer() const {
+    return player;
+}
+
+getPlayer(); // no state change
+getPlayer(); // no state change
+getPlayer(); // no state change
+```
 
