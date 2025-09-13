@@ -164,22 +164,50 @@ public:
 private:
 
     /**
-     * Calculates the view matrix from the Camera's (updated) Euler Angles
+     * Calculates the view matrix from Camera::Position, Camera::Yaw, and Camera::Pitch.
      *
-     * The matrix is derived as follows:
+     * The view matrix \f$\mathbf{M}\f$ is derived as follows:
      *
-     * const glm::mat3 r_yaw = glm::mat3{ cos_yaw, 0, -sin_yaw,
-     *                                          0, 1,        0,
-     *                                    sin_yaw, 0,  cos_yaw };
-     * const glm::mat3 r_pitch = glm::mat3{ 1,          0,         0,
-     *                                      0,  cos_pitch, sin_pitch,
-     *                                      0, -sin_pitch, cos_pitch };
-     * const glm::mat4 r{ r_pitch * r_yaw };
+     * \f[
+     * \mathbf{R}_{yaw} = \left[
+     * \begin{array}{ccc}
+     * \  \cos yaw & 0 & \sin yaw \ \\
+     * \  0        & 1 & 0        \ \\
+     * \ -\sin yaw & 0 & \cos yaw \ 
+     * \end{array}
+     * \right]
+     * \f]
      *
-     * viewMatrix = r * glm::mat4{ glm::vec4{1,0,0,0},
-     *                             glm::vec4{0,1,0,0},
-     *                             glm::vec4{0,0,1,0},
-     *                             glm::vec4{-Position.x, -Position.y, -Position.z, 1} } ;
+     * \f[
+     * \mathbf{R}_{pitch} = \left[
+     * \begin{array}{ccc}
+     * \ 1 & 0          &  0          \ \\
+     * \ 0 & \cos pitch & -\sin pitch \ \\
+     * \ 0 & \sin pitch &  \cos pitch \ 
+     * \end{array}
+     * \right]
+     * \f]
+     *
+     * \f[
+     * \mathbf{R} = \mathbf{R}_{pitch} * \mathbf{R}_{yaw}
+     * \f]
+     *
+     * \f[
+     * \mathbf{M} = \left[
+     * \begin{array}{cc}
+     * \ \mathbf{R}            & \mathbf{0} \ \\
+     * \ \mathbf{0}^\mathrm{T} & 1          \ 
+     * \end{array}
+     * \right] * \left[
+     * \begin{array}{cccc}
+     * \ 1 & 0 & 0 & -Position_x \ \\
+     * \ 0 & 1 & 0 & -Position_y \ \\
+     * \ 0 & 0 & 1 & -Position_z \ \\
+     * \ 0 & 0 & 0 &  1          \ 
+     * \end{array}
+     * \right]
+     * \f]
+     *
      */
     void updateViewMatrix()
     {
