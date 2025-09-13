@@ -1,43 +1,35 @@
-
-
 #include "Path.h"
 
-#include "../images/Image.h"
+#include "data_dir.h"
+#include "lunasvg.h"
+#include "SvgDElementPathParser.h"
 #include "../terrain/Terrain.h"
+#include "../utils/Log.h"
 
-// TODO: Is this the good place for config?
-float distance = 2.5;
-int raysPerIteration = 180;
-int seeks = 300;
+void Path::generatePath(
+    const std::string& pathFile,
+    const float& pathFoundationSize,
+    const float& offsetX,
+    const float& offsetZ,
+    const int& terrainSize
+    ) {
+    auto svgFile = lunasvg::Document::loadFromFile(pathFile);
+    if(svgFile == nullptr) {
+        throw std::runtime_error("Failed to generate path. Unable to load path file: " + pathFile);
+    }
+    auto pathFoundationToTerrainScale = pathFoundationSize / terrainSize;
 
-// TODO: The path generated should be smoothed to avoid sharp turns.
-void Path::generatePath(glm::vec3 startPosition, const std::filesystem::path& blendMap, int terrainSize) {
-    path = {
-        startPosition
-    };
+    for (const auto& element : svgFile->documentElement().children()) {
+        if (element.isElement()) {
+            auto pts = SvgDElementPathParser::parsePath( element.toElement().getAttribute("d"));
 
-    // we need to "shoot" X rays in each direction
-    auto blendMapImage = Image(blendMap);
-    int imageRatio = blendMapImage.getWidth() / terrainSize;
-
-    float startingAngle = -90.0f;
-    glm::vec3 latestPoint = startPosition;
-    for (int j = 0; j < seeks; j++) {
-        for (int i = 0; i < raysPerIteration; i++) {
-            float angle = startingAngle + i;
-            double radians = angle * (M_PI / 180.0f);
-            float xPositionOnTheTerrain = sin(radians) * distance + latestPoint.x;
-            float zPositionOnTheTerrain = -(cos(radians) * distance) + latestPoint.z;
-
-            int blendMapImageXpos = xPositionOnTheTerrain * imageRatio;
-            int blendMapImageZpos = -zPositionOnTheTerrain * imageRatio;
-
-            // if any point has red color, we take that point as next point and we move on
-            if (blendMapImage.isRedColor(blendMapImageXpos, blendMapImageZpos)) {
-                latestPoint = glm::vec3(xPositionOnTheTerrain, 0.0f, zPositionOnTheTerrain);
-                path.push_back(latestPoint);
-                break;
+            for(auto& p : pts) {
+                path.push_back(glm::vec3{
+                    (p.x + offsetX) / pathFoundationToTerrainScale,
+                    0.0f,
+                    (p.y - svgFile->height() - offsetZ) / pathFoundationToTerrainScale});
             }
         }
     }
+    Log::logInfo("Successfully generated path. Path contains " + std::to_string(path.size()) + " points.");
 }
