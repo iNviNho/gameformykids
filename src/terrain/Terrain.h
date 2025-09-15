@@ -90,19 +90,120 @@ private:
         return dataPtr;
     }
 
-    void setVertexData(const std::unique_ptr<GLfloat[]>& dataPoints);
-    
-    /**
-     *  'z' is 0
-     */
-    void setVertexData_x(const std::unique_ptr<GLfloat[]>& dataPoints, const int x);
-    
-    /**
-     *  'x' is 0
-	 */
-    void setVertexData_z(const std::unique_ptr<GLfloat[]>& dataPoints, const int z);
+    // generic ("false", "false" )
+    template<bool X_IS_ZERO, bool Z_IS_ZERO>
+    struct SetVertexDataHelper
+    {
+        const int xPlus1;
+        const float floatXPlus1;
 
-    void setVertexData_xz(const std::unique_ptr<GLfloat[]>& dataPoints, const int x, const int z);
+        const GLfloat* const dataPtrZMinus1;
+
+        const int zPlus1;
+        const float floatZPlus1;
+
+        const GLfloat* const dataPtrXMinus1;
+
+        constexpr
+        SetVertexDataHelper(const GLfloat * const dataPoints, const int x, const int z)
+        noexcept
+        : xPlus1(x + 1), floatXPlus1(static_cast<float>(xPlus1)), dataPtrZMinus1(dataPoints + ((z - 1) * SIZE * DATA_PER_LOC + x * DATA_PER_LOC)),
+          zPlus1(z + 1), floatZPlus1(-static_cast<float>(zPlus1)), dataPtrXMinus1(dataPoints + (z * SIZE * DATA_PER_LOC + (x - 1) * DATA_PER_LOC))
+        { }
+    };
+
+    template<>
+    struct SetVertexDataHelper<true, true>
+    {
+        static constexpr const int xPlus1 = 1;
+        static constexpr const float floatX = 0.0f;
+        static constexpr const float floatXPlus1 = 1.0f;
+
+        static constexpr const int zPlus1 = 1;
+        static constexpr const float floatZ = 0.0f;
+        static constexpr const float floatZPlus1 = -1.0f;
+
+        constexpr
+        SetVertexDataHelper(const GLfloat * const, const int, const int)
+        noexcept
+        { }
+    };
+
+    template<>
+    struct SetVertexDataHelper<false, true>
+    {
+        const int xPlus1;
+        const float floatXPlus1;
+
+        static constexpr const int zPlus1 = 1;
+        static constexpr const float floatZ = 0.0f;
+        static constexpr const float floatZPlus1 = -1.0f;
+
+        const GLfloat* const dataPtrXMinus1;
+
+        constexpr
+        SetVertexDataHelper(const GLfloat * const dataPoints, const int x, const int)
+        noexcept
+        : xPlus1(x + 1), floatXPlus1(static_cast<float>(xPlus1)), dataPtrXMinus1(dataPoints + ((x - 1) * DATA_PER_LOC))
+        { }
+    };
+
+    template<>
+    struct SetVertexDataHelper<true, false>
+    {
+        static constexpr const int xPlus1 = 1;
+        static constexpr const float floatX = 0.0f;
+        static constexpr const float floatXPlus1 = 1.0f;
+
+        const GLfloat* const dataPtrZMinus1;
+
+        const int zPlus1;
+        const float floatZPlus1;
+
+        constexpr
+        SetVertexDataHelper(const GLfloat * const dataPoints, const int, const int z)
+        noexcept
+        : zPlus1(z + 1), floatZPlus1(-static_cast<float>(zPlus1)), dataPtrZMinus1(dataPoints + ((z - 1) * SIZE * DATA_PER_LOC))
+        { }
+    };
+
+    template<bool X_IS_ZERO, bool Z_IS_ZERO>
+    void setVertexData(const std::unique_ptr<GLfloat[]>& dataPoints, const int x, const int z) const
+    {
+        // data start for location (x, z)
+        GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
+        GLfloat* dataPtr = dataPtrStart;
+
+        const SetVertexDataHelper<X_IS_ZERO, Z_IS_ZERO> hlp{ dataPoints.get(), x, z };
+
+        // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
+        // C,A,B
+        dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{hlp.xPlus1, -hlp.zPlus1}, 1.0f, 1.0f);
+
+        if constexpr (X_IS_ZERO && Z_IS_ZERO)
+            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, getHeight(x, -z), hlp.floatZ }, glm::vec<2, int>{x,-z}, 0.0f, 0.0f);
+        else if constexpr (!X_IS_ZERO)
+            dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrXMinus1 + 2 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
+        else
+            dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrZMinus1 + 4 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
+
+        if constexpr (Z_IS_ZERO)
+            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -z), hlp.floatZ }, glm::vec<2, int>{hlp.xPlus1, -z}, 1.0f, 0.0f);
+        else
+            dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrZMinus1 + 0 * DATA_PER_GL_VERTEX, 1.0f, 0.0f);
+
+        // Let's define SECOND triangle in COUNTER-CLOCKWISE order
+        // C,D,A
+        dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
+
+        if constexpr (X_IS_ZERO)
+            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, getHeight(x, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{x, -hlp.zPlus1}, 0.0f, 1.0f);
+        else
+            dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrXMinus1 + 0 * DATA_PER_GL_VERTEX, 0.0f, 1.0f);
+
+        dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
+    }
+    
     /**
 	 * @param[in] x height map column coordinate
 	 * @param[in] z height map negated row coordinate
