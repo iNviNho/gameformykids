@@ -8,7 +8,7 @@ path on the terrain that will be full with obstacles. The player must jump above
 all the way to the finish.
 
 -- latest progress screenshot
-![14cameraFullyFollowsPlayer2.png](progressScreenshots/14cameraFullyFollowsPlayer2.png)
+![14cameraFullyFollowsPlayer2.png](progressScreenshots/22playerJumps.png)
 
 ## Progress tracking 
 
