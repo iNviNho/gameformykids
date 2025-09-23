@@ -117,6 +117,10 @@ add_executable(mygame main.cpp
         src/audio/audio.cpp
         src/audio/SoundManager.cpp
         src/audio/SoundManager.h
+        src/objects/movers/Intersection.h
+        src/objects/movers/NoDuplicatesAdapter.h
+        src/objects/movers/MeshIntersecter.h
+        src/objects/movers/MeshIntersecter.cpp
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")

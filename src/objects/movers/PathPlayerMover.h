@@ -6,6 +6,8 @@
 #include "../Player.h"
 #include "../../pathing/Path.h"
 #include <data_dir.h>
+#include "Intersection.h"
+#include "MeshIntersecter.h"
 
 class PathPlayerMover {
 private:
@@ -14,7 +16,17 @@ private:
     Path path;
     glm::vec3 movingTowards;
     int pointer = 1;
+    std::vector<Intersection> inters;
+    std::vector<Intersection>::const_iterator nextInter;
+    MeshIntersecter intersecter;
     void setToStart();
+
+    glm::vec3 addHeight(const glm::vec3& point) const {
+        return glm::vec3{ point.x, terrain.GetHeightOfTerrain(point.x, point.z), point.z };
+    }
+
+    void setMovingTowards(const glm::vec3& point);
+
 public:
     explicit PathPlayerMover(Player& player, const Terrain& terrain):
         player(player),
@@ -25,15 +37,18 @@ public:
             90.0f,
             110.0f,
             terrain.GetSize()
-        })
+        }),
+        inters{},
+        nextInter{ inters.cend() },
+        intersecter{ terrain }
     {
         if (path.getPath().size() < pointer) {
             throw std::runtime_error("Pointer bigger than path size. This happens if path couldn't be generated.");
         }
         // player starts at pointer 0
-        player.MoveTo(path.getPath().at(0));
+        player.MoveTo(addHeight(path.getPath().at(0)));
         // he will move towards vector at position 1
-        movingTowards = path.getPath().at(1);
+        setMovingTowards(addHeight(path.getPath().at(1)));
         setToStart();
     }
     void move(float distance);
