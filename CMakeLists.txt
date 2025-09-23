@@ -91,6 +91,10 @@ add_executable(mygame main.cpp
         src/utils/Log.h
         src/utils/Log.cpp
         src/pathing/SvgDElementPathParser.h
+        src/objects/movers/Intersection.h
+        src/objects/movers/NoDuplicatesAdapter.h
+        src/objects/movers/MeshIntersecter.h
+        src/objects/movers/MeshIntersecter.cpp
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src")

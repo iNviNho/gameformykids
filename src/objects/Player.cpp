@@ -64,9 +64,6 @@ void Player::MoveBy(const glm::vec3& moveVector) {
     // we first move entity
     Entity::MoveBy(moveVector);
 
-    // then we update player's height accordingly
-    Entity::MoveTo(glm::vec3{ GetPosition().x, terrain.GetHeightOfTerrain(GetPosition().x, GetPosition().z), GetPosition().z });
-
     // then we offset camera
     UpdateCameraPosition();
     updateCameraPitch();
