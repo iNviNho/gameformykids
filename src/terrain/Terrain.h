@@ -2,11 +2,12 @@
 #define TERRAIN_H
 #include <memory>
 #include <filesystem>
+#include <algorithm>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "Grasses.h"
 #include "../images/Image.h"
-#include "../models/Model.h"
 #include "../shaders/shader.h"
-
 
 class Terrain
 {

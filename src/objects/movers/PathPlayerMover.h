@@ -3,6 +3,8 @@
 #ifndef PATHPLAYERMOVER_H
 #define PATHPLAYERMOVER_H
 #include <filesystem>
+#include <stdexcept>
+#include <glm/vec3.hpp>
 #include "../Player.h"
 #include "../../pathing/Path.h"
 #include <data_dir.h>

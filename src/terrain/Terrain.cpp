@@ -1,14 +1,12 @@
 #include "Terrain.h"
-
+#include <vector>
 
 #include <glad/glad.h>
-
+#include "../objects/Entity.h"
 #include "EntitiesHolder.h"
 #include "Grasses.h"
-#include "../images/Image.h"
 #include "../models/Model.h"
 #include "../models/ModelGenerator.h"
-#include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 #include <glm/glm.hpp>
 #include <data_dir.h>
