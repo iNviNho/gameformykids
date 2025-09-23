@@ -1,6 +1,8 @@
 
 
 #include "PathPlayerMover.h"
+#include <limits>
+#include <algorithm>
 
 static constexpr const float AT_TARGET = std::numeric_limits<float>::epsilon();
 
