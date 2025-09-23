@@ -256,7 +256,7 @@ public:
     unsigned int GetMudTexture() const { return mudTexture; }
     unsigned int GetFlowersTexture() const { return flowersTexture; }
     unsigned int GetBlendMapTexture() const { return blendMapTexture; }
-    int GetSize() { return SIZE; }
+    constexpr int GetSize() const noexcept { return SIZE; }
     const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader& shader);
 

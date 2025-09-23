@@ -8,23 +8,26 @@
 #include "../Player.h"
 #include "../../pathing/Path.h"
 #include <data_dir.h>
+#include "../../terrain/Terrain.h"
 
 class PathPlayerMover {
 private:
     Player& player;
+    const Terrain& terrain;
     Path path;
     glm::vec3 movingTowards;
     int pointer = 1;
     void setToStart();
 public:
-    explicit PathPlayerMover(Player& player, int terrainSize):
+    explicit PathPlayerMover(Player& player, const Terrain& terrain):
         player(player),
+        terrain(terrain),
         path(Path{
             data_dir() /= std::filesystem::path("resources/paths/path.svg"),
             1024.0f,
             90.0f,
             110.0f,
-            terrainSize
+            terrain.GetSize()
         })
     {
         if (path.getPath().size() < pointer) {
