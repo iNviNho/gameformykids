@@ -84,7 +84,7 @@ int main() {
         wolf,
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
-    PathPlayerMover playerMover(player, terrain.GetSize());
+    PathPlayerMover playerMover(player, terrain);
 
     glEnable(GL_DEPTH_TEST);
 
