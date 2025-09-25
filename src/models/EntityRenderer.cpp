@@ -8,7 +8,7 @@
 
 using path = std::filesystem::path;
 
-EntityRenderer::EntityRenderer(const Camera& camera):
+EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
     singleInstanceShader(Shader{
     data_dir() /= path("src/shaders/files/singleInstanceShader.vs"),
     data_dir() /= path("src/shaders/files/modelShader.fs")
@@ -17,14 +17,15 @@ EntityRenderer::EntityRenderer(const Camera& camera):
         data_dir() /= path("src/shaders/files/multiInstanceShader.vs"),
         data_dir() /= path("src/shaders/files/modelShader.fs")
     }),
-    camera(camera) {}
+    camera(camera),
+    screen(screen) {}
 
 void EntityRenderer::render(const Entity& entity) {
     singleInstanceShader.use();
 
     // view/projection transformations
     // TODO: Does it always have to be generated?
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 100.0f);
     const glm::mat4& view = camera.GetViewMatrix();
     singleInstanceShader.setMat4("projection", projection);
     singleInstanceShader.setMat4("view", view);
@@ -53,7 +54,7 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
 
     // view/projection transformations
     // TODO: Does it always have to be generated?
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 100.0f);
     const glm::mat4& view = camera.GetViewMatrix();
     multiInstanceShader.setMat4("projection", projection);
     multiInstanceShader.setMat4("view", view);

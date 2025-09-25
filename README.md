@@ -1,5 +1,7 @@
 # gameformykids
 
+![img.png](progressScreenshots/menu.png)
+
 I was always curious about how 3D games work and how are they created. To combine my curiosity with my kids' possible 
 future interest in games, I decided to create a simple game for them.
 
@@ -8,7 +10,7 @@ path on the terrain that will be full with obstacles. The player must jump above
 all the way to the finish.
 
 -- latest progress screenshot
-![14cameraFullyFollowsPlayer2.png](progressScreenshots/14cameraFullyFollowsPlayer2.png)
+![14cameraFullyFollowsPlayer2.png](progressScreenshots/21grassIsNotGeneratedOnRoad.png)
 
 ## Progress tracking 
 

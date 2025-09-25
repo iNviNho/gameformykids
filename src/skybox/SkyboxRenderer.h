@@ -8,19 +8,23 @@
 #include "../shaders/shader.h"
 #include <data_dir.h>
 
+#include "../ui/Screen.h"
+
+using path = std::filesystem::path;
 
 class SkyboxRenderer {
 private:
-    using path = std::filesystem::path;
     Camera& camera;
     Shader shader;
+    Screen& screen;
 public:
-    explicit SkyboxRenderer(Camera& camera):
+    explicit SkyboxRenderer(Camera& camera, Screen& screen):
     shader(Shader{
         data_dir() /= path("src/shaders/files/skyboxShader.vs"),
         data_dir() /= path("src/shaders/files/skyboxShader.fs")
     }),
-    camera(camera) {}
+    camera(camera),
+    screen(screen) {}
 
     ~SkyboxRenderer() = default;
     const void render(Skybox& skybox);
