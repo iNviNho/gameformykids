@@ -2,24 +2,32 @@
 
 #include "PathPlayerMover.h"
 
-void PathPlayerMover::move(float deltaTime) {
-    // calculate vec3 to move towards nextPoint
-    glm::vec3 flatMovingTowards = movingTowards;
-    flatMovingTowards.y = 1.0f;
-    glm::vec3 flatPlayerPosition = player.GetPosition();
-    flatPlayerPosition.y = 1.0f;
-    glm::vec3 movePoint = flatMovingTowards - flatPlayerPosition;
+static constexpr const float AT_TARGET = std::numeric_limits<float>::epsilon();
 
-    player.MoveIn(movePoint, deltaTime);
+void PathPlayerMover::move(float distance) {
+    while (distance > 0) {
 
-    if (abs(player.GetPosition().x - movingTowards.x ) < 0.5f &&
-        abs(player.GetPosition().z - movingTowards.z) < 0.5f &&
-        movingTowards.x == path.getPath().at(pointer).x
-        ) {
-        if (pointer + 1 < path.getPath().size()) {
-            pointer++;
-            movingTowards = path.getPath().at(pointer);
+        const glm::vec2 flatCurrent{ player.GetPosition().x, player.GetPosition().z };
+
+        glm::vec2 flatTarget{ movingTowards.x, movingTowards.z };
+        float distToTarget = glm::distance(flatCurrent, flatTarget);
+        if (distToTarget < AT_TARGET) {
+            if(pointer >= path.getPath().size() - 1)
+                return; // we are at the end of the path
+            movingTowards = path.getPath().at(++pointer);
+ 
+            flatTarget = glm::vec2{ movingTowards.x, movingTowards.z };
+            distToTarget = glm::distance(flatCurrent, flatTarget);
         }
+
+        // normalized direction to target
+        const glm::vec2 dir = (flatTarget - flatCurrent) / distToTarget;
+
+        const float toTarget = std::min(distToTarget, distance);
+
+        player.MoveIn(glm::vec3{ dir.x, 0, dir.y }, toTarget);
+ 
+        distance -= toTarget;
     }
 }
 
