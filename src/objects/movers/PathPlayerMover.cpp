@@ -7,6 +7,10 @@
 static constexpr const float AT_TARGET = std::numeric_limits<float>::epsilon();
 
 void PathPlayerMover::move(float distance) {
+    // check if we are at the end of the path
+    if(nextWaypoint == path.getPath().cend())
+        return;
+
     while (distance > 0) {
 
         const glm::vec3& current = player.GetPosition();
@@ -17,9 +21,10 @@ void PathPlayerMover::move(float distance) {
             distToTarget = glm::distance(current, target);
 
             if (distToTarget < AT_TARGET) {
-                if (pointer >= path.getPath().size() - 1)
-                    return; // we are at the end of the path
-                setMovingTowards(addHeight(path.getPath().at(++pointer)));
+                // check if we are at the end of the path
+                if(++nextWaypoint == path.getPath().cend())
+                    return;
+                setMovingTowards(addHeight(*nextWaypoint));
 
                 if (nextInter == inters.cend())
                     target = movingTowards;
