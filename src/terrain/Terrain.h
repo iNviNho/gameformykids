@@ -57,7 +57,6 @@ private:
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
     void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
-    const float getHeight(float x, float z) const;
     glm::vec3 calculateNormal(float x, float z);
 
     Grasses grasses;
@@ -73,9 +72,11 @@ public:
     unsigned int GetMudTexture() const { return mudTexture; }
     unsigned int GetFlowersTexture() const { return flowersTexture; }
     unsigned int GetBlendMapTexture() const { return blendMapTexture; }
-    int GetSize() { return SIZE; }
+    constexpr int GetSize() const noexcept { return SIZE; }
     const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader& shader);
+
+    float getHeight(float x, float z) const;
 
     const float GetHeightOfTerrain(float x, float z) const;
 };

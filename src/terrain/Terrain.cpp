@@ -95,7 +95,7 @@ void Terrain::generateGrasses() {
     this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
-const float Terrain::getHeight(float x, float z) const {
+float Terrain::getHeight(float x, float z) const {
     // negate z because opengl is righthanded system
     // and z is negative when we generate terrain in from of us
     z = -z;
