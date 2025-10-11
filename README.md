@@ -49,6 +49,10 @@ Add:
 
 # GOTCHA's
 
+## Namings to remember
+
+- Normal - normal is a vector that is perpendicular to the surface of a triangle.
+
 ## Const before member function (const-qualified return type)
 
 In C++, **const** before a function means the return value is constant (e.g., const int func()), so the caller cannot
@@ -80,3 +84,43 @@ getPlayer(); // no state change
 getPlayer(); // no state change
 ```
 
+## Templates
+
+Templates in c++ were introduced to enable generic programming.
+
+### Example
+
+```c++
+template <typename T>
+T add(T a, T b) {
+    return a + b;
+}
+```
+
+## Pointer to an element of an array
+
+I can create a pointer to a first element of an array like this
+
+```c++
+int arr[5] = {1, 2, 3, 4, 5};
+int* p = array; // points to the first element of the array
+```
+
+and if I want to point to the second element of the array, I can do it like this
+
+```c++
+int* p = p + 1; // points to the second element of the array
+```
+
+## Std::copy functionality
+
+std::copy allows me to copy subset of elements from one array to another
+
+```c++
+int arr1[5] = {1, 2, 3, 4, 5};
+int arr2[2] = {0};
+
+// i want arr2 to hold 4, 5
+std::copy(arr1 + 3, arr1 + 5, arr2);
+// arr2 now holds {4, 5}
+```

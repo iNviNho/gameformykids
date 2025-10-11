@@ -20,9 +20,10 @@ using path = std::filesystem::path;
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
     : heightMap(heightMap), blendMap(blendMap), grasses(EntitiesHolder(std::vector<Entity>())) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
+    // We allocate a fixed-size array on the heap so there is no dynamic recalculation
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
-    generateTerrain(dataPoints);
+	generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
     generateGrasses();
 }
@@ -47,9 +48,9 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
 }
 
@@ -95,7 +96,7 @@ void Terrain::generateGrasses() {
     this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
-const float Terrain::getHeight(float x, float z) const {
+float Terrain::getHeight(const int x, int z) const {
     // negate z because opengl is righthanded system
     // and z is negative when we generate terrain in from of us
     z = -z;
@@ -114,7 +115,7 @@ const float Terrain::getHeight(float x, float z) const {
     return grayscaleValue;
 }
 
-glm::vec3 Terrain::calculateNormal(float x, float z) {
+glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
     // calculate normal using finite difference method
     float heightL = getHeight(x - 1, z);
     float heightR = getHeight(x + 1, z);
@@ -146,9 +147,9 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
     // now we need to recreate 4 vertices a,b,c,d the same way like we created them
     // in generateTerrain() method
     auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
-    auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1.0f, playerPositionZInt), playerPositionZInt);
-    auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1.0f, playerPositionZInt - 1.0f), playerPositionZInt - 1.0f);
-    auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1.0f), playerPositionZInt - 1.0f);
+    auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
+    auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
 
     float playerPositionXIntNormalized = playerPositionX - playerPositionXInt;
     float playerPositionZIntNormalized = playerPositionZ - playerPositionZInt;
@@ -168,110 +169,23 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
 }
 
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
-    int vertexPointer = 0;
-    glm::vec3 normal;
 
-    for (int x = 0; x < SIZE; x++) {
-        for (int z = 0; z < SIZE; z++) {
-            const auto floatX = static_cast<float>(x);
-            // negate z because opengl is righthanded system
-            // and we want to have terrain in front of us
-            const auto floatZ = -static_cast<float>(z);
+    // generate data for location (0,0)
+    setVertexData<true, true>(dataPoints, 0, 0);
 
-            // a is bottom left
-            glm::vec3 a = glm::vec3(floatX, getHeight(floatX, floatZ), floatZ);
-            // b is bottom right
-            glm::vec3 b = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ), floatZ);
-            // c is top right
-            glm::vec3 c = glm::vec3(floatX + 1.0f, getHeight(floatX + 1.0f, floatZ - 1.0f), floatZ - 1.0f);
-            // d is top left
-            glm::vec3 d = glm::vec3(floatX, getHeight(floatX, floatZ - 1.0f), floatZ - 1.0f);
+    // generate data for first row (z=0)
+    for (int x = 1; x < SIZE; ++x)
+        setVertexData<false, true>(dataPoints, x, 0);
 
-            // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
-            // C,A,B
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC] = c.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 1] = c.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 2] = c.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 3] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 4] = 1.0f;
-            // normals
-            normal = calculateNormal(c.x, c.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 5] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 6] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 7] = normal.z;
+    // generate data for first column (x=0)
+    for (int z = 1; z < SIZE; ++z)
+        setVertexData<true, false>(dataPoints, 0, z);
 
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 8] = a.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 9] = a.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 10] = a.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 11] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 12] = 0.0f;
-            // normals
-            normal = calculateNormal(a.x, a.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 13] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 14] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 15] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 16] = b.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 17] = b.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 18] = b.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 19] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 20] = 0.0f;
-            // normals
-            normal = calculateNormal(b.x, b.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 21] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 22] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 23] = normal.z;
-
-            // Let's define SECOND triangle in COUNTER-CLOCKWISE order
-            // C,D,A
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 24] = c.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 25] = c.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 26] = c.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 27] = 1.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 28] = 1.0f;
-            // normals
-            normal = calculateNormal(c.x, c.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 29] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 30] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 31] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 32] = d.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 33] = d.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 34] = d.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 35] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 36] = 1.0f;
-            // normals
-            normal = calculateNormal(d.x, d.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 37] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 38] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 39] = normal.z;
-
-            // vertices
-            dataPoints[vertexPointer * DATA_PER_LOC + 40] = a.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 41] = a.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 42] = a.z;
-            // tex coord
-            dataPoints[vertexPointer * DATA_PER_LOC + 43] = 0.0f;
-            dataPoints[vertexPointer * DATA_PER_LOC + 44] = 0.0f;
-            // normals
-            normal = calculateNormal(a.x, a.z);
-            dataPoints[vertexPointer * DATA_PER_LOC + 45] = normal.x;
-            dataPoints[vertexPointer * DATA_PER_LOC + 46] = normal.y;
-            dataPoints[vertexPointer * DATA_PER_LOC + 47] = normal.z;
-
-            vertexPointer++;
+    // generate data for the rest of the terrain
+    for (int z = 1; z < SIZE; z++)
+        for (int x = 1; x < SIZE; x++) {
+            setVertexData<false, false>(dataPoints, x, z);
         }
-    }
 }
 
 void Terrain::activateTextures(Shader& shader) {
