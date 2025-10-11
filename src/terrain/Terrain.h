@@ -41,6 +41,7 @@ private:
 
     /**
      * GL data per location
+     * location is a grid square
      */
     static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC;
 
@@ -84,6 +85,8 @@ private:
 
     static GLfloat* copyGLVertexData(GLfloat* dataPtr, const GLfloat * const src, const float u, const float v) noexcept
     {
+        // we do -2 because we want to copy all but the texture coordinates
+        // as we can reuse vertex attributes and normals
         dataPtr = std::copy(src, src + DATA_PER_GL_VERTEX - 2, dataPtr);
         *dataPtr++ = u;
         *dataPtr++ = v;
@@ -115,13 +118,13 @@ private:
     template<>
     struct SetVertexDataHelper<true, true>
     {
-        static constexpr const int xPlus1 = 1;
-        static constexpr const float floatX = 0.0f;
-        static constexpr const float floatXPlus1 = 1.0f;
+        static constexpr int xPlus1 = 1;
+        static constexpr float floatX = 0.0f;
+        static constexpr float floatXPlus1 = 1.0f;
 
-        static constexpr const int zPlus1 = 1;
-        static constexpr const float floatZ = 0.0f;
-        static constexpr const float floatZPlus1 = -1.0f;
+        static constexpr int zPlus1 = 1;
+        static constexpr float floatZ = 0.0f;
+        static constexpr float floatZPlus1 = -1.0f;
 
         constexpr
         SetVertexDataHelper(const GLfloat * const, const int, const int)
@@ -135,9 +138,9 @@ private:
         const int xPlus1;
         const float floatXPlus1;
 
-        static constexpr const int zPlus1 = 1;
-        static constexpr const float floatZ = 0.0f;
-        static constexpr const float floatZPlus1 = -1.0f;
+        static constexpr int zPlus1 = 1;
+        static constexpr float floatZ = 0.0f;
+        static constexpr float floatZPlus1 = -1.0f;
 
         const GLfloat* const dataPtrXMinus1;
 
@@ -151,9 +154,9 @@ private:
     template<>
     struct SetVertexDataHelper<true, false>
     {
-        static constexpr const int xPlus1 = 1;
-        static constexpr const float floatX = 0.0f;
-        static constexpr const float floatXPlus1 = 1.0f;
+        static constexpr int xPlus1 = 1;
+        static constexpr float floatX = 0.0f;
+        static constexpr float floatXPlus1 = 1.0f;
 
         const GLfloat* const dataPtrZMinus1;
 
@@ -174,33 +177,59 @@ private:
         GLfloat* const dataPtrStart = dataPoints.get() + (z * SIZE * DATA_PER_LOC + x * DATA_PER_LOC);
         GLfloat* dataPtr = dataPtrStart;
 
+        // we construct the correct helper depending on the template parameters
         const SetVertexDataHelper<X_IS_ZERO, Z_IS_ZERO> hlp{ dataPoints.get(), x, z };
 
         // Let's define FIRST TRIANGLE in COUNTER-CLOCKWISE order
-        // C,A,B
-        dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{hlp.xPlus1, -hlp.zPlus1}, 1.0f, 1.0f);
+        // That means we do: C,A,B
+        // For illustration please check the image 23terrainGenerationCABOverview.png
 
+        // C (upper right corner of the grid square)
+        // this corner we always have to calculate
+        dataPtr = setGLVertexData(
+            dataPtr,
+            glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -hlp.zPlus1), hlp.floatZPlus1 },
+            glm::vec<2, int>{hlp.xPlus1, -hlp.zPlus1},
+            1.0f, 1.0f);
+
+        // A (bottom left corner of the grid square)
+        // this corner we might be able to reuse
         if constexpr (X_IS_ZERO && Z_IS_ZERO)
-            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, getHeight(x, -z), hlp.floatZ }, glm::vec<2, int>{x,-z}, 0.0f, 0.0f);
+            dataPtr = setGLVertexData(
+                dataPtr,
+                glm::vec3{ hlp.floatX, getHeight(x, -z), hlp.floatZ },
+                glm::vec<2, int>{x,-z},
+                0.0f, 0.0f);
         else if constexpr (!X_IS_ZERO)
+            // if x is not zero,
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrXMinus1 + 2 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
         else
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrZMinus1 + 4 * DATA_PER_GL_VERTEX, 0.0f, 0.0f);
 
+        // B (bottom right corner of the grid square)
+        // this corner we might be able to reuse
         if constexpr (Z_IS_ZERO)
             dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -z), hlp.floatZ }, glm::vec<2, int>{hlp.xPlus1, -z}, 1.0f, 0.0f);
         else
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrZMinus1 + 0 * DATA_PER_GL_VERTEX, 1.0f, 0.0f);
 
         // Let's define SECOND triangle in COUNTER-CLOCKWISE order
-        // C,D,A
+        // That means we do: C,D,A
+        // For illustration please check the image 24terrainGenerationCDAoverview.png
+
+        // C (upper right corner of the grid square)
+        // we can reuse this corner, it was already calculated as first vertex of the first triangle
         dataPtr = std::copy(dataPtrStart, dataPtrStart + DATA_PER_GL_VERTEX, dataPtr);
 
+        // D (upper left corner of the grid square)
+        // this corner we might be able to reuse
         if constexpr (X_IS_ZERO)
             dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, getHeight(x, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{x, -hlp.zPlus1}, 0.0f, 1.0f);
         else
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrXMinus1 + 0 * DATA_PER_GL_VERTEX, 0.0f, 1.0f);
 
+        // A (bottom left corner of the grid square)
+        // we can reuse this corner, it was already calculated as second vertex of the first triangle
         dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
     }
     

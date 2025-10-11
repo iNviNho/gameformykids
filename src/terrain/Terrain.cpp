@@ -20,6 +20,7 @@ using path = std::filesystem::path;
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
     : heightMap(heightMap), blendMap(blendMap), grasses(EntitiesHolder(std::vector<Entity>())) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
+    // We allocate a fixed-size array on the heap so there is no dynamic recalculation
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
 	generateTerrain(dataPoints);
@@ -168,15 +169,19 @@ const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPosit
 }
 
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
-    
+
+    // generate data for location (0,0)
     setVertexData<true, true>(dataPoints, 0, 0);
 
+    // generate data for first row (z=0)
     for (int x = 1; x < SIZE; ++x)
         setVertexData<false, true>(dataPoints, x, 0);
 
+    // generate data for first column (x=0)
     for (int z = 1; z < SIZE; ++z)
         setVertexData<true, false>(dataPoints, 0, z);
 
+    // generate data for the rest of the terrain
     for (int z = 1; z < SIZE; z++)
         for (int x = 1; x < SIZE; x++) {
             setVertexData<false, false>(dataPoints, x, z);
