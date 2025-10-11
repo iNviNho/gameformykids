@@ -7,13 +7,15 @@ void UiRenderer::Render(Element& element) {
         staticShapeRenderer.Render(element.GetBackgroundImage().value());
     }
 
-    textRenderer.RenderText(
-        element.GetText(),
-        element.GetPosition().x,
-        element.GetPosition().y,
-        element.GetTextScale(),
-        element.GetTextColor()
-    );
+    if (element.GetVisibilityCondition()()) {
+        textRenderer.RenderText(
+            element.GetText(),
+            element.GetPosition().x,
+            element.GetPosition().y,
+            element.GetTextScale(),
+            element.GetTextColor()
+        );
+    }
 
     // we need to do recursive rendering
     if (element.HasSubElements()) {

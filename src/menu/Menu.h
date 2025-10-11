@@ -42,7 +42,7 @@ public:
         playDiv.SetMarginBottom(15.0f);
         playDiv.SetOnClick([&gameState](Element&) {
             Log::logInfo("[MENU]: Play clicked");
-            gameState.changeToInGame();
+            gameState.changeToStartGame();
         });
         playDiv.SetOnMouseEnter([](Element& e) {
             e.SetTextScale(1.05f);
@@ -50,7 +50,31 @@ public:
         playDiv.SetOnMouseLeave([](Element& e) {
             e.SetTextScale(1.0f);
         });
+        playDiv.SetVisibilityCondition([&gameState]() {
+           return gameState.isInMenuAndGameDidNotStart();
+        });
         mainDiv.AddElement(std::move(playDiv));
+
+        /**
+         * CONSTRUCT "RESUME" BUTTON
+        */
+        Element resumeDiv = Element{screen};
+        resumeDiv.SetText("RESUME");
+        resumeDiv.SetMarginBottom(15.0f);
+        resumeDiv.SetOnClick([&gameState](Element&) {
+            Log::logInfo("[MENU]: Resume clicked");
+            gameState.changeToStartGame();
+        });
+        resumeDiv.SetOnMouseEnter([](Element& e) {
+            e.SetTextScale(1.05f);
+        });
+        resumeDiv.SetOnMouseLeave([](Element& e) {
+            e.SetTextScale(1.0f);
+        });
+        resumeDiv.SetVisibilityCondition([&gameState] {
+           return gameState.isInMenuAndGameAlreadyStarted();
+        });
+        mainDiv.AddElement(std::move(resumeDiv));
 
         /**
          * CONSTRUCT "SETTINGS" BUTTON

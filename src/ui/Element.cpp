@@ -6,6 +6,11 @@ void Element::MouseButtonLeftClicked(double xPosition, double yPosition) {
     Log::logInfo("Left mouse button clicked at: " + std::to_string(xPosition) + ", " + std::to_string(yPosition));
     float yPositionInverted = abs(yPosition - screen.GetHeight());
     for (auto& element : GetSubElements()) {
+        // we ignore invisible elements
+        if (!element.GetVisibilityCondition()()) {
+            continue;
+        }
+
         if (xPosition >= element.GetPosition().x && xPosition <= element.GetPosition().x + element.GetTextProportion().GetWidth() &&
             yPositionInverted >= element.GetPosition().y && yPositionInverted <= element.GetPosition().y + element.GetTextProportion().GetHeight()) {
             element.GetOnClick()(element);
@@ -19,6 +24,11 @@ void Element::MouseHovered(double xPosition, double yPosition) {
     for (auto& element : GetSubElements()) {
         if (xPosition >= element.GetPosition().x && xPosition <= element.GetPosition().x + element.GetTextProportion().GetWidth() &&
             yPositionInverted >= element.GetPosition().y && yPositionInverted <= element.GetPosition().y + element.GetTextProportion().GetHeight()) {
+            // we ignore invisible elements
+            if (!element.GetVisibilityCondition()()) {
+                continue;
+            }
+
             element.GetOnMouseEnter()(element);
         } else {
             element.GetOnMouseLeave()(element);
@@ -39,6 +49,11 @@ void Element::RecalculateElementsPositions() {
         float midOffset = 0.0f;
         float nextElementMarginRight = 0.0f;
         for (auto& element: GetSubElements()) {
+            // not for invisible elements
+            if (!element.GetVisibilityCondition()()) {
+                continue;
+            }
+
             midOffset += element.GetTextProportion().GetWidth() + nextElementMarginRight + element.GetMarginLeft();
             nextElementMarginRight = element.GetMarginRight();
         }
@@ -49,6 +64,11 @@ void Element::RecalculateElementsPositions() {
         // When rendering text, x:0 means left and y:0 means bottom
         // y:0 also means text is built from BOTTOM to TOP so it will be fully rendered
         for (auto& element : GetSubElements()) {
+            // not for invisible elements
+            if (!element.GetVisibilityCondition()()) {
+                continue;
+            }
+
             element.SetPosition(glm::vec2{
                 mid + element.GetMarginLeft() + nextElementMarginRight + renderedWidth - midOffset / 2,
                 // When rendering text, x:0 means left and y:0 means bottom

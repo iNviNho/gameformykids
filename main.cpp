@@ -98,9 +98,12 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // delta calculation
+        calculateDelta();
+
         // fps calculation
         fps.tick();
-        if (gameState.isInMenu()) {
+        if (gameState.isInMenuAndGameDidNotStart() || gameState.isInMenuAndGameAlreadyStarted()) {
             // enable mouse movement
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -108,9 +111,6 @@ int main() {
         } else {
             // disable mouse movement
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-            // delta calculation
-            calculateDelta();
 
             // input
             // -----
@@ -206,7 +206,7 @@ void processInput(GLFWwindow* window, Player& player, Menu& menu, GameState& gam
             lastClickedAt = glfwGetTime();
         }
     }
-    if (gameState.isInMenu()) {
+    if (gameState.isInMenuAndGameDidNotStart() || gameState.isInMenuAndGameAlreadyStarted()) {
         double xPosition, yPosition;
         glfwGetCursorPos(window, &xPosition, &yPosition);
         // todo: implement 250ms delay

@@ -66,6 +66,7 @@ public:
     void SetOnClick(const std::function<void(Element&)>& onClickNew) { this->onClick = onClickNew; }
     void SetOnMouseEnter(const std::function<void(Element&)>& onMouseEnterNew) { this->onMouseEnter = onMouseEnterNew; }
     void SetOnMouseLeave(const std::function<void(Element&)>& onMouseLeaveNew) { this->onMouseLeave = onMouseLeaveNew; }
+    void SetVisibilityCondition(const std::function<bool()>& visibilityConditionNew) { this->visibilityCondition = visibilityConditionNew; }
     void SetTextScale(float newTextScale) {
         if (newTextScale == textScale) {
             return;
@@ -86,6 +87,8 @@ public:
     void SetBackgroundImage(StaticShape&& staticShape) {
         this->backgroundImage = std::move(staticShape);
     }
+
+    std::function<bool()>& GetVisibilityCondition() { return visibilityCondition; }
 
 private:
     Screen& screen;
@@ -109,6 +112,7 @@ private:
     std::function<void(Element&)> onClick{[](Element&) {}};
     std::function<void(Element&)> onMouseEnter{[](Element&) {}};
     std::function<void(Element&)> onMouseLeave{[](Element&) {}};
+    std::function<bool()> visibilityCondition{[] { return true; }};
 
     void SetPosition(const glm::vec2& newPosition) { this->position = newPosition; }
 };

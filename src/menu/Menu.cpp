@@ -1,7 +1,12 @@
 #include "Menu.h"
 
 void Menu::KeyboardEscapePressed() {
-    gameState.changeToInMenu();
+    // we ignore if escape is pressed and we just started game
+    if (gameState.isInMenuAndGameDidNotStart()) {
+        return;
+    }
+    gameState.changeToInMenuGameAlreadyStarted();
+    mainDiv.RecalculateElementsPositions();
 }
 
 void Menu::MouseButtonLeftClicked(double xPosition, double yPosition) {
