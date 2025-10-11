@@ -7,18 +7,14 @@
 #include "glm/ext/matrix_clip_space.hpp"
 #include <data_dir.h>
 
+#include "Character.h"
+
 using path = std::filesystem::path;
 
-struct Character {
-    unsigned int TextureID; // ID handle of the glyph texture
-    glm::ivec2   Size;      // Size of glyph
-    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
-    unsigned int Advance;   // Horizontal offset to advance to next glyph
-};
 std::map<GLchar, Character> Characters;
 unsigned int textVAO, textVBO;
 
-TextRenderer::TextRenderer(int screenWidth, int screenHeight):
+TextRenderer::TextRenderer(const Screen& screen):
     shader(Shader{
     data_dir() /= path("src/shaders/files/textShader.vs"),
     data_dir() /= path("src/shaders/files/textShader.fs")
@@ -36,7 +32,7 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight):
     FT_Set_Pixel_Sizes(face, 0, 48);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    textProjection = glm::ortho(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight));
+    textProjection = glm::ortho(0.0f, static_cast<float>(screen.GetWidth()), 0.0f, static_cast<float>(screen.GetHeight()));
     shader.use();
     shader.setMat4("projection", textProjection);
     // disable byte-alignment restriction
@@ -104,6 +100,7 @@ TextRenderer::TextRenderer(int screenWidth, int screenHeight):
 // }
 
 
+// TODO: Still unoptimized
 void TextRenderer::RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color) {
     // activate corresponding render state
     shader.use();

@@ -4,13 +4,15 @@
 
 #include "../shaders/shader.h"
 #include <ft2build.h>
+
+#include "../ui/Screen.h"
+
 #include FT_FREETYPE_H
 
 class TextRenderer {
 public:
-    TextRenderer(int screenWidth, int screenHeight);
+    explicit TextRenderer(const Screen& screen);
     ~TextRenderer() = default;
-    // void RenderBlackText(std::string text, float x, float y, float scale);
     void RenderText(const std::string& text, float x, float y, float scale, const glm::vec3& color);
 private:
     Shader shader;

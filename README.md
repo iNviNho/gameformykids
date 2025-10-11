@@ -1,5 +1,7 @@
 # gameformykids
 
+![img.png](progressScreenshots/menu.png)
+
 I was always curious about how 3D games work and how are they created. To combine my curiosity with my kids' possible 
 future interest in games, I decided to create a simple game for them.
 

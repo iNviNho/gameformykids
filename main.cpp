@@ -19,15 +19,17 @@
 #include "src/text/TextRenderer.h"
 #include <data_dir.h>
 
-#include "lunasvg.h"
+#include "src/menu/Menu.h"
+#include "src/ui/Screen.h"
+#include "src/utils/GameState.h"
 #include "src/utils/Log.h"
 
 using path = std::filesystem::path;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-GLFWwindow* createAndConfigureWindow();
+GLFWwindow* createAndConfigureWindow(Screen& screen, bool foolscrean = false);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, Player& player);
+void processInput(GLFWwindow *window, Player& player, Menu& menu, GameState& gameState);
 void calculateDelta();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -37,29 +39,36 @@ bool firstMouse = false;
 Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f) };
 glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
 constexpr glm::vec3 whiteColor{1.0f, 1.0f, 1.0f};
-
-int constexpr WIDTH = 800;
-int constexpr HEIGHT = 600;
+float lastClickedAt = 0.0f;
+float clickDeadTime = 0.25f;
 
 int main() {
+
+    // Create screen
+    Screen screen{800, 600};
+
     // create and configure window
-    GLFWwindow* window = createAndConfigureWindow();
+    GLFWwindow* window = createAndConfigureWindow(screen);
     if (window == nullptr) {
         return -1;
     }
 
     // Render instantiations
     // ---------------------
-    TextRenderer textRenderer(WIDTH, HEIGHT);
-    EntityRenderer entityRenderer(camera);
-    TerrainRenderer terrainRenderer(camera, entityRenderer);
-    SkyboxRenderer skyboxRenderer(camera);
+    TextRenderer textRenderer(screen);
+    EntityRenderer entityRenderer(camera, screen);
+    TerrainRenderer terrainRenderer(camera, entityRenderer, screen);
+    SkyboxRenderer skyboxRenderer(camera, screen);
+    StaticShapeRenderer staticShapeRenderer{};
+    UiRenderer uiRenderer{textRenderer, staticShapeRenderer};
     Skybox skybox{"cloudy"};
     Terrain terrain(
         data_dir() /= path("resources/images/heightmaps/heightmap.png"),
         data_dir() /= path("resources/images/blendMap4.png")
     );
     Fps fps;
+    GameState gameState;
+    Menu menu{gameState, uiRenderer, window, screen};
 
     // Player related code
     // -------------------
@@ -77,36 +86,44 @@ int main() {
     // enabling this will draw only lines
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetScrollCallback(window, scroll_callback);
 
     Log::logInfo("Starting game loop");
     while (!glfwWindowShouldClose(window)) {
-        // delta calculation
-        calculateDelta();
-
-        // fps calculation
-        fps.tick();
-
-        // input
-        // -----
-        processInput(window, player);
-        playerMover.move(deltaTime * player.GetSpeed());
-        player.handleJump(deltaTime);
-        camera.tick(deltaTime * player.GetSpeed());
+        // process input from the keyboard & mouse
+        processInput(window, player, menu, gameState);
 
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        skyboxRenderer.render(skybox);
-        terrainRenderer.render(terrain);
-        entityRenderer.render(player);
+        // fps calculation
+        fps.tick();
+        if (gameState.isInMenu()) {
+            // enable mouse movement
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        textRenderer.RenderText("gameformykids", WIDTH - 170, HEIGHT - 30, 0.45f, whiteColor);
-        // TODO: Still unoptimized
-        textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
+            menu.Render();
+        } else {
+            // disable mouse movement
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+            // delta calculation
+            calculateDelta();
+
+            // input
+            // -----
+            playerMover.move(deltaTime * player.GetSpeed());
+            player.handleJump(deltaTime);
+            camera.tick(deltaTime * player.GetSpeed());
+
+            skyboxRenderer.render(skybox);
+            terrainRenderer.render(terrain);
+            entityRenderer.render(player);
+
+            textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
+        }
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -126,7 +143,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 
-GLFWwindow* createAndConfigureWindow() {
+GLFWwindow* createAndConfigureWindow(Screen& screen, bool fullscreen) {
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -135,7 +153,17 @@ GLFWwindow* createAndConfigureWindow() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "gameformykids", NULL, NULL);
+    GLFWwindow* window;
+    if (fullscreen) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+        screen.Resize(mode->width, mode->height);
+        window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", monitor, nullptr);
+    } else {
+        window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", NULL, nullptr);
+    }
+
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -160,13 +188,29 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window, Player& player)
+void processInput(GLFWwindow* window, Player& player, Menu& menu, GameState& gameState)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
+        menu.KeyboardEscapePressed();
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         player.Jump();
+    }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        double xPosition, yPosition;
+        glfwGetCursorPos(window, &xPosition, &yPosition);
+
+        // at least 250ms passed since last click
+        if (glfwGetTime() - lastClickedAt > clickDeadTime) {
+            menu.MouseButtonLeftClicked(xPosition, yPosition);
+            lastClickedAt = glfwGetTime();
+        }
+    }
+    if (gameState.isInMenu()) {
+        double xPosition, yPosition;
+        glfwGetCursorPos(window, &xPosition, &yPosition);
+        // todo: implement 250ms delay
+        menu.MouseHovered(xPosition, yPosition);
     }
 }
 

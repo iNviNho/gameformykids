@@ -11,8 +11,9 @@ private:
     Camera& camera;
     EntityRenderer& entityRenderer;
     Shader shader;
+    Screen& screen;
 public:
-    TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer);
+    TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer, Screen& screen);
     ~TerrainRenderer() = default;
 
     void render(Terrain& terrain);

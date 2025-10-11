@@ -6,20 +6,21 @@
 
 using path = std::filesystem::path;
 
-TerrainRenderer::TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer):
+TerrainRenderer::TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer, Screen& screen):
     camera(camera),
     entityRenderer(entityRenderer),
     shader(Shader{
         data_dir() /= path("src/shaders/files/terrainShader.vs"),
         data_dir() /= path("src/shaders/files/terrainShader.fs")
-    })
+    }),
+    screen(screen)
 {}
 
 void TerrainRenderer::render(Terrain& terrain) {
     shader.use();
 
     // TODO: Does it always have to be generated?
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 100.0f);
     shader.setMat4("projection", projection);
 
     shader.setMat4("view", camera.GetViewMatrix());

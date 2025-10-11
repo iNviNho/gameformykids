@@ -91,6 +91,22 @@ add_executable(mygame main.cpp
         src/utils/Log.h
         src/utils/Log.cpp
         src/pathing/SvgDElementPathParser.h
+        src/utils/GameState.cpp
+        src/utils/GameState.h
+        src/menu/Menu.cpp
+        src/menu/Menu.h
+        src/text/TextProportion.cpp
+        src/text/TextProportion.h
+        src/text/Character.h
+        src/models/StaticShape.cpp
+        src/models/StaticShape.h
+        src/ui/Element.cpp
+        src/ui/Element.h
+        src/ui/UiRenderer.cpp
+        src/ui/UiRenderer.h
+        src/models/StaticShapeRenderer.cpp
+        src/models/StaticShapeRenderer.h
+        src/ui/Screen.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src")

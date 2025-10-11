@@ -2,8 +2,6 @@
 
 #ifndef PATHGENERATOR_H
 #define PATHGENERATOR_H
-#include <filesystem>
-#include "../terrain/Terrain.h"
 #include "glm/vec3.hpp"
 
 
