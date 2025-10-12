@@ -2,19 +2,21 @@
 
 ![img.png](progressScreenshots/menu.png)
 
-I was always curious about how 3D games work and how are they created. To combine my curiosity with my kids' possible 
-future interest in games, I decided to create a simple game for them.
+I was always curious about how 3D games work and how are they created. To combine my curiosity with my kids possible 
+future interest in games, I decided to create a simple game.
 
-In the game a player (kid) will be able to choose any animal as a player. This animal will follow
-path on the terrain that will be full with obstacles. The player must jump above the obstacles to continue the path 
-all the way to the finish.
+In the game a player (most likely kid) will be able to choose any animal as a player. This animal will move 
+through the terrain on the predefined path. The terrain will contain obstacles that the player must jump over to continue.
+
+To keep the game interesting, I'd like to create an eye-appealing terrain with many interesting details. That should
+keep the kids interested in the game as well as allow to learn how such details are created in 3D games.
 
 -- latest progress screenshot
 ![14cameraFullyFollowsPlayer2.png](progressScreenshots/22playerJumps.png)
 
 ## Progress tracking 
 
-I also decided to track the progress of features that I implement inside "progressScreenshots" directory. For anyone 
+I decided to track the progress of features that I implement inside "progressScreenshots" directory. For anyone 
 curious about the progress, you can check the screenshots there. For those who are interested in the code and 3D game
 features, you can check the related commit that is attached with uploaded screenshot.
 
@@ -25,19 +27,23 @@ features, you can check the related commit that is attached with uploaded screen
 - Terrain height generation based on heightMap [X]
 - Random grass placement on the terrain based on blendMap [X]
 - Random player movement [X]
+- Player movement along the created vector path [X]
 - Camera following the player. Camera rotates based on player rotation. [X]
 - Terrain face culling [X]
-- Terrain EBO rendering [ ]
-- Player's terrain collision detection [ ]
 - Player's jump [x]
 - Player's path following with start & end [x]
-- Player's animation [ ]
 - Day Skybox [x] 
+- Full screen mode [x]
 - Night Skybox [ ]
+- Player's animation [ ]
+- Terrain EBO rendering [ ]
+- Player's collision detection [ ]
 - Lamps on the terrain [ ]
 - Frustum culling [ ]
 - Player's animal selection [ ]
-- ...
+- Very calming, relaxing, discovery, peaceful music [ ]
+- Invention of game-edit tool (props placements) [ ]
+- Water placement [ ]
 
 # Having issues with CMake?
 
