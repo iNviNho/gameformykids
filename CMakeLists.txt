@@ -47,6 +47,13 @@ FetchContent_MakeAvailable(lunasvg)
 cmake_path(SET DATA_DIR "${PROJECT_SOURCE_DIR}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/data_dir.h.in" "${CMAKE_CURRENT_BINARY_DIR}/src/data_dir.h")
 
+# Download and include miniaudio
+file(DOWNLOAD
+    https://raw.githubusercontent.com/mackron/miniaudio/master/miniaudio.h
+    ${CMAKE_CURRENT_BINARY_DIR}/external/miniaudio.h
+    TLS_VERIFY ON
+)
+
 add_executable(mygame main.cpp
         src/shaders/shader.h
         src/stbimage/stb.cpp
@@ -107,9 +114,12 @@ add_executable(mygame main.cpp
         src/models/StaticShapeRenderer.cpp
         src/models/StaticShapeRenderer.h
         src/ui/Screen.h
+        src/audio/audio.cpp
+        src/audio/SoundManager.cpp
+        src/audio/SoundManager.h
 )
 
-target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src")
+target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")
 
 target_link_libraries(mygame glfw glm::glm freetype glad assimp lunasvg::lunasvg)
 

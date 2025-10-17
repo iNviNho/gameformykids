@@ -19,6 +19,7 @@
 #include "src/text/TextRenderer.h"
 #include <data_dir.h>
 
+#include "src/audio/SoundManager.h"
 #include "src/menu/Menu.h"
 #include "src/ui/Screen.h"
 #include "src/utils/GameState.h"
@@ -53,6 +54,10 @@ int main() {
         return -1;
     }
 
+    // Sound engine
+    // ----------------
+    SoundManager soundManager;
+
     // Render instantiations
     // ---------------------
     TextRenderer textRenderer(screen);
@@ -67,7 +72,7 @@ int main() {
         data_dir() /= path("resources/images/blendMap4.png")
     );
     Fps fps;
-    GameState gameState;
+    GameState gameState{soundManager};
     Menu menu{gameState, uiRenderer, window, screen};
 
     // Player related code
