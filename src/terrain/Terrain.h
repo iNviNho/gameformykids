@@ -241,8 +241,6 @@ private:
     Grasses grasses;
     void generateGrasses();
 
-    std::array<glm::vec3, 3> GetTriangle(const float x, const float z) const;
-
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
@@ -265,6 +263,8 @@ public:
     float getHeight(const int x, int z) const;
 
     float GetHeightOfTerrain(const float x, const float z) const;
+    static float GetHeightOfTerrain(const glm::vec4& plane, const float x, const float z);
+    std::array<glm::vec3, 3> GetTriangle(const float x, const float z) const;
     glm::vec4 GetTrianglePlane(const float x, const float z) const;
     static glm::vec4 GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept;
     static bool IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane) noexcept;

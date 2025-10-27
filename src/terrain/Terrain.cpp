@@ -1,6 +1,8 @@
 #include "Terrain.h"
 #include <vector>
-
+#include <stdexcept>
+#include <cmath>
+#include <limits>
 #include <glad/glad.h>
 #include "../objects/Entity.h"
 #include "EntitiesHolder.h"
@@ -171,6 +173,13 @@ glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) no
     const glm::vec3 n = glm::normalize(glm::cross(p1 - p3, p2 - p3));
     const float d = -glm::dot(n, p1);
     return { n, d };
+}
+
+float Terrain::GetHeightOfTerrain(const glm::vec4& plane, const float x, const float z)
+{
+    if (std::fabs(plane.y) < std::numeric_limits<float>::epsilon())
+        throw std::runtime_error("Unable to calculate height for a vertical terrain");
+    return (-(x * plane.x) - (z * plane.z) - plane.w) / plane.y;
 }
 
 glm::vec4 Terrain::GetTrianglePlane(const float x, const float z) const
