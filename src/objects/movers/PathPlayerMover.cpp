@@ -328,15 +328,6 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
     return player.getState();
 }
 
-void PathPlayerMover::setToStart() {
-    // we will move very little to trigger basic camera update
-    move(0.01f);
-    // now we move camera to where it should be without waiting for animation
-    player.GetCamera().UpdatePosition(player.GetCamera().GetTargetPosition(), false);
-    // and we update yaw to match the direction of the first path point
-    player.GetCamera().UpdateYaw(player.GetCamera().GetTargetYaw(), false);
-}
-
 void PathPlayerMover::setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn)
 {
     movingTowards = terrainEn;

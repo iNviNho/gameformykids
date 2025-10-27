@@ -31,7 +31,6 @@ private:
     std::vector<Intersection> inters;
     std::vector<Intersection>::const_iterator nextInter;
     MeshIntersecter intersecter;
-    void setToStart();
 
     glm::vec3 addHeight(const glm::vec3& point) const {
         return glm::vec3{ point.x, terrain.GetHeightOfTerrain(point.x, point.z), point.z };
@@ -78,8 +77,10 @@ public:
         // he will move towards the next waypoint
         setMovingTowards(player.GetPosition(), addHeight(*(++nextWaypoint)));
         const glm::vec3 target = (nextInter == inters.cend()) ? movingTowards : nextInter->point;
-		player.setState( Player::Moving{ DEFAULT_SPEED, target - player.GetPosition() });
-        setToStart();
+        const glm::vec3 dir = target - player.GetPosition();
+		player.setState( Player::Moving{ DEFAULT_SPEED, dir });
+		player.updateRotation(dir);
+        player.UpdateCameraPose(false);
     }
     void move(float deltaTime);
     void Jump();
