@@ -98,10 +98,13 @@ Player::State PathPlayerMover::moveMovingPlayer(float& deltaTime, Player::Moving
         return Player::State{ Player::Stationary{} };
     }
 
+    glm::vec3 current = player.GetPosition();
+    std::optional<glm::vec3> updatedDir{};
+
     float distance = deltaTime * moving.speed;
+    deltaTime = 0.0f;
     while (distance > 0) {
 
-        const glm::vec3& current = player.GetPosition();
         glm::vec3 target;
         float distToTarget;
         if (nextInter == inters.cend()) {
@@ -110,9 +113,14 @@ Player::State PathPlayerMover::moveMovingPlayer(float& deltaTime, Player::Moving
 
             if (distToTarget < AT_TARGET) {
                 // check if we are at the end of the path
-                if(++nextWaypoint == path.getPath().cend())
+                if (++nextWaypoint == path.getPath().cend()) {
+                    if (updatedDir)
+                        player.MoveTo(current, *updatedDir);
+                    else
+                        player.MoveTo(current);
                     return Player::State{ Player::Stationary{} };
-                setMovingTowards(player.GetPosition(), addHeight(*nextWaypoint));
+                }
+                setMovingTowards(current, addHeight(*nextWaypoint));
 
                 if (nextInter == inters.cend())
                     target = movingTowards;
@@ -135,16 +143,23 @@ Player::State PathPlayerMover::moveMovingPlayer(float& deltaTime, Player::Moving
         }
 
         // normalized direction to target
-        moving.dir = (target - current) / distToTarget;
+        const glm::vec3 dir = (target - current) / distToTarget;
+        updatedDir = dir;
 
         const float toTarget = std::min(distToTarget, distance);
 
-        player.MoveIn(moving.dir, toTarget);
- 
+        current += dir * toTarget;
+
         distance -= toTarget;
     }
 
-	deltaTime = 0.0f;
+    if (updatedDir) {
+        moving.dir = *updatedDir;
+        player.MoveTo(current, moving.dir);
+    }
+    else
+        player.MoveTo(current);
+
     return player.getState();
 }
 
