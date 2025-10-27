@@ -265,6 +265,7 @@ public:
     float GetHeightOfTerrain(const float x, const float z) const;
     glm::vec4 GetTrianglePlane(const float x, const float z) const;
     static glm::vec4 GetTrianglePlane(const std::array<glm::vec3, 3>& triangle);
+    static bool isInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane);
 };
 
 
