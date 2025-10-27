@@ -2,19 +2,45 @@
 
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <memory>
+#include <variant>
+#include <glm/vec3.hpp>
 #include "Entity.h"
 #include "../camera/camera.h"
 #include "../terrain/Terrain.h"
 
+class Player : public Entity {
+public:
 
-class Player: public Entity {
-    using Entity::Entity;
+    struct Stationary { };
+
+    struct Moving {
+        float speed;
+        glm::vec3 dir;
+    };
+
+    struct JumpingOnPath {
+        glm::vec3 terrainPos;
+        float terrainSpeed;
+        float velocity;
+    };
+
+    using State = std::variant<Stationary, Moving, JumpingOnPath>;
+
 private:
     Camera& camera;
     Terrain& terrain;
-    bool jumped = false;
-    double jumpedAt = 0.0f;
-    float speed = 4.0f;
+
+    /**
+     * The previous state of the player. Needed for temporary states, such as jumping, that are
+     * intended to return to the previous state upon completion.
+     */
+    State prevState;
+
+    /**
+     * The current state of the player.
+     */
+    State state;
 
     /**
      * Set Camera::Pitch such that the camera is pointing at the player.
@@ -43,12 +69,6 @@ private:
      * Note that <tt> 0 - atan(-camera height / camera distance) = atan(camera height / camera distance) </tt>.
      */
     void updateCameraPitch();
-public:
-    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
-        Entity(model, position), terrain(terrain), camera(camera) {
-    }
-    void MoveBy(const glm::vec3& moveVector);
-    void MoveIn(const glm::vec3& dir, float distance);
 
     void UpdateCameraPosition(bool animated = true);
 
@@ -84,11 +104,36 @@ public:
      */
     void UpdateCameraYaw(bool animated = true);
 
+public:
+    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
+        Entity(model, position), terrain(terrain), camera(camera), prevState{ Stationary{} }, state{ Stationary{} } {
+    }
 
-    void Jump();
-    void handleJump(float deltaTime);
+    constexpr const State& getState() const noexcept { return state; }
 
-    float GetSpeed() const { return speed;}
+    constexpr State& getState() noexcept { return state; }
+
+    constexpr void setState(const Player::State& newState) noexcept
+    {
+        if (state.index() != newState.index())
+            prevState = state;
+        state = newState;
+    }
+
+    constexpr const State& getPrevState() const noexcept { return prevState; }
+
+    void MoveIn(const glm::vec3& dir, float distance);
+
+    /**
+     * Updates camera position, pitch and yaw to match the new player position.
+     */
+    void UpdateCameraPose(bool animated = true)
+    {
+        UpdateCameraPosition(animated);
+        updateCameraPitch();
+        UpdateCameraYaw(animated);
+    }
+
     Camera& GetCamera() const { return camera;}
 };
 

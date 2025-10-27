@@ -9,6 +9,10 @@ struct Intersection {
 
     Intersection() noexcept = default;
 
+    constexpr Intersection(const glm::vec3& point, float t) noexcept :
+    point(point), t(t)
+    { }
+
     constexpr Intersection(glm::vec3&& point, float t) noexcept :
     point(std::move(point)), t(t)
     { }

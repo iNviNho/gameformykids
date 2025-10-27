@@ -5,6 +5,9 @@
 #include <filesystem>
 #include <stdexcept>
 #include <glm/vec3.hpp>
+#include <optional>
+#include <array>
+#include <glm/vec4.hpp>
 #include "../Player.h"
 #include "../../pathing/Path.h"
 #include <data_dir.h>
@@ -14,6 +17,12 @@
 
 class PathPlayerMover {
 private:
+
+    static constexpr float DEFAULT_SPEED = 4.0f;
+
+    // for higher jumps, increase
+    static constexpr glm::vec3 INITIAL_JUMP_VELOCITY{ 0, 5.0f, 0 };
+
     Player& player;
     const Terrain& terrain;
     Path path;
@@ -29,6 +38,21 @@ private:
     }
 
     void setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn);
+
+    constexpr Player::State move(Player::Stationary& stationary, float& deltaTime) noexcept {
+        deltaTime = 0.0f;
+        return player.getState();
+    }
+
+    Player::State move(Player::Moving& moving, float& deltaTime);
+
+    Player::State move(Player::JumpingOnPath& jumping, float& deltaTime);
+
+    static Intersection planeTrajIntersection(const glm::vec4& plane, const glm::vec3& pos, const glm::vec3& v);
+
+    static std::array<float, 2> solveQuadratic(const float a, const float b, const float c);
+
+    static float getLandingTime(const std::array<float, 2>& solutions);
 
 public:
     explicit PathPlayerMover(Player& player, const Terrain& terrain):
@@ -53,9 +77,12 @@ public:
         player.MoveTo(addHeight(*nextWaypoint));
         // he will move towards the next waypoint
         setMovingTowards(player.GetPosition(), addHeight(*(++nextWaypoint)));
+        const glm::vec3 target = (nextInter == inters.cend()) ? movingTowards : nextInter->point;
+		player.setState( Player::Moving{ DEFAULT_SPEED, target - player.GetPosition() });
         setToStart();
     }
-    void move(float distance);
+    void move(float deltaTime);
+    void Jump();
 };
 
 
