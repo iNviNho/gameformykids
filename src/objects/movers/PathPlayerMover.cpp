@@ -96,10 +96,12 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
     if (nextWaypoint == path.getPath().cend())
         return Player::State{ Player::Stationary{} };
 
+    glm::vec3 current = player.GetPosition();
+    std::optional<glm::vec3> updatedDir{};
+
     float distance = deltaTime * moving.speed;
     while (distance > 0) {
 
-        const glm::vec3& current = player.GetPosition();
         glm::vec3 target;
         float distToTarget;
         if (nextInter == inters.cend()) {
@@ -110,9 +112,13 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
                 // check if we are at the end of the path
                 if (++nextWaypoint == path.getPath().cend()) {
                     deltaTime = distance / moving.speed;
+                    if (updatedDir)
+                        player.MoveTo(current, *updatedDir);
+                    else
+                        player.MoveTo(current);
                     return Player::State{ Player::Stationary{} };
                 }
-                setMovingTowards(player.GetPosition(), addHeight(*nextWaypoint));
+                setMovingTowards(current, addHeight(*nextWaypoint));
 
                 if (nextInter == inters.cend())
                     target = movingTowards;
@@ -135,16 +141,23 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
         }
 
         // normalized direction to target
-        moving.dir = (target - current) / distToTarget;
+        const glm::vec3 dir = (target - current) / distToTarget;
+        updatedDir = dir;
 
         const float toTarget = std::min(distToTarget, distance);
 
-        player.MoveIn(moving.dir, toTarget);
- 
+        current += dir * toTarget;
+
         distance -= toTarget;
     }
+    deltaTime = 0.0f;
+    if (updatedDir) {
+        moving.dir = *updatedDir;
+        player.MoveTo(current, moving.dir);
+    }
+    else
+        player.MoveTo(current);
 
-	deltaTime = 0.0f;
     return player.getState();
 }
 
