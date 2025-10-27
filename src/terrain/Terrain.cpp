@@ -123,7 +123,8 @@ glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
     return glm::normalize(normal);
 }
 
-float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) {
+float barryCentric(const std::array<glm::vec3, 3>& triangle, const glm::vec2& pos) {
+    const auto& [p1, p2, p3] = triangle;
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
     if (det == 0.0f) {
         // Handle the degenerate case (e.g., return a default value or throw an error)
@@ -135,35 +136,32 @@ float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
-const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPositionZ) const {
+float Terrain::GetHeightOfTerrain(const float playerPositionX, const float playerPositionZ) const {
+    return barryCentric(GetTriangle(playerPositionX, playerPositionZ), glm::vec2{ playerPositionX, playerPositionZ });
+}
+
+std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) const
+{
     // we are going to find out in which square we are
     // and then we are going to find out in which triangle we are
     // and then we are going to calculate height of terrain
     // based on that triangle
-    int playerPositionXInt = static_cast<int>(playerPositionX);
-    int playerPositionZInt = static_cast<int>(playerPositionZ);
+    const int playerPositionXInt = static_cast<int>(x);
+    const int playerPositionZInt = static_cast<int>(z);
     // now we need to recreate 4 vertices a,b,c,d the same way like we created them
     // in generateTerrain() method
-    auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
-    auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
-    auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
-    auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
+    const auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
+    const auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
 
-    float playerPositionXIntNormalized = playerPositionX - playerPositionXInt;
-    float playerPositionZIntNormalized = playerPositionZ - playerPositionZInt;
+    const float playerPositionXIntNormalized = x - playerPositionXInt;
+    const float playerPositionZIntNormalized = z - playerPositionZInt;
 
-    if (-playerPositionZIntNormalized < playerPositionXIntNormalized) {
-        // we are in the first triangle (C,A,B)
-        return barryCentric(
-            c, a, b,
-            glm::vec2(playerPositionX, playerPositionZ)
-        );
-    }
-    // we are in the second triangle (C,D,A)
-    return barryCentric(
-        c, d, a,
-        glm::vec2(playerPositionX, playerPositionZ)
-    );
+    if (-playerPositionZIntNormalized < playerPositionXIntNormalized)
+        return { c, a, b };
+    else
+        return { c, d, a };
 }
 
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
