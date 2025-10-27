@@ -21,7 +21,7 @@ Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::
     // We allocate a fixed-size array on the heap so there is no dynamic recalculation
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
-	generateTerrain(dataPoints);
+    generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
     generateGrasses();
 }
@@ -162,6 +162,20 @@ std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) cons
         return { c, a, b };
     else
         return { c, d, a };
+}
+
+glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept
+{
+    const auto& [p1, p2, p3] = triangle;
+
+    const glm::vec3 n = glm::normalize(glm::cross(p1 - p3, p2 - p3));
+    const float d = -glm::dot(n, p1);
+    return { n, d };
+}
+
+glm::vec4 Terrain::GetTrianglePlane(const float x, const float z) const
+{
+    return GetTrianglePlane(GetTriangle(x, z));
 }
 
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
