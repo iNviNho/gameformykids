@@ -24,7 +24,7 @@ void PathPlayerMover::move(float distance) {
                 // check if we are at the end of the path
                 if(++nextWaypoint == path.getPath().cend())
                     return;
-                setMovingTowards(addHeight(*nextWaypoint));
+                setMovingTowards(player.GetPosition(), addHeight(*nextWaypoint));
 
                 if (nextInter == inters.cend())
                     target = movingTowards;
@@ -66,11 +66,10 @@ void PathPlayerMover::setToStart() {
     player.GetCamera().UpdateYaw(player.GetCamera().GetTargetYaw(), false);
 }
 
-void PathPlayerMover::setMovingTowards(const glm::vec3& point)
+void PathPlayerMover::setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn)
 {
-    movingTowards = point;
-    const glm::vec3& pos = player.GetPosition();
+    movingTowards = terrainEn;
     inters.clear();
-    intersecter.computeIntersections(glm::vec2{ pos.x, pos.z }, glm::vec2{ movingTowards.x, movingTowards.z }, inters);
+    intersecter.computeIntersections(glm::vec2{ terrainSt.x, terrainSt.z }, glm::vec2{ terrainEn.x, terrainEn.z }, inters);
     nextInter = inters.cbegin();
 }
