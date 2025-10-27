@@ -178,6 +178,21 @@ glm::vec4 Terrain::GetTrianglePlane(const float x, const float z) const
     return GetTrianglePlane(GetTriangle(x, z));
 }
 
+bool Terrain::IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane) noexcept
+{
+    const glm::vec3 v1 = glm::normalize(triangle[1] - triangle[0]);
+    const glm::vec3 v2 = glm::normalize(triangle[2] - triangle[1]);
+    const glm::vec3 v3 = glm::normalize(triangle[0] - triangle[2]);
+
+    const glm::vec3 ptVec1 = glm::normalize(ptInPlane - triangle[0]);
+    const glm::vec3 ptVec2 = glm::normalize(ptInPlane - triangle[1]);
+    const glm::vec3 ptVec3 = glm::normalize(ptInPlane - triangle[2]);
+
+    return (glm::dot(glm::cross(v1, ptVec1), n) >= 0) &&
+           (glm::dot(glm::cross(v2, ptVec2), n) >= 0) &&
+           (glm::dot(glm::cross(v3, ptVec3), n) >= 0);
+}
+
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
 
     // generate data for location (0,0)
