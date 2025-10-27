@@ -28,7 +28,7 @@ private:
         return glm::vec3{ point.x, terrain.GetHeightOfTerrain(point.x, point.z), point.z };
     }
 
-    void setMovingTowards(const glm::vec3& point);
+    void setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn);
 
 public:
     explicit PathPlayerMover(Player& player, const Terrain& terrain):
@@ -52,7 +52,7 @@ public:
         // player starts at the first waypoint
         player.MoveTo(addHeight(*nextWaypoint));
         // he will move towards the next waypoint
-        setMovingTowards(addHeight(*(++nextWaypoint)));
+        setMovingTowards(player.GetPosition(), addHeight(*(++nextWaypoint)));
         setToStart();
     }
     void move(float distance);
