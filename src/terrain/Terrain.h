@@ -1,6 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 #include <memory>
+#include <array>
 #include <filesystem>
 #include "Grasses.h"
 #include "../images/Image.h"
@@ -238,6 +239,8 @@ private:
     Grasses grasses;
     void generateGrasses();
 
+    std::array<glm::vec3, 3> GetTriangle(const float x, const float z) const;
+
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
@@ -259,7 +262,7 @@ public:
      */
     float getHeight(const int x, int z) const;
 
-    const float GetHeightOfTerrain(float x, float z) const;
+    float GetHeightOfTerrain(const float x, const float z) const;
 };
 
 
