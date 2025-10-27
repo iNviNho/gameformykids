@@ -23,6 +23,14 @@ void Entity::MoveTo(const glm::vec3& position) {
     this->position = position;
 }
 
+/**
+ * Moves entity to a given position, and updates its orientation to face the given direction.
+ */
+void Entity::MoveTo(const glm::vec3& position, const glm::vec3& direction) {
+    MoveTo(position);
+    updateRotation(direction);
+}
+
 void Entity::updateRotation(const glm::vec3& direction) {
     // since we know the length of adjacent and opposite sides of the triangle
     // we can use inverse of tan (arctan) to get the angle
