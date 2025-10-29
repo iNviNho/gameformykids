@@ -28,8 +28,8 @@ private:
     Path path;
     glm::vec3 movingTowards;
     std::vector<glm::vec3>::const_iterator nextWaypoint;
-    std::vector<Intersection> inters;
-    std::vector<Intersection>::const_iterator nextInter;
+    std::vector<Intersection> intersections;
+    std::vector<Intersection>::const_iterator nextIntersection;
     MeshIntersecter intersecter;
 
     glm::vec3 addHeight(const glm::vec3& point) const {
@@ -64,9 +64,14 @@ public:
             110.0f,
             terrain.GetSize()
         }),
+        // we are pointing to the beginning of the path
         nextWaypoint{ path.getPath().cbegin() },
-        inters{},
-        nextInter{ inters.cend() },
+        // let's initialize intersections
+        intersections{},
+        // we are pointing past the end of intersections
+        // since intersections is empty, this defines empty state
+        nextIntersection{ intersections.cend() },
+        // initialize intersecter
         intersecter{ terrain }
     {
         if (path.getPath().size() < 2) {
@@ -76,7 +81,8 @@ public:
         player.MoveTo(addHeight(*nextWaypoint));
         // he will move towards the next waypoint
         setMovingTowards(player.GetPosition(), addHeight(*(++nextWaypoint)));
-        const glm::vec3 target = (nextInter == inters.cend()) ? movingTowards : nextInter->point;
+        // we check if we are moving towards intersection or to the waypoint
+        const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
         const glm::vec3 dir = target - player.GetPosition();
 		player.setState( Player::Moving{ DEFAULT_SPEED, dir });
 		player.updateRotation(dir);

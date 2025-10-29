@@ -11,7 +11,7 @@ void MeshIntersecter::merge(std::vector<Intersection>& accumInters, std::vector<
     const NoDuplicatesAdapter last = std::merge(accumInters.begin(), accumInters.end(),
         addInters.begin(), addInters.end(),
         NoDuplicatesAdapter(mergeBuf.begin(), DIST_SQ),
-        [](const Intersection& a, const Intersection& b) { return a.t < b.t; });
+        [](const Intersection& a, const Intersection& b) { return a.time < b.time; });
     mergeBuf.erase(last.getWrapped(), mergeBuf.end());
     accumInters = std::move(mergeBuf);
     addInters.clear();

@@ -5,16 +5,16 @@
 
 struct Intersection {
     glm::vec3 point;
-    float t;
+    float time;
 
     Intersection() noexcept = default;
 
     constexpr Intersection(const glm::vec3& point, float t) noexcept :
-    point(point), t(t)
+    point(point), time(t)
     { }
 
     constexpr Intersection(glm::vec3&& point, float t) noexcept :
-    point(std::move(point)), t(t)
+    point(std::move(point)), time(t)
     { }
 };
 

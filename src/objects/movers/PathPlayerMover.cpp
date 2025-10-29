@@ -104,7 +104,7 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
 
         glm::vec3 target;
         float distToTarget;
-        if (nextInter == inters.cend()) {
+        if (nextIntersection == intersections.cend()) {
             target = movingTowards;
             distToTarget = glm::distance(current, target);
 
@@ -120,22 +120,22 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
                 }
                 setMovingTowards(current, addHeight(*nextWaypoint));
 
-                if (nextInter == inters.cend())
+                if (nextIntersection == intersections.cend())
                     target = movingTowards;
                 else
-                    target = nextInter->point;
+                    target = nextIntersection->point;
                 distToTarget = glm::distance(current, target);
             }
         }
         else {
-            target = nextInter->point;
+            target = nextIntersection->point;
             distToTarget = glm::distance(current, target);
 
             if (distToTarget < AT_TARGET) {
-                if (++nextInter == inters.cend())
+                if (++nextIntersection == intersections.cend())
                     target = movingTowards;
                 else
-                    target = nextInter->point;
+                    target = nextIntersection->point;
                 distToTarget = glm::distance(current, target);
             }
         }
@@ -194,7 +194,7 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
 
             glm::vec3 target;
             float distToTarget;
-            if (nextInter == inters.cend()) {
+            if (nextIntersection == intersections.cend()) {
                 target = movingTowards;
                 distToTarget = glm::distance(jumping.terrainPos, target);
 
@@ -219,22 +219,22 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
 
                     setMovingTowards(jumping.terrainPos, addHeight(*nextWaypoint));
 
-                    if (nextInter == inters.cend())
+                    if (nextIntersection == intersections.cend())
                         target = movingTowards;
                     else
-                        target = nextInter->point;
+                        target = nextIntersection->point;
                     distToTarget = glm::distance(jumping.terrainPos, target);
                 }
             }
             else {
-                target = nextInter->point;
+                target = nextIntersection->point;
                 distToTarget = glm::distance(jumping.terrainPos, target);
 
                 if (distToTarget < AT_TARGET) {
-                    if (++nextInter == inters.cend())
+                    if (++nextIntersection == intersections.cend())
                         target = movingTowards;
                     else
-                        target = nextInter->point;
+                        target = nextIntersection->point;
                     distToTarget = glm::distance(jumping.terrainPos, target);
                 }
             }
@@ -254,7 +254,7 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
                                                                                     jumping.velocity,
                                                                                     dir.z * jumping.terrainSpeed });
             if (Terrain::IsInsideTriangle(triangle, glm::vec3{ plane.x, plane.y, plane.z }, inter.point)) {
-                if (inter.t <= deltaTime) {
+                if (inter.time <= deltaTime) {
                     landing = inter;
                     break;
                 }
@@ -306,7 +306,7 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
     }
     else {
         const glm::vec3& newPos = landing->point;
-        deltaTime -= landing->t;
+        deltaTime -= landing->time;
 
         if (updatedDir)
             player.MoveTo(newPos, *updatedDir);
@@ -344,7 +344,8 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
 void PathPlayerMover::setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn)
 {
     movingTowards = terrainEn;
-    inters.clear();
-    intersecter.computeIntersections(glm::vec2{ terrainSt.x, terrainSt.z }, glm::vec2{ terrainEn.x, terrainEn.z }, inters);
-    nextInter = inters.cbegin();
+    intersections.clear();
+    intersecter.computeIntersections(glm::vec2{ terrainSt.x, terrainSt.z }, glm::vec2{ terrainEn.x, terrainEn.z }, intersections);
+    // next intersection is the first calculated intersection
+    nextIntersection = intersections.cbegin();
 }
