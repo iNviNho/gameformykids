@@ -1,6 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 #include <memory>
+#include <array>
 #include <filesystem>
 #include "Grasses.h"
 #include "../images/Image.h"
@@ -58,7 +59,7 @@ private:
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
 
     void generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints);
-    
+
     GLfloat* setGLVertexData(GLfloat* dataPtr, const glm::vec3& pos, const glm::vec<2,int> posInt, const float u, const float v) const
     {
         return setGLVertexData(dataPtr, pos, u, v, calculateNormal(posInt.x, posInt.y));
@@ -232,13 +233,6 @@ private:
         // we can reuse this corner, it was already calculated as second vertex of the first triangle
         dataPtr = std::copy(dataPtrStart + 1 * DATA_PER_GL_VERTEX, dataPtrStart + 2 * DATA_PER_GL_VERTEX, dataPtr);
     }
-    
-    /**
-	 * @param[in] x height map column coordinate
-	 * @param[in] z height map negated row coordinate
-	 * @return terrain height at (x,z) coordinate
-     */
-    float getHeight(const int x, int z) const;
 
     glm::vec3 calculateNormal(const int x, const int z) const;
 
@@ -255,11 +249,23 @@ public:
     unsigned int GetMudTexture() const { return mudTexture; }
     unsigned int GetFlowersTexture() const { return flowersTexture; }
     unsigned int GetBlendMapTexture() const { return blendMapTexture; }
-    int GetSize() { return SIZE; }
+    constexpr int GetSize() const noexcept { return SIZE; }
     const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader& shader);
 
-    const float GetHeightOfTerrain(float x, float z) const;
+    /**
+     * @param[in] x height map column coordinate
+     * @param[in] z height map negated row coordinate
+     * @return terrain height at (x,z) coordinate
+     */
+    float getHeight(const int x, int z) const;
+
+    float GetHeightOfTerrain(const float x, const float z) const;
+    static float GetHeightOfTerrain(const glm::vec4& plane, const float x, const float z);
+    std::array<glm::vec3, 3> GetTriangle(const float x, const float z) const;
+    glm::vec4 GetTrianglePlane(const float x, const float z) const;
+    static glm::vec4 GetTrianglePlane(const std::array<glm::vec3, 3>& triangle);
+    static bool isInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane);
 };
 
 
