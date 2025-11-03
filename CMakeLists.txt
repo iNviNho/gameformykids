@@ -119,6 +119,7 @@ add_executable(mygame main.cpp
         src/audio/SoundManager.h
         src/objects/movers/Intersection.h
         src/objects/movers/NoDuplicatesAdapter.h
+        src/utils/lerp.h
         src/objects/movers/MeshIntersecter.h
         src/objects/movers/MeshIntersecter.cpp
 )

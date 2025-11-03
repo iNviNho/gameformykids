@@ -4,6 +4,7 @@
 #include <utility>
 #include <glm/vec3.hpp>
 #include "NoDuplicatesAdapter.h"
+#include "../../utils/lerp.h"
 
 void MeshIntersecter::merge(std::vector<Intersection>& accumInters, std::vector<Intersection>& addInters, std::vector<Intersection>& mergeBuf)
 {

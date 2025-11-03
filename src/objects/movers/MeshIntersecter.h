@@ -45,11 +45,6 @@ class MeshIntersecter {
         return (f_floor == f) ? (static_cast<int>(f_floor) - 1) : static_cast<int>(f_floor);
     }
 
-    static float lerp(const float a, const float b, const float t)
-    {
-        return std::fma(t, b - a, a);
-    }
-
 public:
 
     MeshIntersecter(const Terrain& terrain) noexcept(std::is_nothrow_default_constructible_v< std::vector<Intersection> >) : terrain(terrain), addInters{}, mergeBuf{} {}
