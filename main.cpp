@@ -121,7 +121,7 @@ int main() {
             // -----
             playerMover.move(deltaTime);
             player.UpdateCameraPose();
-            camera.tick(deltaTime * 4.0f);
+            camera.tick(deltaTime);
 
             skyboxRenderer.render(skybox);
             terrainRenderer.render(terrain);

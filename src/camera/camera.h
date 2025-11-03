@@ -1,10 +1,12 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../utils/Log.h"
+#include "../utils/lerp.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -27,10 +29,41 @@ const float ZOOM        =  45.0f;
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
+    /**
+     * Duration of camera pose update animation.
+     */
+    constexpr static std::chrono::high_resolution_clock::duration ANIMATION_DURATION{ std::chrono::milliseconds{300} };
+
+    /**
+     * Elapsed time since the start of animation.
+     *
+     * Never more than Camera::ANIMATION_DURATION;
+     */
+    std::chrono::high_resolution_clock::duration elapsed;
+
+    /**
+     * Position of the camera at the start of animation.
+     */
+    glm::vec3 StartPosition;
+
+    /**
+     * Position of the camera at the end of animation.
+     */
+    glm::vec3 TargetPosition;
+
+    /**
+     * Rotation of the world around the Y axis, in degrees, at the start of animation.
+     */
+    float StartYaw;
+
+    /**
+     * Rotation of the world around the Y axis, in degrees, at the end of animation.
+     */
+    float TargetYaw;
+
 public:
     // camera Attributes
     glm::vec3 Position;
-    glm::vec3 TargetPosition;
 
     /**
      * Current transform from the world coordinates to camera coordinates.
@@ -50,11 +83,6 @@ public:
     float Yaw;
 
     /**
-     * Target rotation of the world around the Y axis, in degrees.
-     */
-    float TargetYaw;
-
-    /**
      * Current rotation around the x-axis that brings the Yaw-rotated world into view, in degrees.
      */
     float Pitch;
@@ -68,13 +96,13 @@ public:
         glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
         float yaw = YAW,
         float pitch = PITCH
-    ) : MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    ) : elapsed{ ANIMATION_DURATION }, StartPosition(position), TargetPosition(position),
+        StartYaw(yaw), TargetYaw(yaw),
+        Position(position),
+        Yaw(yaw),
+        Pitch(pitch),
+        MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
-        Position = position;
-        TargetPosition = position;
-        Yaw = yaw;
-        TargetYaw = yaw;
-        Pitch = pitch;
         updateViewMatrix();
     }
 
@@ -113,17 +141,19 @@ public:
     // }
 
     void tick(float deltaTime) {
-        // we will move the camera towards the target position with a small velocity
-        glm::vec3 positionDiff = TargetPosition - Position;
-        Position += positionDiff * deltaTime;
+        if (elapsed < ANIMATION_DURATION) {
+            elapsed += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<float, std::chrono::seconds::period>(deltaTime));
+            if (elapsed > ANIMATION_DURATION)
+                elapsed = ANIMATION_DURATION;
+        }
 
-        float yawDiff = TargetYaw - Yaw;
-        if (yawDiff > 180.0)
-            yawDiff -= 360.0;
-        else if (yawDiff < -180.0)
-            yawDiff += 360.0;
+        const float frac = static_cast<float>(elapsed.count()) / static_cast<float>(ANIMATION_DURATION.count());
 
-        Yaw += yawDiff * deltaTime;
+        Position = glm::vec3{ lerp(StartPosition.x, TargetPosition.x, frac),
+                              lerp(StartPosition.y, TargetPosition.y, frac),
+                              lerp(StartPosition.z, TargetPosition.z, frac) };
+
+        Yaw = lerp(StartYaw, TargetYaw, frac);
 
         // TODO: Only update once position or yaw diff is so small it doesn't make sense to continue
         updateViewMatrix();
@@ -133,6 +163,12 @@ public:
         TargetPosition = position;
         if (!animated) {
             Position = position;
+            StartPosition = position;
+            elapsed = ANIMATION_DURATION;
+        }
+        else {
+            StartPosition = Position;
+            elapsed = std::chrono::high_resolution_clock::duration::zero();
         }
     }
 
@@ -140,6 +176,18 @@ public:
         TargetYaw = yaw;
         if (!animated) {
             Yaw = yaw;
+            StartYaw = yaw;
+            elapsed = ANIMATION_DURATION;
+        }
+        else {
+            const float yawDiff = TargetYaw - Yaw;
+            if (yawDiff > 180.0f)
+                Yaw += 360.0f;
+            else if (yawDiff < -180.0f)
+                Yaw -= 360.0f;
+
+            StartYaw = Yaw;
+            elapsed = std::chrono::high_resolution_clock::duration::zero();
         }
     }
 
