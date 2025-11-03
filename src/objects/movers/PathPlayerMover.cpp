@@ -11,6 +11,7 @@ static constexpr float AT_TARGET = 1e-5f;
 
 static constexpr float GRAVITY = -9.8f;
 
+// TODO: Understand this
 void PathPlayerMover::move(float deltaTime) {
     while (deltaTime > 0.0f) {
         Player::State& state = player.getState();
@@ -96,67 +97,87 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
     if (nextWaypoint == path.getPath().cend())
         return Player::State{ Player::Stationary{} };
 
-    glm::vec3 current = player.GetPosition();
+    glm::vec3 playerPosition = player.GetPosition();
     std::optional<glm::vec3> updatedDir{};
 
+    // total distance we can move in this time step
     float distance = deltaTime * moving.speed;
+    Log::logInfo(distance);
     while (distance > 0) {
 
         glm::vec3 target;
         float distToTarget;
+        // Let's find out whether we head towards waypoint?
         if (nextIntersection == intersections.cend()) {
             target = movingTowards;
-            distToTarget = glm::distance(current, target);
+            distToTarget = glm::distance(playerPosition, target);
 
+            // if we are very close to the waypoint
             if (distToTarget < AT_TARGET) {
-                // check if we are at the end of the path
+                // and we are at the end of the path
                 if (++nextWaypoint == path.getPath().cend()) {
+                    // stop the player
                     deltaTime = distance / moving.speed;
                     if (updatedDir)
-                        player.MoveTo(current, *updatedDir);
+                        player.MoveTo(playerPosition, *updatedDir);
                     else
-                        player.MoveTo(current);
+                        player.MoveTo(playerPosition);
                     return Player::State{ Player::Stationary{} };
                 }
-                setMovingTowards(current, addHeight(*nextWaypoint));
+                // otherwise set new moving towards and recalculate intersections
+                setMovingTowards(playerPosition, addHeight(*nextWaypoint));
 
                 if (nextIntersection == intersections.cend())
                     target = movingTowards;
                 else
                     target = nextIntersection->point;
-                distToTarget = glm::distance(current, target);
+                // and we have to recalculate distance to target as point where we head changed
+                distToTarget = glm::distance(playerPosition, target);
             }
         }
+        // or just towards intersection
         else {
             target = nextIntersection->point;
-            distToTarget = glm::distance(current, target);
+            distToTarget = glm::distance(playerPosition, target);
 
+            // if we are very close to the intersection
             if (distToTarget < AT_TARGET) {
+                // is it the last intersection?
                 if (++nextIntersection == intersections.cend())
                     target = movingTowards;
                 else
                     target = nextIntersection->point;
-                distToTarget = glm::distance(current, target);
+                // and we recalculate the distance to target as point where we head changed
+                distToTarget = glm::distance(playerPosition, target);
             }
         }
 
         // normalized direction to target
-        const glm::vec3 dir = (target - current) / distToTarget;
+        const glm::vec3 dir = (target - playerPosition) / distToTarget;
         updatedDir = dir;
 
+        //  If distToTarget is smaller than distance, the loop moves the player
+        //  to the target, subtracts distToTarget from distance, and continues
+        //  to the next waypoint or intersection. Intermediate positions are not
+        //  rendered; only the final position after all movement for the frame is
+        //  processed is used for rendering. This ensures the player ends up at the
+        //  correct location, even if multiple targets are crossed in one update
         const float toTarget = std::min(distToTarget, distance);
 
-        current += dir * toTarget;
+        // move the player
+        playerPosition += dir * toTarget;
 
+        // decrease the remaining distance to move in this time step
         distance -= toTarget;
     }
+    // we set deltaTime to zero so that upstream method move can finish
     deltaTime = 0.0f;
     if (updatedDir) {
         moving.dir = *updatedDir;
-        player.MoveTo(current, moving.dir);
+        player.MoveTo(playerPosition, moving.dir);
     }
     else
-        player.MoveTo(current);
+        player.MoveTo(playerPosition);
 
     return player.getState();
 }

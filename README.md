@@ -132,3 +132,21 @@ int arr2[2] = {0};
 std::copy(arr1 + 3, arr1 + 5, arr2);
 // arr2 now holds {4, 5}
 ```
+
+## Cross product
+
+The cross product of two vectors results in a third vector that is perpendicular to the plane formed by the first two vectors.
+
+## Dot product
+
+The dot product of two vectors results in a scalar value that represents the magnitude of one vector projected onto another.
+
+## What is deltaTime?
+
+Delta time is the time elapsed between the current frame and the previous frame. Basically, the faster the pc, the smaller the delta time.
+
+## Std::variant functionality
+
+std::variant is a type-safe union that can hold one of several types. It is useful when you want to store different types in a single variable.
+
+To retrieve the value from a std::variant, you can use std::get or std::visit. To check which type is currently held by the variant, you can use std::holds_alternative.

@@ -166,6 +166,7 @@ std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) cons
         return { c, d, a };
 }
 
+// TODO: Understand this
 glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept
 {
     const auto& [p1, p2, p3] = triangle;

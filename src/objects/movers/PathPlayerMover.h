@@ -26,6 +26,7 @@ private:
     Player& player;
     const Terrain& terrain;
     Path path;
+    // the point we are currently moving towards (no matter the amount of intersections)
     glm::vec3 movingTowards;
     std::vector<glm::vec3>::const_iterator nextWaypoint;
     std::vector<Intersection> intersections;
