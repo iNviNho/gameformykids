@@ -138,7 +138,7 @@ float barryCentric(const std::array<glm::vec3, 3>& triangle, const glm::vec2& po
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
-float Terrain::GetHeightOfTerrain(const float playerPositionX, const float playerPositionZ) const {
+float Terrain::GetHeight(const float playerPositionX, const float playerPositionZ) const {
     return barryCentric(GetTriangle(playerPositionX, playerPositionZ), glm::vec2{ playerPositionX, playerPositionZ });
 }
 

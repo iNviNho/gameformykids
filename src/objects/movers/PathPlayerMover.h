@@ -34,7 +34,7 @@ private:
     MeshIntersecter intersecter;
 
     glm::vec3 addHeight(const glm::vec3& point) const {
-        return glm::vec3{ point.x, terrain.GetHeightOfTerrain(point.x, point.z), point.z };
+        return glm::vec3{ point.x, terrain.GetHeight(point.x, point.z), point.z };
     }
 
     void setMovingTowards(const glm::vec3& terrainSt, const glm::vec3& terrainEn);
