@@ -45,8 +45,8 @@ void MeshIntersecter::computeIntersections(const glm::vec2& start, const glm::ve
             // interpolate height along triangle side
             // - equivalent to terrain.GetHeightOfTerrain(inter.x, inter.y)
             const float y_floor = std::floor(inter.y);
-            const float h_floor = terrain.getHeight(x, static_cast<int>(y_floor));
-            const float h_ceil = terrain.getHeight(x, static_cast<int>(std::ceil(inter.y)));
+            const float h_floor = terrain.GetHeight(x, static_cast<int>(y_floor));
+            const float h_ceil = terrain.GetHeight(x, static_cast<int>(std::ceil(inter.y)));
             const float h_interp = lerp(h_floor, h_ceil, inter.y - y_floor);
 
             inters.emplace_back(glm::vec3{ inter.x, h_interp, inter.y }, (inter.x - start.x) / deltaX);
@@ -70,8 +70,8 @@ void MeshIntersecter::computeIntersections(const glm::vec2& start, const glm::ve
             // interpolate height along triangle side
             // - equivalent to terrain.GetHeightOfTerrain(inter.x, inter.y)
             const float x_floor = std::floor(inter.x);
-            const float h_floor = terrain.getHeight(static_cast<int>(x_floor), y);
-            const float h_ceil = terrain.getHeight(static_cast<int>(std::ceil(inter.x)), y);
+            const float h_floor = terrain.GetHeight(static_cast<int>(x_floor), y);
+            const float h_ceil = terrain.GetHeight(static_cast<int>(std::ceil(inter.x)), y);
             const float h_interp = lerp(h_floor, h_ceil, inter.x - x_floor);
 
             addInters.emplace_back(glm::vec3{ inter.x, h_interp, inter.y }, (inter.y - start.y) / deltaY);
@@ -114,8 +114,8 @@ void MeshIntersecter::computeIntersections(const glm::vec2& start, const glm::ve
                 // interpolate height along triangle side
                 // - equivalent to terrain.GetHeightOfTerrain(inter.x, inter.y)
                 const float x_floor = std::floor(inter.x);
-                const float h_bottom = terrain.getHeight(static_cast<int>(x_floor), static_cast<int>(std::ceil(inter.y)));
-                const float h_top = terrain.getHeight(static_cast<int>(std::ceil(inter.x)), static_cast<int>(std::floor(inter.y)));
+                const float h_bottom = terrain.GetHeight(static_cast<int>(x_floor), static_cast<int>(std::ceil(inter.y)));
+                const float h_top = terrain.GetHeight(static_cast<int>(std::ceil(inter.x)), static_cast<int>(std::floor(inter.y)));
                 const float h_interp = lerp(h_bottom, h_top, inter.x - x_floor);
 
                 addInters.emplace_back(glm::vec3{ inter.x, h_interp, inter.y }, (inter.x - start.x) / deltaX);
@@ -149,8 +149,8 @@ void MeshIntersecter::computeIntersections(const glm::vec2& start, const glm::ve
                 // interpolate height along triangle side
                 // - equivalent to terrain.GetHeightOfTerrain(inter.x, inter.y)
                 const float x_floor = std::floor(inter.x);
-                const float h_bottom = terrain.getHeight(static_cast<int>(x_floor), static_cast<int>(std::ceil(inter.y)));
-                const float h_top = terrain.getHeight(static_cast<int>(std::ceil(inter.x)), static_cast<int>(std::floor(inter.y)));
+                const float h_bottom = terrain.GetHeight(static_cast<int>(x_floor), static_cast<int>(std::ceil(inter.y)));
+                const float h_top = terrain.GetHeight(static_cast<int>(std::ceil(inter.x)), static_cast<int>(std::floor(inter.y)));
                 const float h_interp = lerp(h_bottom, h_top, inter.x - x_floor);
 
                 addInters.emplace_back(glm::vec3{ inter.x, h_interp, inter.y }, (inter.y - start.y) / deltaY);

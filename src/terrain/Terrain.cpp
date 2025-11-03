@@ -73,10 +73,7 @@ void Terrain::generateGrasses() {
                 float anyZ = static_cast<float>(rand()) / (RAND_MAX + 1.0f);
                 float zpos = -(static_cast<float>(z) + anyZ);
                 // temporary increasing y position by 0.35f
-                // TODO: long term fix is to use barycentric coordinates
-                // to calculate exact height at given x, y position
-                // so this method works with any kind of models
-                float ypos = getHeight(xpos, zpos) + 0.35f;
+                float ypos = GetHeight(xpos, zpos) + 0.35f;
 
                 int xPosRatio = static_cast<int>(xpos * blendMapWidthToTerrainSizeRatio);
                 int zPosRatio =
@@ -96,7 +93,7 @@ void Terrain::generateGrasses() {
     this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
-float Terrain::getHeight(const int x, int z) const {
+float Terrain::GetHeight(const int x, int z) const {
     // negate z because opengl is righthanded system
     // and z is negative when we generate terrain in from of us
     z = -z;
@@ -117,10 +114,10 @@ float Terrain::getHeight(const int x, int z) const {
 
 glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
     // calculate normal using finite difference method
-    float heightL = getHeight(x - 1, z);
-    float heightR = getHeight(x + 1, z);
-    float heightD = getHeight(x, z - 1);
-    float heightU = getHeight(x, z + 1);
+    float heightL = GetHeight(x - 1, z);
+    float heightR = GetHeight(x + 1, z);
+    float heightD = GetHeight(x, z - 1);
+    float heightU = GetHeight(x, z + 1);
     glm::vec3 normal = glm::vec3(heightL - heightR, 2.0f, heightD - heightU);
     return glm::normalize(normal);
 }
@@ -152,10 +149,10 @@ std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) cons
     const int playerPositionZInt = static_cast<int>(z);
     // now we need to recreate 4 vertices a,b,c,d the same way like we created them
     // in generateTerrain() method
-    const auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
-    const auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
-    const auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
-    const auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto a = glm::vec3(playerPositionXInt, GetHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
+    const auto b = glm::vec3(playerPositionXInt + 1.0f, GetHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
+    const auto c = glm::vec3(playerPositionXInt + 1.0f, GetHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto d = glm::vec3(playerPositionXInt, GetHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
 
     const float playerPositionXIntNormalized = x - playerPositionXInt;
     const float playerPositionZIntNormalized = z - playerPositionZInt;

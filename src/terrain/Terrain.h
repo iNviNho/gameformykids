@@ -191,7 +191,7 @@ private:
         // this corner we always have to calculate
         dataPtr = setGLVertexData(
             dataPtr,
-            glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -hlp.zPlus1), hlp.floatZPlus1 },
+            glm::vec3{ hlp.floatXPlus1, GetHeight(hlp.xPlus1, -hlp.zPlus1), hlp.floatZPlus1 },
             glm::vec<2, int>{hlp.xPlus1, -hlp.zPlus1},
             1.0f, 1.0f);
 
@@ -200,7 +200,7 @@ private:
         if constexpr (X_IS_ZERO && Z_IS_ZERO)
             dataPtr = setGLVertexData(
                 dataPtr,
-                glm::vec3{ hlp.floatX, getHeight(x, -z), hlp.floatZ },
+                glm::vec3{ hlp.floatX, GetHeight(x, -z), hlp.floatZ },
                 glm::vec<2, int>{x,-z},
                 0.0f, 0.0f);
         else if constexpr (!X_IS_ZERO)
@@ -212,7 +212,7 @@ private:
         // B (bottom right corner of the grid square)
         // this corner we might be able to reuse
         if constexpr (Z_IS_ZERO)
-            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, getHeight(hlp.xPlus1, -z), hlp.floatZ }, glm::vec<2, int>{hlp.xPlus1, -z}, 1.0f, 0.0f);
+            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatXPlus1, GetHeight(hlp.xPlus1, -z), hlp.floatZ }, glm::vec<2, int>{hlp.xPlus1, -z}, 1.0f, 0.0f);
         else
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrZMinus1 + 0 * DATA_PER_GL_VERTEX, 1.0f, 0.0f);
 
@@ -227,7 +227,7 @@ private:
         // D (upper left corner of the grid square)
         // this corner we might be able to reuse
         if constexpr (X_IS_ZERO)
-            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, getHeight(x, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{x, -hlp.zPlus1}, 0.0f, 1.0f);
+            dataPtr = setGLVertexData(dataPtr, glm::vec3{ hlp.floatX, GetHeight(x, -hlp.zPlus1), hlp.floatZPlus1 }, glm::vec<2, int>{x, -hlp.zPlus1}, 0.0f, 1.0f);
         else
             dataPtr = copyGLVertexData(dataPtr, hlp.dataPtrXMinus1 + 0 * DATA_PER_GL_VERTEX, 0.0f, 1.0f);
 
@@ -260,7 +260,7 @@ public:
      * @param[in] z height map negated row coordinate
      * @return terrain height at (x,z) coordinate
      */
-    float getHeight(const int x, int z) const;
+    float GetHeight(const int x, int z) const;
 
     float GetHeight(const float x, const float z) const;
     static float GetHeight(const glm::vec4& plane, const float x, const float z);
