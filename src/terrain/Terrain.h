@@ -263,7 +263,7 @@ public:
     float getHeight(const int x, int z) const;
 
     float GetHeight(const float x, const float z) const;
-    static float GetHeightOfTerrain(const glm::vec4& plane, const float x, const float z);
+    static float GetHeight(const glm::vec4& plane, const float x, const float z);
     std::array<glm::vec3, 3> GetTriangle(const float x, const float z) const;
     glm::vec4 GetTrianglePlane(const float x, const float z) const;
     static glm::vec4 GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept;

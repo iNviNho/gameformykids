@@ -176,7 +176,7 @@ glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) no
     return { n, d };
 }
 
-float Terrain::GetHeightOfTerrain(const glm::vec4& plane, const float x, const float z)
+float Terrain::GetHeight(const glm::vec4& plane, const float x, const float z)
 {
     if (std::fabs(plane.y) < std::numeric_limits<float>::epsilon())
         throw std::runtime_error("Unable to calculate height for a vertical terrain");

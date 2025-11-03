@@ -285,7 +285,7 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
 
                     jumping.terrainPos.x += dir.x * maxT * jumping.terrainSpeed;
                     jumping.terrainPos.z += dir.z * maxT * jumping.terrainSpeed;
-                    jumping.terrainPos.y = Terrain::GetHeightOfTerrain(plane, jumping.terrainPos.x, jumping.terrainPos.z);
+                    jumping.terrainPos.y = Terrain::GetHeight(plane, jumping.terrainPos.x, jumping.terrainPos.z);
 
                     pos.x = jumping.terrainPos.x;
                     pos.z = jumping.terrainPos.z;
