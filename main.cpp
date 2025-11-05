@@ -30,7 +30,7 @@ using path = std::filesystem::path;
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 GLFWwindow* createAndConfigureWindow(Screen& screen, bool foolscrean = false);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, Player& player, Menu& menu, GameState& gameState);
+void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState);
 void calculateDelta();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -84,7 +84,7 @@ int main() {
         wolf,
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
-    PathPlayerMover playerMover(player, terrain.GetSize());
+    PathPlayerMover playerMover(player, terrain);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -96,7 +96,7 @@ int main() {
     Log::logInfo("Starting game loop");
     while (!glfwWindowShouldClose(window)) {
         // process input from the keyboard & mouse
-        processInput(window, player, menu, gameState);
+        processInput(window, playerMover, menu, gameState);
 
         // render
         // ------
@@ -119,9 +119,9 @@ int main() {
 
             // input
             // -----
-            playerMover.move(deltaTime * player.GetSpeed());
-            player.handleJump(deltaTime);
-            camera.tick(deltaTime * player.GetSpeed());
+            playerMover.move(deltaTime);
+            player.UpdateCameraPose();
+            camera.tick(deltaTime);
 
             skyboxRenderer.render(skybox);
             terrainRenderer.render(terrain);
@@ -193,13 +193,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window, Player& player, Menu& menu, GameState& gameState)
+void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         menu.KeyboardEscapePressed();
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        player.Jump();
+        playerMover.Jump();
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         double xPosition, yPosition;

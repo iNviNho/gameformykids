@@ -20,17 +20,17 @@ public:
     void RotateZ(float angle) { rotation.z += angle; }
     void MoveBy(const glm::vec3& moveVector);
     void MoveTo(const glm::vec3& position);
+    void MoveTo(const glm::vec3& position, const glm::vec3& dir);
     const Model& GetModel() const { return *model; }
     const glm::vec3& GetPosition() const { return position; }
     float GetRotationXAngle() const { return rotation.x; }
     float GetRotationYAngle() const { return rotation.y; }
     float GetRotationZAngle() const { return rotation.z; }
+    void updateRotation(const glm::vec3& direction);
 private:
     std::shared_ptr<Model> model;
     glm::vec3 position;
     glm::vec3 rotation;
-
-    void updateRotation(const glm::vec3& direction);
 };
 
 

@@ -1,14 +1,14 @@
 #include "Terrain.h"
-
-
+#include <vector>
+#include <stdexcept>
+#include <cmath>
+#include <limits>
 #include <glad/glad.h>
-
+#include "../objects/Entity.h"
 #include "EntitiesHolder.h"
 #include "Grasses.h"
-#include "../images/Image.h"
 #include "../models/Model.h"
 #include "../models/ModelGenerator.h"
-#include "../shaders/shader.h"
 #include "../textures/TextureLoader.h"
 #include <glm/glm.hpp>
 #include <data_dir.h>
@@ -23,7 +23,7 @@ Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::
     // We allocate a fixed-size array on the heap so there is no dynamic recalculation
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
-	generateTerrain(dataPoints);
+    generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
     generateGrasses();
 }
@@ -73,10 +73,7 @@ void Terrain::generateGrasses() {
                 float anyZ = static_cast<float>(rand()) / (RAND_MAX + 1.0f);
                 float zpos = -(static_cast<float>(z) + anyZ);
                 // temporary increasing y position by 0.35f
-                // TODO: long term fix is to use barycentric coordinates
-                // to calculate exact height at given x, y position
-                // so this method works with any kind of models
-                float ypos = getHeight(xpos, zpos) + 0.35f;
+                float ypos = GetHeight(xpos, zpos) + 0.35f;
 
                 int xPosRatio = static_cast<int>(xpos * blendMapWidthToTerrainSizeRatio);
                 int zPosRatio =
@@ -96,7 +93,7 @@ void Terrain::generateGrasses() {
     this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
-float Terrain::getHeight(const int x, int z) const {
+float Terrain::GetHeight(const int x, int z) const {
     // negate z because opengl is righthanded system
     // and z is negative when we generate terrain in from of us
     z = -z;
@@ -117,15 +114,16 @@ float Terrain::getHeight(const int x, int z) const {
 
 glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
     // calculate normal using finite difference method
-    float heightL = getHeight(x - 1, z);
-    float heightR = getHeight(x + 1, z);
-    float heightD = getHeight(x, z - 1);
-    float heightU = getHeight(x, z + 1);
+    float heightL = GetHeight(x - 1, z);
+    float heightR = GetHeight(x + 1, z);
+    float heightD = GetHeight(x, z - 1);
+    float heightU = GetHeight(x, z + 1);
     glm::vec3 normal = glm::vec3(heightL - heightR, 2.0f, heightD - heightU);
     return glm::normalize(normal);
 }
 
-float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) {
+float barryCentric(const std::array<glm::vec3, 3>& triangle, const glm::vec2& pos) {
+    const auto& [p1, p2, p3] = triangle;
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
     if (det == 0.0f) {
         // Handle the degenerate case (e.g., return a default value or throw an error)
@@ -137,35 +135,69 @@ float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
-const float Terrain::GetHeightOfTerrain(float playerPositionX, float playerPositionZ) const {
+float Terrain::GetHeight(const float playerPositionX, const float playerPositionZ) const {
+    return barryCentric(GetTriangle(playerPositionX, playerPositionZ), glm::vec2{ playerPositionX, playerPositionZ });
+}
+
+std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) const
+{
     // we are going to find out in which square we are
     // and then we are going to find out in which triangle we are
     // and then we are going to calculate height of terrain
     // based on that triangle
-    int playerPositionXInt = static_cast<int>(playerPositionX);
-    int playerPositionZInt = static_cast<int>(playerPositionZ);
+    const int playerPositionXInt = static_cast<int>(x);
+    const int playerPositionZInt = static_cast<int>(z);
     // now we need to recreate 4 vertices a,b,c,d the same way like we created them
     // in generateTerrain() method
-    auto a = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
-    auto b = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
-    auto c = glm::vec3(playerPositionXInt + 1.0f, getHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
-    auto d = glm::vec3(playerPositionXInt, getHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto a = glm::vec3(playerPositionXInt, GetHeight(playerPositionXInt, playerPositionZInt), playerPositionZInt);
+    const auto b = glm::vec3(playerPositionXInt + 1.0f, GetHeight(playerPositionXInt + 1, playerPositionZInt), playerPositionZInt);
+    const auto c = glm::vec3(playerPositionXInt + 1.0f, GetHeight(playerPositionXInt + 1, playerPositionZInt - 1), playerPositionZInt - 1.0f);
+    const auto d = glm::vec3(playerPositionXInt, GetHeight(playerPositionXInt, playerPositionZInt - 1), playerPositionZInt - 1.0f);
 
-    float playerPositionXIntNormalized = playerPositionX - playerPositionXInt;
-    float playerPositionZIntNormalized = playerPositionZ - playerPositionZInt;
+    const float playerPositionXIntNormalized = x - playerPositionXInt;
+    const float playerPositionZIntNormalized = z - playerPositionZInt;
 
-    if (-playerPositionZIntNormalized < playerPositionXIntNormalized) {
-        // we are in the first triangle (C,A,B)
-        return barryCentric(
-            c, a, b,
-            glm::vec2(playerPositionX, playerPositionZ)
-        );
-    }
-    // we are in the second triangle (C,D,A)
-    return barryCentric(
-        c, d, a,
-        glm::vec2(playerPositionX, playerPositionZ)
-    );
+    if (-playerPositionZIntNormalized < playerPositionXIntNormalized)
+        return { c, a, b };
+    else
+        return { c, d, a };
+}
+
+// TODO: Understand this
+glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept
+{
+    const auto& [p1, p2, p3] = triangle;
+
+    const glm::vec3 n = glm::normalize(glm::cross(p1 - p3, p2 - p3));
+    const float d = -glm::dot(n, p1);
+    return { n, d };
+}
+
+float Terrain::GetHeight(const glm::vec4& plane, const float x, const float z)
+{
+    if (std::fabs(plane.y) < std::numeric_limits<float>::epsilon())
+        throw std::runtime_error("Unable to calculate height for a vertical terrain");
+    return (-(x * plane.x) - (z * plane.z) - plane.w) / plane.y;
+}
+
+glm::vec4 Terrain::GetTrianglePlane(const float x, const float z) const
+{
+    return GetTrianglePlane(GetTriangle(x, z));
+}
+
+bool Terrain::IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane) noexcept
+{
+    const glm::vec3 v1 = glm::normalize(triangle[1] - triangle[0]);
+    const glm::vec3 v2 = glm::normalize(triangle[2] - triangle[1]);
+    const glm::vec3 v3 = glm::normalize(triangle[0] - triangle[2]);
+
+    const glm::vec3 ptVec1 = glm::normalize(ptInPlane - triangle[0]);
+    const glm::vec3 ptVec2 = glm::normalize(ptInPlane - triangle[1]);
+    const glm::vec3 ptVec3 = glm::normalize(ptInPlane - triangle[2]);
+
+    return (glm::dot(glm::cross(v1, ptVec1), n) >= 0) &&
+           (glm::dot(glm::cross(v2, ptVec2), n) >= 0) &&
+           (glm::dot(glm::cross(v3, ptVec3), n) >= 0);
 }
 
 void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
