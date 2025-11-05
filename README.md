@@ -150,3 +150,19 @@ Delta time is the time elapsed between the current frame and the previous frame.
 std::variant is a type-safe union that can hold one of several types. It is useful when you want to store different types in a single variable.
 
 To retrieve the value from a std::variant, you can use std::get or std::visit. To check which type is currently held by the variant, you can use std::holds_alternative.
+
+## Exact Landing Time (`solveQuadratic`)
+
+We can use this function to determine when a player will land on a flat surface during a jump
+
+- Requires: starting height, vertical velocity, and gravity.
+- Fast and simple; only handles vertical motion.
+- Example use: jumping from a ledge, triggering a landing animation exactly on time.
+
+## Trajectory Intersection with Terrain Plane (`planeTrajIntersection`)
+
+We can use this function to find out where and when a player will land on uneven terrain while jumping
+
+- Requires: terrain plane, player position, and 3D velocity vector.
+- Handles horizontal and vertical motion, giving precise intersection point and time.
+- Example use: jumping onto a hill, ramp, or irregular platform.

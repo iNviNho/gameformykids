@@ -102,7 +102,6 @@ Player::State PathPlayerMover::move(Player::Moving& moving, float& deltaTime) {
 
     // total distance we can move in this time step
     float distance = deltaTime * moving.speed;
-    Log::logInfo(distance);
     while (distance > 0) {
 
         glm::vec3 target;
@@ -237,7 +236,7 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
                         deltaTime = 0.0f;
                         break;
                     }
-
+                    // if not we just calculate new moving towards and recalculate intersections
                     setMovingTowards(jumping.terrainPos, addHeight(*nextWaypoint));
 
                     if (nextIntersection == intersections.cend())
@@ -268,13 +267,17 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
             // the current terrain position and the next terrain target
             const float cx = (jumping.terrainPos.x + target.x) / 2.0f;
             const float cz = (jumping.terrainPos.z + target.z) / 2.0f;
+            // this is the triangle we are currently above
             const std::array<glm::vec3, 3> triangle = terrain.GetTriangle(cx, cz);
+            // plane equation of the triangle
             const glm::vec4 plane = Terrain::GetTrianglePlane(triangle);
 
+            // compute intersection of the player's trajectory with the plane of the triangle
             const Intersection inter = planeTrajIntersection(plane, pos, glm::vec3{ dir.x * jumping.terrainSpeed,
                                                                                     jumping.velocity,
                                                                                     dir.z * jumping.terrainSpeed });
             if (Terrain::IsInsideTriangle(triangle, glm::vec3{ plane.x, plane.y, plane.z }, inter.point)) {
+                // If the intersection is inside the triangle, check if it occurs within the current time interval.
                 if (inter.time <= deltaTime) {
                     landing = inter;
                     break;
@@ -299,6 +302,8 @@ Player::State PathPlayerMover::move(Player::JumpingOnPath& jumping, float& delta
                     deltaTime -= maxT;
                 }
             }
+            // If the intersection is not inside the triangle,
+            // it means the player is still in the air above the edges, don’t consider it landed.
             else {
                 const float maxT = std::min(deltaTime, distToTarget / jumping.terrainSpeed);
 
