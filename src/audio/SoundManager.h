@@ -23,10 +23,10 @@ public:
         loadSounds();
     }
     ~SoundManager() {
-        ma_engine_uninit(&engine);
         for (auto& pair: sounds) {
             ma_sound_uninit(pair.second.get());
         }
+        ma_engine_uninit(&engine);
     }
 
     void playSound(SongName songName, bool rewindCurrent = true);
