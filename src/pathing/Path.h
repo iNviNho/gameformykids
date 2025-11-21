@@ -2,6 +2,8 @@
 
 #ifndef PATHGENERATOR_H
 #define PATHGENERATOR_H
+#include <string>
+#include <vector>
 #include "glm/vec3.hpp"
 
 

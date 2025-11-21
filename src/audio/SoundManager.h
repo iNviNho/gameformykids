@@ -3,6 +3,8 @@
 
 #include "miniaudio.h"
 #include <map>
+#include <memory>
+#include <stdexcept>
 
 class SoundManager {
 public:
