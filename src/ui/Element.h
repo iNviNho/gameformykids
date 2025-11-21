@@ -1,7 +1,9 @@
 #ifndef MYGAME_ELEMENT_H
 #define MYGAME_ELEMENT_H
 #include <string>
-
+#include <optional>
+#include <vector>
+#include <functional>
 #include "Screen.h"
 #include "../models/StaticShape.h"
 #include "../text/TextProportion.h"
