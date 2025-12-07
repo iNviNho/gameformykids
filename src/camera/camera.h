@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../utils/Log.h"
@@ -21,7 +22,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW         =  0.0f;
 const float PITCH       =  0.0f;
-const float SPEED       =  2.5f;
+const float SPEED       =  10.0f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
@@ -121,24 +122,38 @@ public:
         return TargetYaw;
     }
 
-    // Not needed for this game, camera moves based on player position
-    // // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    // void ProcessKeyboard(Camera_Movement direction, float deltaTime)
-    // {
-    //     float velocity = MovementSpeed * deltaTime;
-    //     if (direction == FORWARD)
-    //         Position += Front * velocity;
-    //     if (direction == BACKWARD)
-    //         Position -= Front * velocity;
-    //     if (direction == LEFT)
-    //         Position -= Right * velocity;
-    //     if (direction == RIGHT)
-    //         Position += Right * velocity;
-    //     if (direction == UP)
-    //         Position += Up * velocity;
-    //     if (direction == DOWN)
-    //         Position -= Up * velocity;
-    // }
+    glm::vec3 GetFrontVector() const {
+        glm::mat4 view = GetViewMatrix();
+        glm::mat3 rotation = glm::mat3(glm::transpose(view));
+        return -rotation[2]; // Forward (negative Z in view space)
+    }
+
+    // processes input received from any keyboard-like input system
+    // accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
+    // works only in game edit mode
+    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    {
+        glm::mat4 view = GetViewMatrix();
+        glm::mat3 rotation = glm::mat3(glm::transpose(view)); // Inverse rotation
+
+        glm::vec3 front = -rotation[2]; // Forward (negative Z in view space)
+        glm::vec3 right = rotation[0];  // Right (X in view space)
+        glm::vec3 up    = rotation[1];  // Up (Y in view space)
+
+        float velocity = MovementSpeed * deltaTime;
+        if (direction == FORWARD)
+            TargetPosition += front * velocity;
+        if (direction == BACKWARD)
+            TargetPosition -= front * velocity;
+        if (direction == LEFT)
+            TargetPosition -= right * velocity;
+        if (direction == RIGHT)
+            TargetPosition += right * velocity;
+        if (direction == UP)
+            TargetPosition += up * velocity;
+        if (direction == DOWN)
+            TargetPosition -= up * velocity;
+    }
 
     void tick(float deltaTime) {
         if (elapsed < ANIMATION_DURATION) {
@@ -207,6 +222,28 @@ public:
             Zoom = 1.0f;
         if (Zoom > 90.0f)
             Zoom = 90.0f;
+    }
+
+    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
+    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    {
+        xoffset *= MouseSensitivity;
+        yoffset *= MouseSensitivity;
+
+        TargetYaw   += xoffset;
+        Pitch += yoffset;
+
+        // make sure that when pitch is out of bounds, screen doesn't get flipped
+        if (constrainPitch)
+        {
+            if (Pitch > 89.0f)
+                Pitch = 89.0f;
+            if (Pitch < -89.0f)
+                Pitch = -89.0f;
+        }
+
+        // update Front, Right and Up Vectors using the updated Euler angles
+        updateViewMatrix();
     }
 
 private:

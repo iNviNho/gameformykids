@@ -20,7 +20,10 @@
 #include <data_dir.h>
 
 #include "src/audio/SoundManager.h"
+#include "src/gameedit/SceneModifier.h"
 #include "src/menu/Menu.h"
+#include "src/storage/LocalStorage.h"
+#include "src/terrain/DoodadsLoader.h"
 #include "src/ui/Screen.h"
 #include "src/utils/GameState.h"
 #include "src/utils/Log.h"
@@ -30,7 +33,8 @@ using path = std::filesystem::path;
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 GLFWwindow* createAndConfigureWindow(Screen& screen, bool foolscrean = false);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier);
 void calculateDelta();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
@@ -66,14 +70,34 @@ int main() {
     SkyboxRenderer skyboxRenderer(camera, screen);
     StaticShapeRenderer staticShapeRenderer{};
     UiRenderer uiRenderer{textRenderer, staticShapeRenderer};
+
+
     Skybox skybox{"cloudy"};
     Terrain terrain(
         data_dir() /= path("resources/images/heightmaps/heightmap.png"),
         data_dir() /= path("resources/images/blendMap4.png")
     );
+    EntitiesHolder doodads{};
+
     Fps fps;
     GameState gameState{soundManager};
     Menu menu{gameState, uiRenderer, window, screen};
+    StaticShape crosshair{
+        data_dir() /= path("resources/images/pointers/pointer.png")
+    };
+    crosshair.SetScale(glm::vec2{0.05f, 0.05f});
+
+    // Game edit
+    // -----------------
+    LocalStorage storageForDoodads{data_dir() /= path("resources/map/doodads.txt")};
+    SceneModifier sceneModifier{camera, terrain, doodads, storageForDoodads};
+
+    // Load persisted doodads
+    DoodadsLoader::LoadDoodads(
+        storageForDoodads,
+        doodads
+    );
+
 
     // Player related code
     // -------------------
@@ -92,11 +116,12 @@ int main() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     Log::logInfo("Starting game loop");
     while (!glfwWindowShouldClose(window)) {
         // process input from the keyboard & mouse
-        processInput(window, playerMover, menu, gameState);
+        processInput(window, playerMover, menu, gameState, sceneModifier);
 
         // render
         // ------
@@ -119,13 +144,30 @@ int main() {
 
             // input
             // -----
-            playerMover.move(deltaTime);
-            player.UpdateCameraPose();
+            // we only move player if we are in non-game edit mode
+            if (gameState.isGameEditModeDisabled()) {
+                playerMover.move(deltaTime);
+                player.UpdateCameraPose();
+            }
+
+            // ----
+            // Camera ticks
+            // ---
             camera.tick(deltaTime);
 
+            // ----
+            // Renderers
+            // ---
             skyboxRenderer.render(skybox);
             terrainRenderer.render(terrain);
             entityRenderer.render(player);
+            for (const Entity& entity : doodads.GetEntities()) {
+                entityRenderer.render(entity);
+            }
+            if (gameState.isGameEditModeEnabled()) {
+                // we render cross in the middle of the screen
+                staticShapeRenderer.Render(crosshair);
+            }
 
             textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
         }
@@ -193,14 +235,60 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState)
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    // could be flipped (depends on the mouse)
+    float yoffset = ypos - lastY;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         menu.KeyboardEscapePressed();
     }
+    if (gameState.isGameEditModeEnabled()) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            camera.ProcessKeyboard(UP, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            camera.ProcessKeyboard(DOWN, deltaTime);
+        }
+    }
+
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         playerMover.Jump();
     }
+    // TODO: Only in menu?
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         double xPosition, yPosition;
         glfwGetCursorPos(window, &xPosition, &yPosition);
@@ -208,6 +296,7 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
         // at least 250ms passed since last click
         if (glfwGetTime() - lastClickedAt > clickDeadTime) {
             menu.MouseButtonLeftClicked(xPosition, yPosition);
+            sceneModifier.placeObject();
             lastClickedAt = glfwGetTime();
         }
     }

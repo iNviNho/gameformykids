@@ -46,7 +46,4 @@ void TerrainRenderer::render(Terrain& terrain) {
     glDrawArrays(GL_TRIANGLES, 0, terrain.GetCountOfVertices());
 
     glDisable(GL_CULL_FACE);
-
-    // render grasses
-    entityRenderer.renderBatch(terrain.GetGrasses().GetEntities());
 }

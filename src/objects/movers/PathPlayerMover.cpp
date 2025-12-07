@@ -11,7 +11,6 @@ static constexpr float AT_TARGET = 1e-5f;
 
 static constexpr float GRAVITY = -9.8f;
 
-// TODO: Understand this
 void PathPlayerMover::move(float deltaTime) {
     while (deltaTime > 0.0f) {
         Player::State& state = player.getState();

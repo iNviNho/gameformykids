@@ -90,7 +90,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
             vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         // assimp allows up to 8 different texture coordinates per vertex,
-        // for now we only care abbout first
+        // for now we only care about first
         if (mesh->mTextureCoords[0]) {
             vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
         } else {
@@ -107,19 +107,28 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         }
     }
     if (mesh->mMaterialIndex >= 0) {
+        Log::logInfo("Mesh has material index: " + std::to_string(mesh->mMaterialIndex));
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
         loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
+    } else {
+        Log::logWarning("Mesh has no material assigned to it.");
     }
 
     return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
 void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures) {
+    Log::logInfo("Texture count is : " + std::to_string(mat->GetTextureCount(type)));
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
         const std::filesystem::path str_path(str.C_Str());
+        if (std::filesystem::exists(str_path)) {
+            Log::logInfo("Texture path exists on filesystem: " + str_path.string());
+        } else {
+            Log::logError("Texture path does not exist on filesystem: " + str_path.string());
+        }
         bool skip = false;
         for (unsigned int j = 0; j < texturesLoaded.size(); j++) {
             if (texturesLoaded[j].path == str_path) {

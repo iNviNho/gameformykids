@@ -22,6 +22,7 @@ void Fps::tick() {
         frameCount = 0;
         lastTime = currentFrame;
         fpsAsString = "fps: " + std::to_string(fps);
-        Log::logInfo(fpsAsString);
+        // TODO: revert
+        // Log::logInfo(fpsAsString);
     }
 }

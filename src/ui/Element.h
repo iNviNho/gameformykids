@@ -82,6 +82,8 @@ public:
     bool HasSubElements() const { return !subElements.empty(); }
 
     void MouseButtonLeftClicked(double xPosition, double yPosition);
+
+
     void MouseHovered(double xPosition, double yPosition);
 
     void RecalculateElementsPositions();
@@ -117,6 +119,8 @@ private:
     std::function<bool()> visibilityCondition{[] { return true; }};
 
     void SetPosition(const glm::vec2& newPosition) { this->position = newPosition; }
+
+    void handleElementClick(Element &element, double xPosition, double yPosition);
 };
 
 

@@ -27,6 +27,8 @@ public:
     float GetRotationYAngle() const { return rotation.y; }
     float GetRotationZAngle() const { return rotation.z; }
     void updateRotation(const glm::vec3& direction);
+
+    std::string toString();
 private:
     std::shared_ptr<Model> model;
     glm::vec3 position;

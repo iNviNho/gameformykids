@@ -122,6 +122,12 @@ add_executable(mygame main.cpp
         src/utils/lerp.h
         src/objects/movers/MeshIntersecter.h
         src/objects/movers/MeshIntersecter.cpp
+        src/gameedit/SceneModifier.cpp
+        src/gameedit/SceneModifier.h
+        src/storage/LocalStorage.cpp
+        src/storage/LocalStorage.h
+        src/terrain/DoodadsLoader.cpp
+        src/terrain/DoodadsLoader.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")

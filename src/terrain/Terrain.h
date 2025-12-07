@@ -238,9 +238,6 @@ private:
 
     glm::vec3 calculateNormal(const int x, const int z) const;
 
-    Grasses grasses;
-    void generateGrasses();
-
 public:
     Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
     ~Terrain() = default;
@@ -252,7 +249,6 @@ public:
     unsigned int GetFlowersTexture() const { return flowersTexture; }
     unsigned int GetBlendMapTexture() const { return blendMapTexture; }
     constexpr int GetSize() const noexcept { return SIZE; }
-    const Grasses& GetGrasses() const { return grasses;}
     void activateTextures(Shader& shader);
 
     /**

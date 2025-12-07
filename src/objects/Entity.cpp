@@ -42,3 +42,19 @@ void Entity::updateRotation(const glm::vec3& direction) {
     // TODO: In the future update rotation also in x and z axis based on the position vs terrain
     SetRotateY(angle);
 }
+
+std::string Entity::toString() {
+    std::string data;
+
+    // first we dump position
+    data += std::to_string(position.x) + "," +
+            std::to_string(position.y) + "," +
+            std::to_string(position.z) + ",";
+    // then rotation
+    data += std::to_string(rotation.x) + "," +
+            std::to_string(rotation.y) + "," +
+            std::to_string(rotation.z) + "\n";
+    // TBA:: then scale
+
+    return data;
+}
