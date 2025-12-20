@@ -107,7 +107,6 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         }
     }
     if (mesh->mMaterialIndex >= 0) {
-        Log::logInfo("Mesh has material index: " + std::to_string(mesh->mMaterialIndex));
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
         loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
@@ -119,19 +118,17 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 }
 
 void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures) {
-    Log::logInfo("Texture count is : " + std::to_string(mat->GetTextureCount(type)));
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        const std::filesystem::path str_path(str.C_Str());
-        if (std::filesystem::exists(str_path)) {
-            Log::logInfo("Texture path exists on filesystem: " + str_path.string());
-        } else {
-            Log::logError("Texture path does not exist on filesystem: " + str_path.string());
+        const std::filesystem::path textureFilename(str.C_Str());
+        const std::filesystem::path textureFilenameFullpath = std::filesystem::path(this->directory) /= textureFilename;
+        if (!std::filesystem::exists(textureFilenameFullpath)) {
+            Log::logError("Texture path does not exist on filesystem: " + textureFilenameFullpath.string());
         }
         bool skip = false;
         for (unsigned int j = 0; j < texturesLoaded.size(); j++) {
-            if (texturesLoaded[j].path == str_path) {
+            if (texturesLoaded[j].path == textureFilename) {
                 textures.push_back(texturesLoaded[j]);
                 skip = true;
                 break;
@@ -139,10 +136,9 @@ void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std:
         }
         if (!skip) {
             Texture texture;
-            const std::filesystem::path fullPath = std::filesystem::path(this->directory) /= str_path;
-            texture.id = TextureLoader::loadTexture(fullPath);
+            texture.id = TextureLoader::loadTexture(textureFilenameFullpath);
             texture.type = typeName;
-            texture.path = str_path;
+            texture.path = textureFilename;
             textures.push_back(texture);
             texturesLoaded.push_back(texture);
         }

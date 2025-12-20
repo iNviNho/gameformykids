@@ -8,14 +8,9 @@
 #include "../utils/Log.h"
 
 void SceneModifier::placeObject() {
-    Log::logInfo("Placing an object");
-
     // Get the camera position and direction
     glm::vec3 camPos = camera.Position;
     glm::vec3 camDir = camera.GetFrontVector();
-
-    Log::logInfo("Camera position: (" + std::to_string(camPos.x) + ", " + std::to_string(camPos.y) + ", " + std::to_string(camPos.z) + ")");
-    Log::logInfo("Camera direction: (" + std::to_string(camDir.x) + ", " + std::to_string(camDir.y) + ", " + std::to_string(camDir.z) + ")");
 
     // now we need to find the point on the terrain where the camera is looking at
     // we can do this by casting a ray from the camera position in the direction of the camera direction
@@ -30,22 +25,38 @@ void SceneModifier::placeObject() {
         if (newPosition.y <= terrainHeight) {
             // we found the intersection point
             Log::logInfo("Placing object at: (" + std::to_string(newPosition.x) + ", " + std::to_string(terrainHeight) + ", " + std::to_string(newPosition.z) + ")");
+
             // Here you would create and place your object at (newPosition.x, terrainHeight, newPosition.z)
+            Entity entity{
+                modelsHolder.GetModel(selectedEntityName),
+                glm::vec3(newPosition.x, terrainHeight, newPosition.z)
+            };
 
-            std::shared_ptr<Model> grass = std::make_shared<Model>(
-                data_dir() /= path("resources/objects/grass6/grass.obj")
-            );
-
-            Entity entity{grass, glm::vec3(newPosition.x, terrainHeight, newPosition.z)};
-
-            Log::log("Saving to file first");
             persist(entity, "grass");
-            Log::log("Saved to file");
+            Log::logInfo("Saved to file");
 
             entitiesHolder.AddEntity(entity);
 
             break;
         }
+    }
+}
+
+void SceneModifier::ChangeSelectedEntityName() {
+    // get available names from models holder
+    auto modelNames = modelsHolder.GetModelNames();
+    // get index of current
+    auto it = std::find(modelNames.begin(), modelNames.end(), selectedEntityName);
+    // if we found it
+    if (it != modelNames.end()) {
+        // increase
+        ++it;
+        // doesn't exist?
+        if (it == modelNames.end()) {
+            // we point to first element
+            it = modelNames.begin();
+        }
+        selectedEntityName = *it;
     }
 }
 

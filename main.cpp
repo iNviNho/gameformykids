@@ -22,6 +22,7 @@
 #include "src/audio/SoundManager.h"
 #include "src/gameedit/SceneModifier.h"
 #include "src/menu/Menu.h"
+#include "src/models/ModelsHolder.h"
 #include "src/storage/LocalStorage.h"
 #include "src/terrain/DoodadsLoader.h"
 #include "src/ui/Screen.h"
@@ -71,6 +72,10 @@ int main() {
     StaticShapeRenderer staticShapeRenderer{};
     UiRenderer uiRenderer{textRenderer, staticShapeRenderer};
 
+    // Models instantiations
+    // ---------------------
+    ModelsHolder modelsHolder{};
+    modelsHolder.LoadModels();
 
     Skybox skybox{"cloudy"};
     Terrain terrain(
@@ -90,14 +95,14 @@ int main() {
     // Game edit
     // -----------------
     LocalStorage storageForDoodads{data_dir() /= path("resources/map/doodads.txt")};
-    SceneModifier sceneModifier{camera, terrain, doodads, storageForDoodads};
+    SceneModifier sceneModifier{camera, terrain, doodads, storageForDoodads, modelsHolder};
 
     // Load persisted doodads
     DoodadsLoader::LoadDoodads(
+        modelsHolder,
         storageForDoodads,
         doodads
     );
-
 
     // Player related code
     // -------------------
@@ -170,6 +175,7 @@ int main() {
             }
 
             textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
+            textRenderer.RenderText("selected item to add: " + sceneModifier.GetSelectedEntityName(), 25.0f, 50.0f, 0.25f, whiteColor);
         }
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -282,6 +288,9 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             camera.ProcessKeyboard(DOWN, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+            sceneModifier.ChangeSelectedEntityName();
         }
     }
 

@@ -50,7 +50,7 @@ void Mesh::Draw(Shader& shader) const
     shader.setVec3("light.ambient", 0.45f, 0.45f, 0.45f);
     shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
     shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-    shader.setVec3("light.position", glm::vec3(10.0f, 0.0f, 20.0f));
+    shader.setVec3("light.position", glm::vec3(0.0f, 0.0f, -2000.0f));
 
     // draw mesh
     glBindVertexArray(VAO);

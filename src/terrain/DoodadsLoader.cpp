@@ -5,13 +5,14 @@
 #include "../storage/LocalStorage.h"
 #include "../utils/Log.h"
 
-void DoodadsLoader::LoadDoodads(LocalStorage& storage, EntitiesHolder& entitiesHolder) {
-
+void DoodadsLoader::LoadDoodads(
+    ModelsHolder& modelsHolder,
+    LocalStorage& storage,
+    EntitiesHolder& entitiesHolder)
+{
+    Log::logInfo("Loading doodads");
     auto lines = storage.GetLines();
     for (const std::string&line : lines) {
-        // log first
-        Log::logInfo(line);
-
         // first part is name
         // second part is unique id (we can ignore it)
         // rest is entity data
@@ -20,15 +21,14 @@ void DoodadsLoader::LoadDoodads(LocalStorage& storage, EntitiesHolder& entitiesH
             continue; // invalid line
         }
 
-        // add object
-        std::shared_ptr<Model> grass = std::make_shared<Model>(
-            data_dir() /= std::filesystem::path("resources/objects/grass6/grass.obj")
-        );
-
-        Entity entity{grass, glm::vec3(
-            std::stof(parts[2]), std::stof(parts[3]), std::stof(parts[4]))};
+        Entity entity{
+            modelsHolder.GetModel(parts[0]),
+            glm::vec3(
+                std::stof(parts[2]), std::stof(parts[3]), std::stof(parts[4])
+            )};
         entitiesHolder.AddEntity(entity);
     }
+    Log::logInfo("Doodads loaded");
 }
 
 // Split a string by delimiter

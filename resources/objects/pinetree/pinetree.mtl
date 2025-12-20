@@ -1,0 +1,22 @@
+# Blender 5.0.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Material.001
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd tree wood_Base_color_1001.png
+map_Ns tree wood_Roughness_1001.png
+
+newmtl Material.002
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000S
+d 1.000000
+illum 2
+map_Kd leafs_Base_color_1001.png
+map_Ns leafs_Roughness_1001.png
