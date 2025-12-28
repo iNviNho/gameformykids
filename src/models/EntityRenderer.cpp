@@ -44,8 +44,7 @@ void EntityRenderer::render(const Entity& entity) {
     // singleInstanceShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     // singleInstanceShader.setVec3("light.position", glm::vec3(20.0f, 0.0f, -400.0f));
 
-    // TODO: Implement scaling
-    // model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    model = glm::scale(model, glm::vec3(entity.GetScale()));
     singleInstanceShader.setMat4("model", model);
     entity.GetModel().Draw(singleInstanceShader);
 }

@@ -53,8 +53,9 @@ std::string Entity::toString() {
     // then rotation
     data += std::to_string(rotation.x) + "," +
             std::to_string(rotation.y) + "," +
-            std::to_string(rotation.z) + "\n";
-    // TBA:: then scale
+            std::to_string(rotation.z) + ",";
+    // then scale
+    data += std::to_string(scale) + "\n";
 
     return data;
 }

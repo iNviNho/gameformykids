@@ -17,15 +17,17 @@ void DoodadsLoader::LoadDoodads(
         // second part is unique id (we can ignore it)
         // rest is entity data
         auto parts = split(line, ',');
-        if (parts.size() < 8) {
-            continue; // invalid line
-        }
-
         Entity entity{
             modelsHolder.GetModel(parts[0]),
             glm::vec3(
                 std::stof(parts[2]), std::stof(parts[3]), std::stof(parts[4])
             )};
+
+        entity.SetRotateX(std::stof(parts[5]));
+        entity.SetRotateY(std::stof(parts[6]));
+        entity.SetRotateZ(std::stof(parts[7]));
+
+        entity.SetScale(std::stof(parts[8]));
         entitiesHolder.AddEntity(entity);
     }
     Log::logInfo("Doodads loaded");
