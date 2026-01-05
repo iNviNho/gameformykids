@@ -90,7 +90,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
             vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
         // assimp allows up to 8 different texture coordinates per vertex,
-        // for now we only care abbout first
+        // for now we only care about first
         if (mesh->mTextureCoords[0]) {
             vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
         } else {
@@ -110,6 +110,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
         loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
+    } else {
+        Log::logWarning("Mesh has no material assigned to it.");
     }
 
     return Mesh(std::move(vertices), std::move(indices), std::move(textures));
@@ -119,10 +121,14 @@ void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std:
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        const std::filesystem::path str_path(str.C_Str());
+        const std::filesystem::path textureFilename(str.C_Str());
+        const std::filesystem::path textureFilenameFullpath = std::filesystem::path(this->directory) /= textureFilename;
+        if (!std::filesystem::exists(textureFilenameFullpath)) {
+            Log::logError("Texture path does not exist on filesystem: " + textureFilenameFullpath.string());
+        }
         bool skip = false;
         for (unsigned int j = 0; j < texturesLoaded.size(); j++) {
-            if (texturesLoaded[j].path == str_path) {
+            if (texturesLoaded[j].path == textureFilename) {
                 textures.push_back(texturesLoaded[j]);
                 skip = true;
                 break;
@@ -130,10 +136,9 @@ void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std:
         }
         if (!skip) {
             Texture texture;
-            const std::filesystem::path fullPath = std::filesystem::path(this->directory) /= str_path;
-            texture.id = TextureLoader::loadTexture(fullPath);
+            texture.id = TextureLoader::loadTexture(textureFilenameFullpath);
             texture.type = typeName;
-            texture.path = str_path;
+            texture.path = textureFilename;
             textures.push_back(texture);
             texturesLoaded.push_back(texture);
         }

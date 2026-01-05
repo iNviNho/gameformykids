@@ -4,8 +4,12 @@
 
 void Element::MouseButtonLeftClicked(double xPosition, double yPosition) {
     Log::logInfo("Left mouse button clicked at: " + std::to_string(xPosition) + ", " + std::to_string(yPosition));
+    handleElementClick(*this, xPosition, yPosition);
+}
+
+void Element::handleElementClick(Element& elementGiven, double xPosition, double yPosition) {
     float yPositionInverted = abs(yPosition - screen.GetHeight());
-    for (auto& element : GetSubElements()) {
+    for (auto& element : elementGiven.GetSubElements()) {
         // we ignore invisible elements
         if (!element.GetVisibilityCondition()()) {
             continue;
@@ -15,6 +19,11 @@ void Element::MouseButtonLeftClicked(double xPosition, double yPosition) {
             yPositionInverted >= element.GetPosition().y && yPositionInverted <= element.GetPosition().y + element.GetTextProportion().GetHeight()) {
             element.GetOnClick()(element);
             return;
+            }
+
+        // if sub element has sub elements, we need to delegate the click to them
+        if (element.HasSubElements()) {
+            handleElementClick(element, xPosition, yPosition);
         }
     }
 }

@@ -18,14 +18,13 @@
 using path = std::filesystem::path;
 
 Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
-    : heightMap(heightMap), blendMap(blendMap), grasses(EntitiesHolder(std::vector<Entity>())) {
+    : heightMap(heightMap), blendMap(blendMap) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
     // We allocate a fixed-size array on the heap so there is no dynamic recalculation
     const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
     generateTextures();
     generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
-    generateGrasses();
 }
 
 void Terrain::generateTextures() {
@@ -52,45 +51,6 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
-}
-
-void Terrain::generateGrasses() {
-    Log::logInfo("Generating grasses");
-    std::shared_ptr<Model> grass = ModelGenerator::generateGrass(data_dir() /= path("resources/objects/grass4/grass.png"));
-
-    // capacity unknown at this point
-    std::vector<Entity> entities;
-    float blendMapWidthToTerrainSizeRatio = blendMap.getWidth() / SIZE;
-    // TODO: All of this could be precomputated during build time instead of
-    // doing it at runtime to speed up start time
-    for (int x = 0; x < SIZE; x++) {
-        for (int z = 0; z < SIZE; z++) {
-            for (int p = 0; p < GRASS_DENSITY; p++) {
-                // random between 0.0f and 0.99f
-                float anyX = static_cast<float>(rand()) / (RAND_MAX + 1.0f);
-                float xpos = static_cast<float>(x) + anyX;
-                // random between 0.0f and 0.99f
-                float anyZ = static_cast<float>(rand()) / (RAND_MAX + 1.0f);
-                float zpos = -(static_cast<float>(z) + anyZ);
-                // temporary increasing y position by 0.35f
-                float ypos = GetHeight(xpos, zpos) + 0.35f;
-
-                int xPosRatio = static_cast<int>(xpos * blendMapWidthToTerrainSizeRatio);
-                int zPosRatio =
-                    // we do this because image is flipped vertically
-                    blendMap.getHeight() - 1 -
-                    static_cast<int>(zpos * blendMapWidthToTerrainSizeRatio * -1);
-                if (!blendMap.isBlackColor(xPosRatio, zPosRatio)) {
-                    continue;
-                }
-
-                entities.emplace_back(grass, glm::vec3(xpos, ypos, zpos));
-            }
-        }
-    }
-
-    Log::logInfo("Generated grasses: " + std::to_string(entities.size()));
-    this->grasses = Grasses{EntitiesHolder{std::move(entities)}};
 }
 
 float Terrain::GetHeight(const int x, int z) const {

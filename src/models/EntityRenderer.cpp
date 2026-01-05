@@ -38,8 +38,13 @@ void EntityRenderer::render(const Entity& entity) {
     model = glm::rotate(model, glm::radians(entity.GetRotationYAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(entity.GetRotationZAngle()), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    // TODO: Implement scaling
-    // model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+    // TODO: create sun class and move it there
+    // singleInstanceShader.setVec3("light.ambient", 0.0f, 0.0f, 0.0f);
+    // singleInstanceShader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
+    // singleInstanceShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    // singleInstanceShader.setVec3("light.position", glm::vec3(20.0f, 0.0f, -400.0f));
+
+    model = glm::scale(model, glm::vec3(entity.GetScale()));
     singleInstanceShader.setMat4("model", model);
     entity.GetModel().Draw(singleInstanceShader);
 }

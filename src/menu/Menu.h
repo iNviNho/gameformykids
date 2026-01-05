@@ -83,9 +83,10 @@ public:
         settingsDiv.SetText("SETTINGS");
         settingsDiv.SetMarginBottom(15.0f);
         settingsDiv.SetMarginLeft(20.0f);
-        settingsDiv.SetOnClick([](Element&) {
+        settingsDiv.SetOnClick([&gameState](Element& settingsDiv) {
             Log::logInfo("[MENU]: Settings clicked");
-            // todo: we are going to open settings menu
+            gameState.toggleSettingsState();
+            settingsDiv.RecalculateElementsPositions();
         });
         settingsDiv.SetOnMouseEnter([](Element& e) {
             e.SetTextScale(1.05f);
@@ -93,6 +94,23 @@ public:
         settingsDiv.SetOnMouseLeave([](Element& e) {
             e.SetTextScale(1.0f);
         });
+
+        // add settings elements for game edit mode
+        Element settingsDivGameEditMode = Element{screen};
+        settingsDivGameEditMode.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+        settingsDivGameEditMode.SetMarginBottom(200.0f);
+        settingsDivGameEditMode.SetMarginLeft(20.0f);
+        settingsDivGameEditMode.SetOnClick([&gameState](Element& element) {
+            Log::logInfo("[MENU]: Game Edit Mode clicked");
+            gameState.toggleGameEditMode();
+            element.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+        });
+        settingsDivGameEditMode.SetVisibilityCondition([&gameState] {
+           return gameState.isSettingOpen();
+        });
+        settingsDiv.AddElement(std::move(settingsDivGameEditMode));
+        settingsDiv.RecalculateElementsPositions();
+
         mainDiv.AddElement(std::move(settingsDiv));
 
         /**

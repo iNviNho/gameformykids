@@ -7,6 +7,9 @@ void StaticShapeRenderer::Render(const StaticShape& shape) {
 
     // render the loaded model
     glm::mat4 model = glm::mat4(1.0f);
+
+    model = glm::scale(model, glm::vec3(shape.GetScale().x, shape.GetScale().y, 0.1f));
+
     shader.setMat4("model", model);
 
     glActiveTexture(GL_TEXTURE0);

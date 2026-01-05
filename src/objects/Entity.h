@@ -10,7 +10,7 @@ class Entity {
 public:
     // TODO: Does this have to be shrd pointer?
     Entity(const std::shared_ptr<Model> &model, glm::vec3 position):
-        model(model), position(position), rotation(glm::vec3(0.0f)) {}
+        model(model), position(position), rotation(glm::vec3(0.0f)), scale(1.0f) {}
     ~Entity() = default;
 
     void RotateX(float angle) { rotation.x += angle; }
@@ -18,6 +18,7 @@ public:
     void RotateY(float angle) { rotation.y += angle; }
     void SetRotateY(float angle) { rotation.y = angle; }
     void RotateZ(float angle) { rotation.z += angle; }
+    void SetRotateZ(float angle) { rotation.z = angle; }
     void MoveBy(const glm::vec3& moveVector);
     void MoveTo(const glm::vec3& position);
     void MoveTo(const glm::vec3& position, const glm::vec3& dir);
@@ -27,10 +28,15 @@ public:
     float GetRotationYAngle() const { return rotation.y; }
     float GetRotationZAngle() const { return rotation.z; }
     void updateRotation(const glm::vec3& direction);
+    float GetScale() const { return scale; }
+    void SetScale(float scale) { this->scale = scale; }
+
+    std::string toString();
 private:
     std::shared_ptr<Model> model;
     glm::vec3 position;
     glm::vec3 rotation;
+    float scale;
 };
 
 
