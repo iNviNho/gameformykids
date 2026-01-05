@@ -2,8 +2,9 @@
 
 #include <random>
 
-#include "../menu/Menu.h"
 #include "../utils/Log.h"
+
+constexpr float removalRadius = 0.5f;
 
 std::optional<glm::vec3> SceneModifier::raycastToTerrain(
     float stepSize,
@@ -17,7 +18,8 @@ std::optional<glm::vec3> SceneModifier::raycastToTerrain(
     // we can do this by casting a ray from the camera position in the direction of the camera direction
     // and finding the intersection with the terrain
     for (int i = 1; i < maxIterations; ++i) {
-        glm::vec3 pos = camPos + camDir * (i * stepSize);
+        const float distAlongRay = static_cast<float>(i) * stepSize;
+        glm::vec3 pos = camPos + camDir * distAlongRay;
         float terrainHeight = terrain.GetHeight(pos.x, pos.z);
 
         if (pos.y <= terrainHeight) {
@@ -29,7 +31,7 @@ std::optional<glm::vec3> SceneModifier::raycastToTerrain(
     return std::nullopt;
 }
 
-void SceneModifier::applySelectedTransform(Entity& entity) {
+void SceneModifier::applySelectedTransform(Entity& entity) const {
     entity.SetScale(GetScale());
     entity.SetRotateX(selectedRotation.x);
     entity.SetRotateY(selectedRotation.y);
@@ -63,6 +65,51 @@ void SceneModifier::placeObject() {
     Log::logInfo("Object persisted to the storage.");
 
     entitiesHolder.AddEntity(entity);
+}
+
+void SceneModifier::removeObject() {
+    // full deletion — in-memory + persisted storage
+    auto hitPoint = raycastToTerrain();
+    if (!hitPoint.has_value()) {
+        Log::logWarning("Unable to find a hit point when removing object.");
+        return;
+    }
+
+    const glm::vec3& position = hitPoint.value();
+    Log::logInfo(
+        "Removing object near: (" +
+        std::to_string(position.x) + ", " +
+        std::to_string(position.y) + ", " +
+        std::to_string(position.z) + ")"
+    );
+
+    auto found = entitiesHolder.FindNearest(position, removalRadius);
+    if (!found.has_value()) {
+        Log::logWarning("No entity found within removal radius");
+        return;
+    }
+
+    const glm::vec3 foundPosition = found.value();
+
+    // remove from in-memory container
+    const bool removedFromInMemory = entitiesHolder.RemoveByPosition(foundPosition);
+    if (!removedFromInMemory) {
+        Log::logWarning("Entity found but failed to remove from in-memory holder");
+    } else {
+        Log::logInfo("Entity removed from in-memory holder");
+    }
+
+    // remove from persistent storage
+    try {
+        const bool removedFromLocalStorage = localStorage.RemoveEntityByPosition(foundPosition);
+        if (removedFromLocalStorage) {
+            Log::logInfo("Entity removed from LocalStorage");
+        } else {
+            Log::logWarning("No matching persisted entity found to remove");
+        }
+    } catch (const std::exception& ex) {
+        Log::logError(std::string("Failed to remove entity from LocalStorage: ") + ex.what());
+    }
 }
 
 void SceneModifier::ChangeSelectedEntityName() {

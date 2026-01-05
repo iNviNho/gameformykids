@@ -97,7 +97,7 @@ public:
 
         // add settings elements for game edit mode
         Element settingsDivGameEditMode = Element{screen};
-        settingsDivGameEditMode.SetText("Enable game edit mode");
+        settingsDivGameEditMode.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
         settingsDivGameEditMode.SetMarginBottom(200.0f);
         settingsDivGameEditMode.SetMarginLeft(20.0f);
         settingsDivGameEditMode.SetOnClick([&gameState](Element& element) {

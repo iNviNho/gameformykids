@@ -107,10 +107,14 @@ int main() {
     // Game edit
     // -----------------
     SceneModifier sceneModifier{camera, terrain, doodads, storageForDoodads, modelsHolder};
-    StaticShape crosshair{
+    StaticShape placeObjectCrosshair{
         data_dir() /= path("resources/images/pointers/pointer.png")
     };
-    crosshair.SetScale(glm::vec2{0.05f, 0.05f});
+    placeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
+    StaticShape removeObjectCrosshair{
+        data_dir() /= path("resources/images/pointers/removePointer.png")
+    };
+    removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
 
     // Player
     // -------------------
@@ -174,15 +178,22 @@ int main() {
             // ****************************
             // second = EDIT MODE
             if (gameState.isGameEditModeEnabled()) {
-                // we render crosshair in the middle of the screen
-                staticShapeRenderer.Render(crosshair);
-                // render selected entity preview
-                entityRenderer.render(
-                    sceneModifier.GetSelectedEntityPreviewEntity()
-                );
+
+                // do we plan to place or remove an object?
+                if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
+                    // we render crosshair in the middle of the screen
+                    staticShapeRenderer.Render(placeObjectCrosshair);
+                    // render selected entity preview
+                    entityRenderer.render(
+                        sceneModifier.GetSelectedEntityPreviewEntity()
+                    );
+                } else {
+                    // we render x in the middle of the screen
+                    staticShapeRenderer.Render(removeObjectCrosshair);
+                }
 
                 // misc texts
-                textRenderer.RenderText("selected item to add: " + sceneModifier.GetSelectedEntityName(), 25.0f, 10.0f, 0.25f, whiteColor);
+                textRenderer.RenderText("selected item: " + sceneModifier.GetSelectedEntityName(), 25.0f, 10.0f, 0.25f, whiteColor);
                 textRenderer.RenderText("selected item scale : " + std::to_string(sceneModifier.GetScale()), 25.0f, 30.0f, 0.25f, whiteColor);
                 textRenderer.RenderText("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z), 25.0f, 50.0f, 0.25f, whiteColor);
 
@@ -265,6 +276,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+    // todo: should not be possible while game is on (no game edit, no menu)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
@@ -371,7 +383,14 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
         // in game we only handle clicks in game edit mode
         } else {
             if (smallDelayPassed() && gameState.isGameEditModeEnabled()) {
-                sceneModifier.placeObject();
+                // we handle 2 types of clicks:
+                // first = place object if x is not pressed
+                if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
+                    sceneModifier.placeObject();
+                // second = remove object if x is pressed
+                } else {
+                    sceneModifier.removeObject();
+                }
             }
         }
     }

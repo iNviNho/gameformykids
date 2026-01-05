@@ -29,6 +29,7 @@ public:
     }){}
 
     void placeObject();
+    void removeObject();
     void ChangeSelectedEntityName();
     std::string GetSelectedEntityName() const {
         return selectedEntityName;
@@ -80,7 +81,7 @@ private:
     Entity previewEntity;
 
     void persist(Entity& entity, const std::string& name);
-    void applySelectedTransform(Entity& entity);
+    void applySelectedTransform(Entity& entity) const;
     std::optional<glm::vec3> raycastToTerrain(float stepSize = 0.05f, int maxIterations = 10000) const;
 };
 

@@ -10,15 +10,15 @@ public:
     }
     void changeToInMenuGameNotStarted() {
         state = IN_MENU_GAME_NOT_STARTED;
-        // soundManager.playSound(SoundManager::MENU_INTRO);
+        soundManager.playSound(SoundManager::MENU_INTRO);
     }
     void changeToInMenuGameAlreadyStarted() {
         state = IN_MENU_GAME_ALREADY_STARTED;
-        // soundManager.playSound(SoundManager::MENU_INTRO, false);
+        soundManager.playSound(SoundManager::MENU_INTRO, false);
     }
     void changeToStartGame() {
         state = IN_GAME;
-        // soundManager.playSound(SoundManager::GAME_ELWYNN);
+        soundManager.playSound(SoundManager::GAME_ELWYNN);
     }
     void toggleSettingsState() {
         settingState = (settingState == OPEN) ? CLOSE : OPEN;
