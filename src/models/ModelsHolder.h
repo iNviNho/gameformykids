@@ -5,7 +5,7 @@
 
 class ModelsHolder {
 public:
-    ModelsHolder() {}
+    ModelsHolder() = default;
     void LoadModels();
     std::shared_ptr<Model>& GetModel(const std::string& modelName);
     std::vector<std::string> GetModelNames() const;

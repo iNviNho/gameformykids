@@ -5,7 +5,7 @@
 class GameState {
 public:
     explicit GameState(SoundManager& soundManager)
-    : state(IN_MENU_GAME_NOT_STARTED), settingState(CLOSE), gameEditModeState(ENABLED), soundManager(soundManager) {
+    : state(IN_MENU_GAME_NOT_STARTED), settingState(CLOSE), gameEditModeState(DISABLED), soundManager(soundManager) {
         changeToInMenuGameNotStarted();
     }
     void changeToInMenuGameNotStarted() {
@@ -25,6 +25,9 @@ public:
     }
     void toggleGameEditMode() {
         gameEditModeState = (gameEditModeState == ENABLED) ? DISABLED : ENABLED;
+    }
+    void setGameEditMode(bool enabled) {
+        gameEditModeState = enabled ? ENABLED : DISABLED;
     }
     bool isInMenuAndGameDidNotStart() const {return state == IN_MENU_GAME_NOT_STARTED;}
     bool isInMenuAndGameAlreadyStarted() const {return state == IN_MENU_GAME_ALREADY_STARTED;}

@@ -53,13 +53,7 @@ float deadTime = 0.25f;
 int main() {
 
     // Create screen
-    Screen screen{800, 600};
-
-    // create and configure window
-    GLFWwindow* window = createAndConfigureWindow(screen);
-    if (window == nullptr) {
-        return -1;
-    }
+    Screen screen{};
 
     // Performance
     // -----------
@@ -72,6 +66,28 @@ int main() {
     // Game state
     // ----------------
     GameState gameState{soundManager};
+
+    // Load settings
+    // ----------------
+    LocalStorage settingsStorage{data_dir() /= path("settings.txt")};
+    std::string editModeValue = settingsStorage.getKeyValue("editmode", "0");
+    gameState.setGameEditMode(editModeValue == "1");
+    std::string polygonMode = settingsStorage.getKeyValue("polygonmode", "0");
+    if (polygonMode == "1") {
+        // enabling this will draw only lines
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+
+    // Create and configure window
+    std::string fullscreenMode = settingsStorage.getKeyValue("fullscreen", "0");
+    GLFWwindow* window = createAndConfigureWindow(
+        screen,
+        fullscreenMode == "1"
+    );
+    if (window == nullptr) {
+        return -1;
+    }
 
     // Render instantiations
     // ---------------------
@@ -128,9 +144,6 @@ int main() {
     PathPlayerMover playerMover(player, terrain);
 
     glEnable(GL_DEPTH_TEST);
-
-    // enabling this will draw only lines
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -223,7 +236,7 @@ int main() {
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
@@ -240,15 +253,12 @@ GLFWwindow* createAndConfigureWindow(Screen& screen, bool fullscreen) {
     GLFWwindow* window;
     if (fullscreen) {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        screen.Resize(mode->width, mode->height);
         window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", monitor, nullptr);
     } else {
-        window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", NULL, nullptr);
+        window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", nullptr, nullptr);
     }
 
-    if (window == NULL)
+    if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -256,11 +266,18 @@ GLFWwindow* createAndConfigureWindow(Screen& screen, bool fullscreen) {
     }
     glfwMakeContextCurrent(window);
 
+    // Get actual window size and update Screen
+    int actualWidth, actualHeight;
+    glfwGetWindowSize(window, &actualWidth, &actualHeight);
+    screen.Resize(actualWidth, actualHeight);
+    Log::logInfo("Creating window of width: " + std::to_string(actualWidth) + " and height: " + std::to_string(actualHeight));
+
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return nullptr;
     }
 
+    // Set the Screen pointer as the window user pointer
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     return window;
@@ -277,8 +294,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
     // todo: should not be possible while game is on (no game edit, no menu)
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+    auto xpos = static_cast<float>(xposIn);
+    auto ypos = static_cast<float>(yposIn);
 
     if (firstMouse)
     {
@@ -415,14 +432,14 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
 
 bool smallDelayPassed() {
     if (glfwGetTime() - lastPressetAt > deadTime) {
-        lastPressetAt = glfwGetTime();
+        lastPressetAt = static_cast<float>(glfwGetTime());
         return true;
     }
     return false;
 }
 
 void calculateDelta() {
-    float currentFrame = glfwGetTime();
+    auto currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 }

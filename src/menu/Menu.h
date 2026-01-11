@@ -96,19 +96,19 @@ public:
         });
 
         // add settings elements for game edit mode
-        Element settingsDivGameEditMode = Element{screen};
-        settingsDivGameEditMode.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
-        settingsDivGameEditMode.SetMarginBottom(200.0f);
-        settingsDivGameEditMode.SetMarginLeft(20.0f);
-        settingsDivGameEditMode.SetOnClick([&gameState](Element& element) {
-            Log::logInfo("[MENU]: Game Edit Mode clicked");
-            gameState.toggleGameEditMode();
-            element.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
-        });
-        settingsDivGameEditMode.SetVisibilityCondition([&gameState] {
-           return gameState.isSettingOpen();
-        });
-        settingsDiv.AddElement(std::move(settingsDivGameEditMode));
+        // Element settingsDivGameEditMode = Element{screen};
+        // settingsDivGameEditMode.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+        // settingsDivGameEditMode.SetMarginBottom(200.0f);
+        // settingsDivGameEditMode.SetMarginLeft(20.0f);
+        // settingsDivGameEditMode.SetOnClick([&gameState](Element& element) {
+        //     Log::logInfo("[MENU]: Game Edit Mode clicked");
+        //     gameState.toggleGameEditMode();
+        //     element.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+        // });
+        // settingsDivGameEditMode.SetVisibilityCondition([&gameState] {
+        //    return gameState.isSettingOpen();
+        // });
+        // settingsDiv.AddElement(std::move(settingsDivGameEditMode));
         settingsDiv.RecalculateElementsPositions();
 
         mainDiv.AddElement(std::move(settingsDiv));

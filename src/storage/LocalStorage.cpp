@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 
 void LocalStorage::persist(const std::string &data) {
     // open file in append mode
@@ -27,6 +28,48 @@ std::vector<std::string> LocalStorage::GetLines() {
         lines.push_back(line);
     }
     return lines;
+}
+
+std::unordered_map<std::string, std::string> LocalStorage::GetKeyValuePairs() {
+    std::unordered_map<std::string, std::string> keyValueMap;
+    std::ifstream file(filename);
+    if (!file) {
+        // If file doesn't exist, return empty map (not an error for config files)
+        return keyValueMap;
+    }
+    std::string line;
+    while (std::getline(file, line)) {
+        // Skip empty lines and comments
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+        // Find the '=' separator
+        std::size_t equalPos = line.find('=');
+        if (equalPos == std::string::npos) {
+            continue; // Skip lines without '='
+        }
+        std::string key = line.substr(0, equalPos);
+        std::string value = line.substr(equalPos + 1);
+
+        // Trim whitespace from key and value
+        key.erase(0, key.find_first_not_of(" \t\r\n"));
+        key.erase(key.find_last_not_of(" \t\r\n") + 1);
+        value.erase(0, value.find_first_not_of(" \t\r\n"));
+        value.erase(value.find_last_not_of(" \t\r\n") + 1);
+
+        keyValueMap[key] = value;
+    }
+    file.close();
+    return keyValueMap;
+}
+
+std::string LocalStorage::getKeyValue(const std::string& key, const std::string& defaultValue) {
+    auto keyValueMap = GetKeyValuePairs();
+    auto it = keyValueMap.find(key);
+    if (it != keyValueMap.end()) {
+        return it->second;
+    }
+    return defaultValue;
 }
 
 bool LocalStorage::RemoveEntityByPosition(const glm::vec3& pos, float epsilon) {

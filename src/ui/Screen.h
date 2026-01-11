@@ -4,7 +4,7 @@
 
 class Screen {
 public:
-    Screen(const int width, const int height) : width(width), height(height) {}
+    explicit Screen(const int width = 800, const int height = 600) : width(width), height(height) {}
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
 

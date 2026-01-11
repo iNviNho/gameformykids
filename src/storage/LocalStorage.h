@@ -2,6 +2,7 @@
 #define MYGAME_LOCALSTORAGE_H
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include <glm/glm.hpp>
 
 
@@ -12,6 +13,12 @@ public:
 
     void persist(const std::string& data);
     std::vector<std::string> GetLines();
+
+    // Read key=value configuration pairs from the file
+    std::unordered_map<std::string, std::string> GetKeyValuePairs();
+
+    // Get a single key value with a default fallback if not found
+    std::string getKeyValue(const std::string& key, const std::string& defaultValue = "");
 
     // Remove persisted entries that represent an entity at the given position (exact match).
     // Returns true if at least one line was removed.

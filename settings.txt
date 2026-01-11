@@ -1,0 +1,4 @@
+editmode=0
+polygonmode=0
+fullscreen=1
+
