@@ -72,8 +72,8 @@ add_executable(mygame main.cpp
         src/images/Image.h
         src/models/Mesh.cpp
         src/models/Mesh.h
-        src/models/Model.cpp
-        src/models/Model.h
+        src/models/AbstractModel.cpp
+        src/models/AbstractModel.h
         src/models/EntityRenderer.cpp
         src/models/EntityRenderer.h
         src/models/ModelGenerator.cpp
@@ -130,6 +130,15 @@ add_executable(mygame main.cpp
         src/terrain/DoodadsLoader.h
         src/models/ModelsHolder.cpp
         src/models/ModelsHolder.h
+        src/models/VertexBoneData.cpp
+        src/models/VertexBoneData.h
+        src/utils/OpenGlErrorChecker.h
+        src/models/BoneInformation.cpp
+        src/models/BoneInformation.h
+        src/models/StaticModel.cpp
+        src/models/StaticModel.h
+        src/models/AnimatedModel.cpp
+        src/models/AnimatedModel.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")

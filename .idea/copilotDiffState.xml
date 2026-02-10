@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/src/storage/LocalStorage.h">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/storage/LocalStorage.h" />
+              <option name="originalContent" value="#ifndef MYGAME_LOCALSTORAGE_H&#10;#define MYGAME_LOCALSTORAGE_H&#10;#include &lt;vector&gt;&#10;#include &lt;string&gt;&#10;#include &lt;unordered_map&gt;&#10;#include &lt;glm/glm.hpp&gt;&#10;&#10;&#10;class LocalStorage {&#10;public:&#10;&#10;    explicit LocalStorage(std::string filename): filename(std::move(filename)) {}&#10;&#10;    void persist(const std::string&amp; data);&#10;    std::vector&lt;std::string&gt; GetLines();&#10;&#10;    // Read key=value configuration pairs from the file&#10;    std::unordered_map&lt;std::string, std::string&gt; GetKeyValuePairs();&#10;&#10;    // Get a single key value with a default fallback if not found&#10;    std::string getKeyValue(const std::string&amp; key, const std::string&amp; defaultValue = &quot;&quot;);&#10;&#10;    // Remove persisted entries that represent an entity at the given position (exact match).&#10;    // Returns true if at least one line was removed.&#10;    bool RemoveEntityByPosition(const glm::vec3&amp; pos, float epsilon = 1e-4f);&#10;&#10;private:&#10;    std::string filename;&#10;};&#10;&#10;&#10;#endif //MYGAME_LOCALSTORAGE_H" />
+              <option name="updatedContent" value="#ifndef MYGAME_LOCALSTORAGE_H&#10;#define MYGAME_LOCALSTORAGE_H&#10;#include &lt;vector&gt;&#10;#include &lt;string&gt;&#10;#include &lt;unordered_map&gt;&#10;#include &lt;glm/glm.hpp&gt;&#10;&#10;&#10;class LocalStorage {&#10;public:&#10;&#10;    explicit LocalStorage(std::string filename): filename(std::move(filename)) {}&#10;&#10;    void persist(const std::string&amp; data);&#10;    std::vector&lt;std::string&gt; GetLines();&#10;&#10;    // Read key=value configuration pairs from the file&#10;    std::unordered_map&lt;std::string, std::string&gt; GetKeyValuePairs();&#10;&#10;    // Get a single key value with a default fallback if not found&#10;    std::string getKeyValue(const std::string&amp; key, const std::string&amp; defaultValue = &quot;&quot;);&#10;&#10;    // Remove persisted entries that represent an entity at the given position (exact match).&#10;    // Returns true if at least one line was removed.&#10;    bool RemoveEntityByPosition(const glm::vec3&amp; pos, float epsilon = 1e-4f);&#10;&#10;private:&#10;    std::string filename;&#10;};&#10;&#10;&#10;#endif //MYGAME_LOCALSTORAGE_H" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

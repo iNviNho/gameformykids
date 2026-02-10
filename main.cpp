@@ -9,7 +9,7 @@
 #include "src/camera/camera.h"
 #include "src/shaders/shader.h"
 #include "src/fps/Fps.h"
-#include "src/models/Model.h"
+#include "src/models/AbstractModel.h"
 #include "src/models/EntityRenderer.h"
 #include "src/objects/Player.h"
 #include "src/objects/movers/PathPlayerMover.h"
@@ -22,7 +22,9 @@
 #include "src/audio/SoundManager.h"
 #include "src/gameedit/SceneModifier.h"
 #include "src/menu/Menu.h"
+#include "src/models/AnimatedModel.h"
 #include "src/models/ModelsHolder.h"
+#include "src/models/StaticModel.h"
 #include "src/storage/LocalStorage.h"
 #include "src/terrain/DoodadsLoader.h"
 #include "src/ui/Screen.h"
@@ -49,6 +51,7 @@ constexpr glm::vec3 whiteColor{1.0f, 1.0f, 1.0f};
 float lastClickedAt = 0.0f;
 float lastPressetAt = 0.0f;
 float deadTime = 0.25f;
+long startTimeInMillis = glfwGetTime() * 1000;
 
 int main() {
 
@@ -134,7 +137,8 @@ int main() {
 
     // Player
     // -------------------
-    std::shared_ptr<Model> wolf = std::make_shared<Model>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
+    std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
+    // std::shared_ptr<AbstractModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/bob/boblampclean.md5mesh"));
     Player player(
         camera,
         terrain,
@@ -183,9 +187,9 @@ int main() {
             // renderers
             skyboxRenderer.render(skybox);
             terrainRenderer.render(terrain);
-            entityRenderer.render(player);
+            entityRenderer.render(player, startTimeInMillis);
             for (const Entity& entity : doodads.GetEntities()) {
-                entityRenderer.render(entity);
+                entityRenderer.render(entity, startTimeInMillis);
             }
 
             // ****************************
@@ -198,7 +202,8 @@ int main() {
                     staticShapeRenderer.Render(placeObjectCrosshair);
                     // render selected entity preview
                     entityRenderer.render(
-                        sceneModifier.GetSelectedEntityPreviewEntity()
+                        sceneModifier.GetSelectedEntityPreviewEntity(),
+                        startTimeInMillis
                     );
                 } else {
                     // we render x in the middle of the screen
@@ -206,9 +211,9 @@ int main() {
                 }
 
                 // misc texts
-                textRenderer.RenderText("selected item: " + sceneModifier.GetSelectedEntityName(), 25.0f, 10.0f, 0.25f, whiteColor);
-                textRenderer.RenderText("selected item scale : " + std::to_string(sceneModifier.GetScale()), 25.0f, 30.0f, 0.25f, whiteColor);
-                textRenderer.RenderText("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z), 25.0f, 50.0f, 0.25f, whiteColor);
+                // textRenderer.RenderText("selected item: " + sceneModifier.GetSelectedEntityName(), 25.0f, 10.0f, 0.25f, whiteColor);
+                // textRenderer.RenderText("selected item scale : " + std::to_string(sceneModifier.GetScale()), 25.0f, 30.0f, 0.25f, whiteColor);
+                // textRenderer.RenderText("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z), 25.0f, 50.0f, 0.25f, whiteColor);
 
             // ****************************
             // third = GAME MODE

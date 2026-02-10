@@ -2,14 +2,14 @@
 
 #ifndef ENTITY_H
 #define ENTITY_H
-#include "../../../src/models/Model.h"
+#include "../../../src/models/AbstractModel.h"
 
 // Represents any renderable object in the game
 // (tree, grass, bridge, house, player, animal etc)
 class Entity {
 public:
     // TODO: Does this have to be shrd pointer?
-    Entity(const std::shared_ptr<Model> &model, glm::vec3 position):
+    Entity(const std::shared_ptr<AbstractModel> &model, glm::vec3 position):
         model(model), position(position), rotation(glm::vec3(0.0f)), scale(1.0f) {}
     ~Entity() = default;
 
@@ -22,7 +22,7 @@ public:
     void MoveBy(const glm::vec3& moveVector);
     void MoveTo(const glm::vec3& position);
     void MoveTo(const glm::vec3& position, const glm::vec3& dir);
-    const Model& GetModel() const { return *model; }
+    AbstractModel& GetModel() const { return *model; }
     const glm::vec3& GetPosition() const { return position; }
     float GetRotationXAngle() const { return rotation.x; }
     float GetRotationYAngle() const { return rotation.y; }
@@ -33,7 +33,7 @@ public:
 
     std::string toString();
 private:
-    std::shared_ptr<Model> model;
+    std::shared_ptr<AbstractModel> model;
     glm::vec3 position;
     glm::vec3 rotation;
     float scale;

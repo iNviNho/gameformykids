@@ -7,7 +7,7 @@
 #include "../objects/Entity.h"
 #include "EntitiesHolder.h"
 #include "Grasses.h"
-#include "../models/Model.h"
+#include "../models/AbstractModel.h"
 #include "../models/ModelGenerator.h"
 #include "../textures/TextureLoader.h"
 #include <glm/glm.hpp>

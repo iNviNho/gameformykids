@@ -1,9 +1,10 @@
 #include "ModelGenerator.h"
 
-#include "Model.h"
+#include "AbstractModel.h"
+#include "StaticModel.h"
 #include "../textures/TextureLoader.h"
 
-std::shared_ptr<Model> ModelGenerator::generateCube(const std::filesystem::path &texturePath) {
+std::shared_ptr<AbstractModel> ModelGenerator::generateCube(const std::filesystem::path &texturePath) {
     // Vertices for a cube
     float vertices[] = {
         // positions          // normals           // texture coords
@@ -47,7 +48,7 @@ std::shared_ptr<Model> ModelGenerator::generateCube(const std::filesystem::path 
         });
     }
 
-    return std::make_shared<Model>(
+    return std::make_shared<StaticModel>(
         Mesh{
             std::move(vectorVertices),
             // Indices for a cube
@@ -77,11 +78,12 @@ std::shared_ptr<Model> ModelGenerator::generateCube(const std::filesystem::path 
                     "texture_diffuse",
                     texturePath
                 }
-            }
+            },
+{}
         });
 }
 
-std::shared_ptr<Model> ModelGenerator::generateGrass(const std::filesystem::path &texturePath) {
+std::shared_ptr<AbstractModel> ModelGenerator::generateGrass(const std::filesystem::path &texturePath) {
     float vertices[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
@@ -100,7 +102,7 @@ std::shared_ptr<Model> ModelGenerator::generateGrass(const std::filesystem::path
         });
     }
 
-    return std::make_shared<Model>(
+    return std::make_shared<StaticModel>(
         Mesh{
             std::move(vectorVertices),
             // Indices for a cube
@@ -115,6 +117,7 @@ std::shared_ptr<Model> ModelGenerator::generateGrass(const std::filesystem::path
                     "texture_diffuse",
                     texturePath
                 }
-            }
+            },
+            {}
         });
 }

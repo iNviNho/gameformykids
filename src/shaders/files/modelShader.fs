@@ -4,6 +4,8 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 aNormalPass;
 in vec3 FragPos;
+flat in ivec4 BoneIDsPass;
+in vec4 WeightsPass;
 
 uniform sampler2D texture_diffuse1;
 
