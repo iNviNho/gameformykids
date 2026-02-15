@@ -1,2 +1,4 @@
 cmake-build-debug
 glfw/*
+resources/images/.DS_Store
+.idea/*
