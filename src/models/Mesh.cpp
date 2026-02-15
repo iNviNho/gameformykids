@@ -2,8 +2,20 @@
 
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<Texture>&& textures)
-: vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures)) {
+#include "VertexBoneData.h"
+#include "../utils/OpenGlErrorChecker.h"
+
+Mesh::Mesh(
+    std::vector<Vertex>&& vertices,
+    std::vector<unsigned int>&& indices,
+    std::vector<Texture>&& textures,
+    std::vector<VertexBoneData>&& verticesWithBoneData
+):
+    vertices(std::move(vertices)),
+    indices(std::move(indices)),
+    textures(std::move(textures)),
+    verticesWithBoneData(std::move(verticesWithBoneData)),
+    hasBones(false) {
     setupMesh();
 }
 
@@ -12,11 +24,20 @@ void Mesh::setupMesh() {
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
     glBindVertexArray(VAO);
+
+    OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after VAO/VBO generation");
+
+    // Setup vertex data (VBO)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after VBO setup");
+
+    // Setup indices (EBO)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after EBO setup");
 
+    // Configure vertex attributes (VBO must be bound)
     // vertex positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -26,7 +47,26 @@ void Mesh::setupMesh() {
     // vertex texture coords
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after vertex attributes setup");
+
+    // Setup bone data conditionally
+    hasBones = !verticesWithBoneData.empty();
+    if (hasBones) {
+        glGenBuffers(1, &VBOB);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOB);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verticesWithBoneData[0]) * verticesWithBoneData.size(), &verticesWithBoneData[0], GL_STATIC_DRAW);
+
+        // bones & weights
+        glEnableVertexAttribArray(3);
+        glVertexAttribIPointer(3, MAX_NUM_BONES_PER_VERTEX, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, MAX_NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+                              (const GLvoid*)(MAX_NUM_BONES_PER_VERTEX * sizeof(int32_t)));
+        OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after bone buffer setup");
+    }
+
     glBindVertexArray(0);
+    OpenGlErrorChecker::checkGLError("Mesh::setupMesh - final");
 }
 
 void Mesh::Draw(Shader& shader) const

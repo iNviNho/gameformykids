@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-#include "../models/Model.h"
+#include "../models/AbstractModel.h"
 #include "../objects/Entity.h"
 
 void Grasses::prepare() {
@@ -13,11 +13,11 @@ void Grasses::prepare() {
         return;
     }
 
-    const Model& model = grasses.GetEntities().front().GetModel();
+    AbstractModel& model = grasses.GetEntities().front().GetModel();
     auto modelMatrices = std::make_unique<glm::mat4[]>(entities.size());
 
     for (int i = 0; i < entities.size(); i++) {
-        // model matrix
+        // model matrixR
         auto localModel = glm::mat4(1.0f);
         localModel = glm::translate(localModel, entities.at(i).GetPosition());
         modelMatrices[i] = localModel;

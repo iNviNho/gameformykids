@@ -1,22 +1,30 @@
 #include "ModelsHolder.h"
 
+#include "AnimatedModel.h"
 #include "data_dir.h"
+#include "StaticModel.h"
 
 void ModelsHolder::LoadModels() {
     // GRASS
-    std::shared_ptr<Model> grass = std::make_shared<Model>(
+    std::shared_ptr<AbstractModel> grass = std::make_shared<StaticModel>(
         data_dir() /= std::filesystem::path("resources/objects/grass6/grass.obj")
     );
     loadedModels.emplace("grass", grass);
 
     // PINE TREE
-    std::shared_ptr<Model> pineTree = std::make_shared<Model>(
+    std::shared_ptr<AbstractModel> pineTree = std::make_shared<StaticModel>(
         data_dir() /= std::filesystem::path("resources/objects/pinetree/pinetree.obj")
     );
     loadedModels.emplace("pinetree", pineTree);
+
+    // BOB WITH LAMP
+    std::shared_ptr<AbstractModel> bobWithLamp = std::make_shared<AnimatedModel>(
+        data_dir() /= std::filesystem::path("resources/objects/animals/bob/boblampclean.md5mesh"))
+    ;
+    loadedModels.emplace("bobwithlamp", bobWithLamp);
 }
 
-std::shared_ptr<Model>& ModelsHolder::GetModel(const std::string &modelName) {
+std::shared_ptr<AbstractModel>& ModelsHolder::GetModel(const std::string &modelName) {
     auto it = loadedModels.find(modelName);
     if (it != loadedModels.end()) {
         return it->second;

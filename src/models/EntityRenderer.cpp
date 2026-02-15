@@ -6,6 +6,9 @@
 #include "../objects/Entity.h"
 #include <data_dir.h>
 
+#include "AnimatedModel.h"
+#include "GLFW/glfw3.h"
+
 using path = std::filesystem::path;
 
 EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
@@ -20,7 +23,7 @@ EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
     camera(camera),
     screen(screen) {}
 
-void EntityRenderer::render(const Entity& entity) {
+void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
     singleInstanceShader.use();
 
     // view/projection transformations
@@ -45,6 +48,19 @@ void EntityRenderer::render(const Entity& entity) {
     // singleInstanceShader.setVec3("light.position", glm::vec3(20.0f, 0.0f, -400.0f));
 
     model = glm::scale(model, glm::vec3(entity.GetScale()));
+
+    long currentTimeInMillis = static_cast<long>(glfwGetTime() * 1000);
+    float animationTimeInSec = static_cast<float>(currentTimeInMillis - startTimeInMillis) / 1000.0f;
+
+    if (entity.GetModel().IsAnimated()) {
+        std::vector<glm::mat4> transforms;
+        auto& animatedModel = static_cast<AnimatedModel&>(entity.GetModel());
+        animatedModel.GetBoneTransforms(animationTimeInSec, transforms);
+        for (unsigned int i = 0; i < transforms.size(); i++) {
+            singleInstanceShader.setMat4("gBones[" + std::to_string(i) + "]", transforms[i]);
+        }
+    }
+
     singleInstanceShader.setMat4("model", model);
     entity.GetModel().Draw(singleInstanceShader);
 }
@@ -66,8 +82,8 @@ void EntityRenderer::renderBatch(const EntitiesHolder& modelsHolder) {
 
     // activate textures
     // const std::shared_ptr<Model> firstModel = modelsHolder.GetEntities()[0].GetModel();
-    const Model& firstModel = modelsHolder.GetEntities().front().GetModel();
-    const Mesh& firstMesh = firstModel.GetMeshes().front();
+    AbstractModel& firstModel = modelsHolder.GetEntities().front().GetModel();
+    Mesh& firstMesh = firstModel.GetMeshes().front();
     firstMesh.activateTextures(multiInstanceShader);
 
     // TODO: create sun class and move it there

@@ -1,42 +1,40 @@
 
 
-#include "Model.h"
+#include "AbstractModel.h"
 
 #include "../textures/TextureLoader.h"
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
-Model::Model(const std::filesystem::path& modelPath) {
+AbstractModel::AbstractModel(const std::filesystem::path& modelPath) {
     loadModel(modelPath);
 }
 
-Model::Model(const std::filesystem::path& modelPath, const std::filesystem::path& texturePath) {
+AbstractModel::AbstractModel(const std::filesystem::path& modelPath, const std::filesystem::path& texturePath) {
     loadModel(modelPath);
     loadSingleTexture(texturePath);
 }
 
-Model::Model(const std::filesystem::path& modelPath, Texture& texture) {
+AbstractModel::AbstractModel(const std::filesystem::path& modelPath, Texture& texture) {
     loadModel(modelPath);
     loadSingleTexture(texture);
 }
 
-Model::Model(Mesh&& mesh) {
+AbstractModel::AbstractModel(Mesh&& mesh) {
     meshes.push_back(std::move(mesh));
 }
 
-void Model::Draw(Shader& shader) const
-{
+void AbstractModel::Draw(Shader& shader) {
     for(unsigned int i = 0; i < GetMeshes().size(); i++) {
         GetMeshes().at(i).Draw(shader);
     }
 }
 
-void Model::loadModel(const std::filesystem::path& modelPath)
+void AbstractModel::loadModel(const std::filesystem::path& modelPath)
 {
-    Assimp::Importer importer;
     // few other post processing options are
-    //     aiProcess_GenNormals: creates normal vectors for each vertex if the model doesn’t
+    //     aiProcess_GenNormals: creates normal vectors for each vertex if the model doesn't
     // contain normal vectors
     // aiProcess_SplitLargeMeshes: splits large meshes into smaller sub-meshes which
     // is useful if your rendering has a maximum number of vertices allowed and can only process
@@ -46,33 +44,33 @@ void Model::loadModel(const std::filesystem::path& modelPath)
     //
     // if aiProcess_Triangulate is removed, also Mesh.cpp has to be updated as each face could have potentially
     // more vertices
-    const aiScene *scene = importer.ReadFile(modelPath.native(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    pScene = importer.ReadFile(modelPath.native(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices);
 
-    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+    if(!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
         return;
     }
 
+    // So for commented out as it gives wrong position on the first model
+    // pScene->mRootNode->mTransformation.Inverse();
+
     directory = modelPath.parent_path();
 
-    processNode(scene->mRootNode, scene);
+    processNode(pScene);
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene) {
-    // process all the node’s meshes (if any)
-    for(unsigned int i = 0; i < node->mNumMeshes; i++)
+void AbstractModel::processNode(const aiScene *scene) {
+
+    // process all the scene's meshes
+    for(unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
-        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
-    }
-    // then do the same for each of its children
-    for(unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        processNode(node->mChildren[i], scene);
+        meshes.push_back(processMesh(scene->mMeshes[i], scene));
     }
 }
 
-Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+
+
+Mesh AbstractModel::processMesh(aiMesh *mesh, const aiScene *scene) {
     std::vector<Vertex> vertices;
     vertices.reserve(mesh->mNumVertices);
     std::vector<unsigned int> indices;
@@ -114,10 +112,15 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         Log::logWarning("Mesh has no material assigned to it.");
     }
 
-    return Mesh(std::move(vertices), std::move(indices), std::move(textures));
+    return Mesh(
+        std::move(vertices),
+        std::move(indices),
+        std::move(textures),
+        {}
+    );
 }
 
-void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures) {
+void AbstractModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures) {
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
@@ -145,7 +148,7 @@ void Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std:
     }
 }
 
-void Model::loadSingleTexture(const std::filesystem::path& texturePath) {
+void AbstractModel::loadSingleTexture(const std::filesystem::path& texturePath) {
     Texture texture;
     texture.id = TextureLoader::loadTexture(texturePath);
     texture.type = "texture_diffuse";
@@ -156,7 +159,7 @@ void Model::loadSingleTexture(const std::filesystem::path& texturePath) {
     }
 }
 
-void Model::loadSingleTexture(Texture& texture) {
+void AbstractModel::loadSingleTexture(Texture& texture) {
     texturesLoaded.push_back(texture);
     for (unsigned int i = 0; i < meshes.size(); i++) {
         meshes.at(i).getTextures().push_back(texture);

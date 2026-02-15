@@ -105,7 +105,7 @@ private:
     void UpdateCameraYaw(bool animated = true);
 
 public:
-    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<Model> &model, glm::vec3 position):
+    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<AbstractModel> &model, glm::vec3 position):
         Entity(model, position), terrain(terrain), camera(camera), prevState{ Stationary{} }, state{ Stationary{} } {
     }
 
