@@ -1,5 +1,6 @@
 #include "ModelsHolder.h"
 
+#include "AnimatedModel.h"
 #include "data_dir.h"
 #include "StaticModel.h"
 
@@ -15,6 +16,12 @@ void ModelsHolder::LoadModels() {
         data_dir() /= std::filesystem::path("resources/objects/pinetree/pinetree.obj")
     );
     loadedModels.emplace("pinetree", pineTree);
+
+    // BOB WITH LAMP
+    std::shared_ptr<AbstractModel> bobWithLamp = std::make_shared<AnimatedModel>(
+        data_dir() /= std::filesystem::path("resources/objects/animals/bob/boblampclean.md5mesh"))
+    ;
+    loadedModels.emplace("bobwithlamp", bobWithLamp);
 }
 
 std::shared_ptr<AbstractModel>& ModelsHolder::GetModel(const std::string &modelName) {

@@ -41,12 +41,12 @@ public:
         return selectedRotation;
     }
     void increaseScale() {
-        selectedScale = selectedScale + 0.1f;
+        selectedScale = selectedScale + 0.05f;
     }
     void decreaseScale() {
-        selectedScale = selectedScale - 0.1f;
-        if (selectedScale < 0.1f) {
-            selectedScale = 0.1f;
+        selectedScale = selectedScale - 0.05f;
+        if (selectedScale < 0.05f) {
+            selectedScale = 0.05f;
         }
     }
     void increaseRotationX() {

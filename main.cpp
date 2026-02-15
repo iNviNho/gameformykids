@@ -138,7 +138,6 @@ int main() {
     // Player
     // -------------------
     std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
-    // std::shared_ptr<AbstractModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/bob/boblampclean.md5mesh"));
     Player player(
         camera,
         terrain,
