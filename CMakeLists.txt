@@ -54,7 +54,7 @@ file(DOWNLOAD
     TLS_VERIFY ON
 )
 
-add_executable(mygame main.cpp
+add_executable(mygame src/main.cpp
         src/shaders/shader.h
         src/stbimage/stb.cpp
         src/camera/camera.h

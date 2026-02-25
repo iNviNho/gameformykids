@@ -6,30 +6,29 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "src/camera/camera.h"
-#include "src/shaders/shader.h"
-#include "src/fps/Fps.h"
-#include "src/models/AbstractModel.h"
-#include "src/models/EntityRenderer.h"
-#include "src/objects/Player.h"
-#include "src/objects/movers/PathPlayerMover.h"
-#include "src/skybox/SkyboxRenderer.h"
-#include "src/terrain/Terrain.h"
-#include "src/terrain/TerrainRenderer.h"
-#include "src/text/TextRenderer.h"
+#include "camera/camera.h"
+#include "fps/Fps.h"
+#include "models/AbstractModel.h"
+#include "models/EntityRenderer.h"
+#include "objects/Player.h"
+#include "objects/movers/PathPlayerMover.h"
+#include "skybox/SkyboxRenderer.h"
+#include "terrain/Terrain.h"
+#include "terrain/TerrainRenderer.h"
+#include "text/TextRenderer.h"
 #include <data_dir.h>
 
-#include "src/audio/SoundManager.h"
-#include "src/gameedit/SceneModifier.h"
-#include "src/menu/Menu.h"
-#include "src/models/AnimatedModel.h"
-#include "src/models/ModelsHolder.h"
-#include "src/models/StaticModel.h"
-#include "src/storage/LocalStorage.h"
-#include "src/terrain/DoodadsLoader.h"
-#include "src/ui/Screen.h"
-#include "src/utils/GameState.h"
-#include "src/utils/Log.h"
+#include "audio/SoundManager.h"
+#include "gameedit/SceneModifier.h"
+#include "menu/Menu.h"
+#include "models/AnimatedModel.h"
+#include "models/ModelsHolder.h"
+#include "models/StaticModel.h"
+#include "storage/LocalStorage.h"
+#include "terrain/DoodadsLoader.h"
+#include "ui/Screen.h"
+#include "utils/GameState.h"
+#include "utils/Log.h"
 
 using path = std::filesystem::path;
 
@@ -96,6 +95,7 @@ int main() {
     // ---------------------
     TextRenderer textRenderer(screen);
     EntityRenderer entityRenderer(camera, screen);
+    // new line
     TerrainRenderer terrainRenderer(camera, entityRenderer, screen);
     SkyboxRenderer skyboxRenderer(camera, screen);
     StaticShapeRenderer staticShapeRenderer{};
@@ -210,9 +210,9 @@ int main() {
                 }
 
                 // misc texts
-                // textRenderer.RenderText("selected item: " + sceneModifier.GetSelectedEntityName(), 25.0f, 10.0f, 0.25f, whiteColor);
-                // textRenderer.RenderText("selected item scale : " + std::to_string(sceneModifier.GetScale()), 25.0f, 30.0f, 0.25f, whiteColor);
-                // textRenderer.RenderText("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z), 25.0f, 50.0f, 0.25f, whiteColor);
+                textRenderer.RenderText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.25f, whiteColor);
+                textRenderer.RenderText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.25f, whiteColor);
+                textRenderer.RenderText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.25f, whiteColor);
 
             // ****************************
             // third = GAME MODE
@@ -222,7 +222,7 @@ int main() {
                 player.UpdateCameraPose();
 
                 // misc texts
-                textRenderer.RenderText("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z), 25.0f, 25.0f, 0.25f, whiteColor);
+                textRenderer.RenderText(("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z)).c_str(), 25.0f, 25.0f, 0.25f, whiteColor);
             }
         }
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
