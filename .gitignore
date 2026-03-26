@@ -2,3 +2,6 @@ cmake-build-debug
 glfw/*
 resources/images/.DS_Store
 .idea/*
+.DS_Store
+.cache/*
+src/.cache/*
