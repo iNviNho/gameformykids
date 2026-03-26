@@ -1,6 +1,6 @@
 #ifndef MYGAME_TEXTPROPORTION_H
 #define MYGAME_TEXTPROPORTION_H
-#include <map>
+#include <array>
 #include <string>
 
 #include "Character.h"
@@ -28,7 +28,7 @@ private:
     std::string text;
     FT_Library ft;
     FT_Face face;
-    std::map<GLchar, Character> characters;
+    std::array<Character, 128> characters;
 
     void loadCharacters();
     void calculate();

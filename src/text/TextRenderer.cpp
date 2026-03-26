@@ -103,7 +103,7 @@ TextRenderer::TextRenderer(const Screen& screen):
             glm::ivec2(g->advance.x >> 6, g->advance.y >> 6),
             (float) xOffset / totalWidth,
         };
-        Characters.insert(std::pair<char, Character>(i, character));
+        characters[i] = character;
         xOffset += g->bitmap.width;
     }
 
@@ -155,7 +155,9 @@ void TextRenderer::RenderBufferedText() {
         float x = textToBeRendered.GetX();
         float y = textToBeRendered.GetY();
         for(const char *p = textToBeRendered.GetText().c_str(); *p; p++) {
-            Character c = Characters[*p];
+            unsigned char uc = static_cast<unsigned char>(*p);
+            if (uc >= 128) continue;
+            Character c = characters[uc];
             float x2 =  x + c.Bearing.x * textToBeRendered.GetScale();
             float y2 = -y - c.Bearing.y * textToBeRendered.GetScale();
             float w = c.Size.x * textToBeRendered.GetScale();
