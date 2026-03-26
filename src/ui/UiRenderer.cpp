@@ -8,8 +8,8 @@ void UiRenderer::Render(Element& element) {
     }
 
     if (element.GetVisibilityCondition()()) {
-        textRenderer.RenderText(
-            element.GetText(),
+        textRenderer.BufferText(
+            element.GetText().c_str(),
             element.GetPosition().x,
             element.GetPosition().y,
             element.GetTextScale(),

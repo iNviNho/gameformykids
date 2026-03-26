@@ -9,7 +9,7 @@ using path = std::filesystem::path;
 class UiRenderer {
 public:
     UiRenderer(
-        const TextRenderer& textRenderer,
+        TextRenderer& textRenderer,
         const StaticShapeRenderer& staticShapeRenderer
     ):
     textRenderer(textRenderer),
@@ -17,7 +17,7 @@ public:
     {}
     void Render(Element& element);
 private:
-    TextRenderer textRenderer;
+    TextRenderer& textRenderer;
     StaticShapeRenderer staticShapeRenderer;
 };
 

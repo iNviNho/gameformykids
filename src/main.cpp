@@ -8,7 +8,6 @@
 
 #include "camera/camera.h"
 #include "fps/Fps.h"
-#include "models/AbstractModel.h"
 #include "models/EntityRenderer.h"
 #include "objects/Player.h"
 #include "objects/movers/PathPlayerMover.h"
@@ -21,7 +20,6 @@
 #include "audio/SoundManager.h"
 #include "gameedit/SceneModifier.h"
 #include "menu/Menu.h"
-#include "models/AnimatedModel.h"
 #include "models/ModelsHolder.h"
 #include "models/StaticModel.h"
 #include "storage/LocalStorage.h"
@@ -135,6 +133,7 @@ int main() {
     };
     removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
 
+
     // Player
     // -------------------
     std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
@@ -210,9 +209,9 @@ int main() {
                 }
 
                 // misc texts
-                textRenderer.RenderText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.25f, whiteColor);
-                textRenderer.RenderText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.25f, whiteColor);
-                textRenderer.RenderText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.25f, whiteColor);
+                textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.25f, whiteColor);
+                textRenderer.BufferText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.25f, whiteColor);
+                textRenderer.BufferText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.25f, whiteColor);
 
             // ****************************
             // third = GAME MODE
@@ -222,9 +221,12 @@ int main() {
                 player.UpdateCameraPose();
 
                 // misc texts
-                textRenderer.RenderText(("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z)).c_str(), 25.0f, 25.0f, 0.25f, whiteColor);
+                textRenderer.BufferText(("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z)).c_str(), 25.0f, 25.0f, 0.25f, whiteColor);
             }
         }
+        // We render whatever is in the text buffer
+        textRenderer.RenderBufferedText();
+       
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -323,7 +325,7 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
 {
     /**************
      * START OF KEY TO ACTION MAPPINGS
-     *************/
+     ************/
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         menu.KeyboardEscapePressed();
     }

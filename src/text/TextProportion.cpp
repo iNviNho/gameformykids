@@ -36,10 +36,10 @@ void TextProportion::loadCharacters() {
         }
         // now store character for later use
         Character character {
-            0, // not needed
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<unsigned int>(face->glyph->advance.x)
+            glm::ivec2(face->glyph->advance.x >> 6, face->glyph->advance.y >> 6),
+                0.0f // xOffset will be calculated later when creating the texture atlas
         };
         characters.insert(std::pair<char, Character>(c, character));
     }
@@ -57,7 +57,7 @@ float TextProportion::calculateTextWidth(const std::string& text, float scale) {
     for (const char& c : text) {
         auto it = characters.find(c);
         if (it != characters.end()) {
-            width += (it->second.Advance >> 6) * scale;
+            width += (it->second.Advance.x) * scale;
         }
     }
     return width;
