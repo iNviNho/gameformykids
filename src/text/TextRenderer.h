@@ -1,7 +1,7 @@
 #ifndef TEXTRENDERER_H
 #define TEXTRENDERER_H
+#include <array>
 #include <glm/glm.hpp>
-#include <map>
 
 #include "../shaders/shader.h"
 #include <ft2build.h>
@@ -39,7 +39,7 @@ private:
     int atlasWidth;
     int atlasHeight;
     unsigned int textVAO, textVBO;
-    std::map<GLchar, Character> Characters;
+    std::array<Character, 128> characters;
 };
 
 

@@ -1,13 +1,11 @@
 #include "TextProportion.h"
 
-#include <map>
 #include <filesystem>
 
 #include "Character.h"
 #include "data_dir.h"
 #include "../utils/Log.h"
 #include "freetype/freetype.h"
-#include "glm/vec2.hpp"
 #include "glm/detail/func_packing_simd.inl"
 
 using path = std::filesystem::path;
@@ -41,7 +39,7 @@ void TextProportion::loadCharacters() {
             glm::ivec2(face->glyph->advance.x >> 6, face->glyph->advance.y >> 6),
                 0.0f // xOffset will be calculated later when creating the texture atlas
         };
-        characters.insert(std::pair<char, Character>(c, character));
+        characters[c] = character;
     }
 }
 
@@ -55,9 +53,9 @@ void TextProportion::calculate() {
 float TextProportion::calculateTextWidth(const std::string& text, float scale) {
     float width = 0.0f;
     for (const char& c : text) {
-        auto it = characters.find(c);
-        if (it != characters.end()) {
-            width += (it->second.Advance.x) * scale;
+        unsigned char uc = static_cast<unsigned char>(c);
+        if (uc < 128) {
+            width += characters[uc].Advance.x * scale;
         }
     }
     return width;
@@ -66,9 +64,9 @@ float TextProportion::calculateTextWidth(const std::string& text, float scale) {
 float TextProportion::calculateTextHeight(const std::string& text, float scale) {
     float maxHeight = 0.0f;
     for (const char& c : text) {
-        auto it = characters.find(c);
-        if (it != characters.end()) {
-            float height = it->second.Size.y * scale;
+        unsigned char uc = static_cast<unsigned char>(c);
+        if (uc < 128) {
+            float height = characters[uc].Size.y * scale;
             if (height > maxHeight) {
                 maxHeight = height;
             }
