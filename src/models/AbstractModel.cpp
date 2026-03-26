@@ -6,6 +6,7 @@
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+#include <utility>
 
 AbstractModel::AbstractModel(const std::filesystem::path& modelPath) {
     loadModel(modelPath);
@@ -78,23 +79,15 @@ Mesh AbstractModel::processMesh(aiMesh *mesh, const aiScene *scene) {
     std::vector<Texture> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex;
-        vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-        // check if normals are present
-        if (mesh->HasNormals()) {
-            vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-        } else {
-            // TBA: Calculate normals
-            vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
-        }
-        // assimp allows up to 8 different texture coordinates per vertex,
-        // for now we only care about first
-        if (mesh->mTextureCoords[0]) {
-            vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-        } else {
-            vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-        }
-        vertices.emplace_back(vertex);
+        glm::vec3 position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+        glm::vec3 normal = mesh->HasNormals()
+            ? glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z)
+            : glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec2 texCoords = mesh->mTextureCoords[0]
+            ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
+            : glm::vec2(0.0f, 0.0f);
+
+        vertices.emplace_back(position, normal, texCoords);
     }
     // assimp stores all the mesh’s faces in the mFaces array
     // each face is basically a triangle
