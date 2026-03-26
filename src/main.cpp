@@ -259,7 +259,8 @@ GLFWwindow* createAndConfigureWindow(Screen& screen, bool fullscreen) {
     GLFWwindow* window;
     if (fullscreen) {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", monitor, nullptr);
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        window = glfwCreateWindow(mode->width, mode->height, "gameformykids", monitor, nullptr);
     } else {
         window = glfwCreateWindow(screen.GetWidth(), screen.GetHeight(), "gameformykids", nullptr, nullptr);
     }

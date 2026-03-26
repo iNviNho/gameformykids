@@ -1,4 +1,4 @@
 editmode=1
 polygonmode=0
-fullscreen=0
+fullscreen=1
 
