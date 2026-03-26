@@ -14,6 +14,10 @@ struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
+
+    Vertex() = default;
+    Vertex(glm::vec3 pos, glm::vec3 norm, glm::vec2 tex)
+        : Position(pos), Normal(norm), TexCoords(tex) {}
 };
 
 struct Texture {

@@ -41,11 +41,11 @@ std::shared_ptr<AbstractModel> ModelGenerator::generateCube(const std::filesyste
     std::vector<Vertex> vectorVertices;
     vectorVertices.reserve(24);
     for (int i = 0; i < 192; i += 8) {
-        vectorVertices.emplace_back(Vertex{
+        vectorVertices.emplace_back(
             glm::vec3{vertices[i], vertices[i + 1], vertices[i + 2]},
             glm::vec3{vertices[i + 3], vertices[i + 4], vertices[i + 5]},
             glm::vec2{vertices[i + 6], vertices[i + 7]}
-        });
+        );
     }
 
     return std::make_shared<StaticModel>(
@@ -95,11 +95,11 @@ std::shared_ptr<AbstractModel> ModelGenerator::generateGrass(const std::filesyst
     std::vector<Vertex> vectorVertices;
     vectorVertices.reserve(4);
     for (int i = 0; i < 8 * 4; i += 8) {
-        vectorVertices.emplace_back(Vertex{
+        vectorVertices.emplace_back(
             glm::vec3{vertices[i], vertices[i + 1], vertices[i + 2]},
             glm::vec3{vertices[i + 3], vertices[i + 4], vertices[i + 5]},
             glm::vec2{vertices[i + 6], vertices[i + 7]}
-        });
+        );
     }
 
     return std::make_shared<StaticModel>(
