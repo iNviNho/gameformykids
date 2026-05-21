@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include "../storage/LocalStorage.h"
 #include <data_dir.h>
-#include "../tracing/Tracer.h"
 
 using path = std::filesystem::path;  
 
@@ -27,7 +26,6 @@ class TerrainHeight {
             storage.insert(std::to_string(x) + ',' + std::to_string(z), data);
         }
         void setMultiple(const std::vector<glm::vec3>& coordinates) {
-            TRACE_ME();
             std::unordered_map<std::string, std::string> dataToWrite;
             for (const auto& value: coordinates) {
                 dataToWrite[std::to_string(static_cast<int>(value.x)) +

@@ -78,6 +78,12 @@ public:
         if (path.getPath().size() < 2) {
             throw std::runtime_error("Path does not have enough points. This happens if path couldn't be generated.");
         }
+        Reset();
+    }
+    void Reset() {
+        nextWaypoint = path.getPath().cbegin();
+        intersections = {};
+        nextIntersection = {intersections.cend()};
         // player starts at the first waypoint
         player.MoveTo(addHeight(*nextWaypoint));
         // he will move towards the next waypoint
@@ -88,6 +94,7 @@ public:
 		player.setState( Player::Moving{ DEFAULT_SPEED, dir });
 		player.updateRotation(dir);
         player.UpdateCameraPose(false);
+
     }
     void move(float deltaTime);
     void Jump();
