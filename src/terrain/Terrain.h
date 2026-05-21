@@ -37,7 +37,6 @@ private:
      */
     static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC;
 
-    static constexpr int VERTEX_COUNT = SIZE * SIZE * GL_VERTICES_PER_LOC; 
     unsigned int VAO, VBO;
     // vec3 of position, vec3 of normal and vec2 of texture mapping
     std::unique_ptr<GLfloat[]> dataPoints;

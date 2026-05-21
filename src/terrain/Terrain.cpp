@@ -53,7 +53,6 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
 }
 
 void Terrain::BufferTerrainDataPoints() {
-    TRACE_ME();
     const int dataPointsSize =  SIZE * SIZE * DATA_PER_LOC;
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -197,8 +196,7 @@ bool Terrain::IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const g
 }
 
 void Terrain::generateTerrain(
-        const std::unique_ptr<GLfloat[]>& dataPoints) {
-    TRACE_ME();
+    const std::unique_ptr<GLfloat[]>& dataPoints) {
     // generate data for location (0,0)
     setVertexData<true, true>(dataPoints, 0, 0);
 
