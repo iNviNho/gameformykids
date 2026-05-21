@@ -4,7 +4,8 @@
 #include "../models/ModelsHolder.h"
 #include "../storage/LocalStorage.h"
 #include "../terrain/Terrain.h"
-
+#include "../objects/Entity.h"
+#include "../terrain/EntitiesHolder.h"
 
 class SceneModifier {
 public:

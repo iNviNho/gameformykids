@@ -1,6 +1,6 @@
 # gameformykids
 
-![img.png](progressScreenshots/menu.png)
+![img.png](progressScreenshots/28menu.png)
 
 I was always curious about how 3D games work and how are they created. To combine my curiosity with my kids possible 
 future interest in games, I decided to create a simple game.
@@ -25,8 +25,7 @@ features, you can check the related commit that is attached with uploaded screen
 - Model loading using assimp library [X]
 - Terrain generation based on blendMap [X]
 - Terrain height generation based on heightMap [X]
-- Random grass placement on the terrain based on blendMap [X]
-- Random player movement [X]
+- Dynamic terrain height generation based on user input [X]
 - Player movement along the created vector path [X]
 - Camera following the player. Camera rotates based on player rotation. [X]
 - Terrain face culling [X]
@@ -34,15 +33,16 @@ features, you can check the related commit that is attached with uploaded screen
 - Player's path following with start & end [x]
 - Day Skybox [x] 
 - Full screen mode [x]
+- Player's animation [X]
+- Very calming, relaxing, discovery, peaceful music [X]
+- Game-edit tool (props placements) [X]
+- Game-edit tool (terrain height modification) [X]
 - Night Skybox [ ]
-- Player's animation [ ]
 - Terrain EBO rendering [ ]
 - Player's collision detection [ ]
 - Lamps on the terrain [ ]
 - Frustum culling [ ]
 - Player's animal selection [ ]
-- Very calming, relaxing, discovery, peaceful music [ ]
-- Invention of game-edit tool (props placements) [ ]
 - Water placement [ ]
 
 # Having issues with CMake?
