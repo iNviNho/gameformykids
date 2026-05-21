@@ -59,17 +59,19 @@ int main() {
     // -----------
     Fps fps;
 
+    // Load settings
+    // ----------------
+    LocalStorage settingsStorage{data_dir() /= path("settings.txt")};
+
     // Sound engine
     // ----------------
-    SoundManager soundManager;
+    bool soundEnabled = settingsStorage.getKeyValue("soundenabled", "0") == "0" ? false : true;
+    SoundManager soundManager{soundEnabled};
 
     // Game state
     // ----------------
     GameState gameState{soundManager};
 
-    // Load settings
-    // ----------------
-    LocalStorage settingsStorage{data_dir() /= path("settings.txt")};
     std::string editModeValue = settingsStorage.getKeyValue("editmode", "0");
     gameState.setGameEditMode(editModeValue == "1");
     std::string polygonMode = settingsStorage.getKeyValue("polygonmode", "0");
@@ -77,8 +79,7 @@ int main() {
         // enabling this will draw only lines
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
-
-
+    
     // Create and configure window
     std::string fullscreenMode = settingsStorage.getKeyValue("fullscreen", "0");
     GLFWwindow* window = createAndConfigureWindow(

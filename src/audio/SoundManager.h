@@ -14,8 +14,8 @@ public:
         MENU_INTRO,
         GAME_ELWYNN
     };
-    SoundManager()
-    : result(), engine(), currentSongName(MENU_INTRO) {
+    SoundManager(bool enabled)
+    : result(), engine(), currentSongName(MENU_INTRO), enabled(enabled) {
         result = ma_engine_init(NULL, &engine);
         if (result != MA_SUCCESS) {
             throw std::runtime_error("Failed to initialize sound engine");
@@ -34,6 +34,7 @@ public:
 private:
     ma_result result;
     ma_engine engine;
+    bool enabled;
 
     std::map<SongName, std::unique_ptr<ma_sound>> sounds;
     SongName currentSongName;
