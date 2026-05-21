@@ -1,41 +1,113 @@
 #include "LocalStorage.h"
 
+#include "../utils/Log.h"
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 #include <vector>
 #include <unordered_map>
 
-void LocalStorage::persist(const std::string &data) {
-    // open file in append mode
-    std::ofstream file(filename, std::ios::app);
-    if (!file) {                        // check if opened successfully
+void LocalStorage::insert(const std::string& key, const std::string& value) {
+    std::ifstream fileToRead(filename);
+    std::string line;
+    std::unordered_map<std::string, std::string> data;
+
+    while (std::getline(fileToRead, line)) {
+        // Skip empty lines and comments
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+        // Find the '=' separator
+        std::size_t equalPos = line.find('=');
+        if (equalPos == std::string::npos) {
+            // Skip lines without '='
+            continue;
+        }
+        std::string existingKey = line.substr(0, equalPos);
+        std::string existingValue = line.substr(equalPos + 1);
+
+        data[existingKey] = existingValue;
+    }
+
+    fileToRead.close();
+    
+    // write new value
+    data[key] = value;
+
+    // open file in truncate mode
+    std::ofstream fileToWrite(filename);
+    if (!fileToWrite) {
         throw std::runtime_error("Can't open local storage file for writing: " + filename);
     }
-    // write data
-    file << data;
-    // close file
-    file.close();
+    if (key.find("=") != std::string::npos) {
+        throw std::runtime_error("Key must not contain = character");
+    }
+    
+    for (const auto& [keyToWrite, valueToWrite] : data) {
+        // write key;value to the file
+        fileToWrite << keyToWrite << "=" << valueToWrite << '\n';
+    }
+    // close file 
+    fileToWrite.close();
 }
 
-std::vector<std::string> LocalStorage::GetLines() {
-    std::vector<std::string> lines;
+void LocalStorage::insertMultiple(const std::unordered_map<std::string, std::string>& newData) {
+    std::ifstream fileToRead(filename);
+    std::string line;
+    std::unordered_map<std::string, std::string> data;
+
+    // Load existing data
+    while (std::getline(fileToRead, line)) {
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        std::size_t equalPos = line.find('=');
+        if (equalPos == std::string::npos) {
+            continue;
+        }
+
+        data.emplace(
+            line.substr(0, equalPos),
+            line.substr(equalPos + 1)
+        );
+    }
+
+    fileToRead.close();
+
+    // Validate + merge new data
+    for (const auto& [k, v] : newData) {
+        if (k.find('=') != std::string::npos) {
+            throw std::runtime_error("Key must not contain = character: " + k);
+        }
+
+        data.insert_or_assign(k, v);
+    }
+
+    // Write everything back
+    std::ofstream fileToWrite(filename, std::ios::trunc);
+    if (!fileToWrite) {
+        throw std::runtime_error("Can't open local storage file for writing: " + filename);
+    }
+
+    std::string out;
+    out.reserve(data.size() * 24); // rough guess
+    
+    for (const auto& [k, v] : data) {
+        out += k;
+        out += '=';
+        out += v;
+        out += '\n';
+    }
+    fileToWrite.write(out.data(), out.size());
+}
+
+std::unordered_map<std::string, std::string> LocalStorage::GetAll() {
+    std::unordered_map<std::string, std::string> data;
     std::ifstream file(filename);
     if (!file) {
         throw std::runtime_error("Can't open local storage file for reading: " + filename);
-    }
-    std::string line;
-    while (std::getline(file, line)) {
-        lines.push_back(line);
-    }
-    return lines;
-}
-
-std::unordered_map<std::string, std::string> LocalStorage::GetKeyValuePairs() {
-    std::unordered_map<std::string, std::string> keyValueMap;
-    std::ifstream file(filename);
-    if (!file) {
-        // If file doesn't exist, return empty map (not an error for config files)
-        return keyValueMap;
     }
     std::string line;
     while (std::getline(file, line)) {
@@ -46,100 +118,81 @@ std::unordered_map<std::string, std::string> LocalStorage::GetKeyValuePairs() {
         // Find the '=' separator
         std::size_t equalPos = line.find('=');
         if (equalPos == std::string::npos) {
-            continue; // Skip lines without '='
+            // Skip lines without '='
+            continue;
         }
         std::string key = line.substr(0, equalPos);
         std::string value = line.substr(equalPos + 1);
-
-        // Trim whitespace from key and value
-        key.erase(0, key.find_first_not_of(" \t\r\n"));
-        key.erase(key.find_last_not_of(" \t\r\n") + 1);
-        value.erase(0, value.find_first_not_of(" \t\r\n"));
-        value.erase(value.find_last_not_of(" \t\r\n") + 1);
-
-        keyValueMap[key] = value;
+        // we delete \r, \n and space 
+        value.erase(std::remove_if(value.begin(), value.end(), ::isspace), value.end());
+        data[key] = value;
     }
-    file.close();
-    return keyValueMap;
+    return data;
 }
 
-std::string LocalStorage::getKeyValue(const std::string& key, const std::string& defaultValue) {
-    auto keyValueMap = GetKeyValuePairs();
+std::string LocalStorage::getOne(const std::string& key, const std::string& defaultValue) {
+    auto keyValueMap = GetAll();
+    Log::logInfo("Searching for: " + key);
     auto it = keyValueMap.find(key);
     if (it != keyValueMap.end()) {
+        Log::logInfo(it->second);
         return it->second;
     }
+    Log::logInfo("Notfound");
     return defaultValue;
 }
 
-bool LocalStorage::RemoveEntityByPosition(const glm::vec3& pos, float epsilon) {
-    // read all lines
-    std::vector<std::string> lines = GetLines();
-    if (lines.empty()) return false;
+void LocalStorage::remove(const std::string& key) {
+    std::ifstream fileToRead(filename);
+    std::string line;
+    std::unordered_map<std::string, std::string> data;
 
-    const float epsSq = epsilon * epsilon;
-    std::vector<std::string> keep;
-    keep.reserve(lines.size());
+    while (std::getline(fileToRead, line)) {
+        // Skip empty lines and comments
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+        // Find the '=' separator
+        std::size_t equalPos = line.find('=');
+        if (equalPos == std::string::npos) {
+            // Skip lines without '='
+            continue;
+        }
+        std::string existingKey = line.substr(0, equalPos);
+        std::string existingValue = line.substr(equalPos + 1);
 
-    bool anyRemoved = false;
-    for (const auto &line : lines) {
-        // expected format: name,unique_id,entity.toString()
-        // entity.toString() -> posx,posy,posz,rotx,roty,rotz,scale
-        std::size_t firstComma = line.find(',');
-        if (firstComma == std::string::npos) {
-            keep.push_back(line);
-            continue;
+        if (existingKey != key) {
+            data[existingKey] = existingValue;
         }
-        std::size_t secondComma = line.find(',', firstComma + 1);
-        if (secondComma == std::string::npos) {
-            keep.push_back(line);
-            continue;
-        }
-        std::string entityData = line.substr(secondComma + 1);
-        // split by comma
-        std::istringstream iss(entityData);
-        std::string token;
-        std::vector<std::string> tokens;
-        while (std::getline(iss, token, ',')) {
-            tokens.push_back(token);
-            if (tokens.size() >= 3) break; // only need first three (pos)
-        }
-        if (tokens.size() < 3) {
-            keep.push_back(line);
-            continue;
-        }
-        try {
-            const float x = std::stof(tokens[0]);
-            const float y = std::stof(tokens[1]);
-            const float z = std::stof(tokens[2]);
-            const float dx = x - pos.x;
-            const float dy = y - pos.y;
-            const float dz = z - pos.z;
-            const float distSq = dx*dx + dy*dy + dz*dz;
-            if (distSq <= epsSq) {
-                anyRemoved = true;
-                continue; // skip (remove) this line
-            }
-        } catch (...) {
-            // parsing failed -> keep the line
-            keep.push_back(line);
-            continue;
-        }
-        // keep line
-        keep.push_back(line);
     }
 
-    if (!anyRemoved) return false;
+    fileToRead.close();
 
-    // write back kept lines (truncate file)
-    std::ofstream out(filename, std::ios::trunc);
-    if (!out) {
+    // open file in truncate mode
+    std::ofstream fileToWrite(filename);
+    if (!fileToWrite) {
         throw std::runtime_error("Can't open local storage file for writing: " + filename);
     }
-    for (const auto &k : keep) {
-        out << k << '\n';
+    if (key.find("=") != std::string::npos) {
+        throw std::runtime_error("Key must not contain = character");
     }
-    out.close();
+    
+    for (const auto& [keyToWrite, valueToWrite] : data) {
+        // write key;value to the file
+        fileToWrite << keyToWrite << "=" << valueToWrite << '\n';
+    }
+    // close file 
+    fileToWrite.close();
+}
 
-    return true;
+std::vector<std::string> LocalStorage::split(const std::string& str, char delimiter) {
+    std::vector<std::string> parts;
+    std::stringstream ss(str);
+    std::string part;
+
+    while (std::getline(ss, part, delimiter)) {
+        parts.push_back(part);
+    }
+
+    return parts;
 }

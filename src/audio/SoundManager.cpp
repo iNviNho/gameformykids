@@ -19,6 +19,9 @@ void SoundManager::loadSound(const std::string& soundPath, SongName songName) {
 }
 
 void SoundManager::playSound(SongName songName, bool rewindCurrent) {
+    if (!enabled) {
+        return;
+    }
     // stop all currently playing sounds
     for (auto& [name, sound] : sounds) {
         // we stop playing sound

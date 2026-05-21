@@ -7,9 +7,9 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include "Grasses.h"
 #include "../images/Image.h"
 #include "../shaders/shader.h"
+#include "TerrainHeight.h"
 
 class Terrain
 {
@@ -20,17 +20,6 @@ private:
      * Must be one of 128, 256, 512, 1024 ...
      */
     static constexpr int SIZE = 256;
-
-    /**
-     * Defines minimum and maximum height of the terrain.
-     */
-    static constexpr float MAX_HEIGHT = 30.0f;
-
-    /**
-     * Defines how much terrain is covered with grass.
-     * e.g. 1 means 10%
-     */
-    static constexpr int GRASS_DENSITY = 1;
 
     /**
      * Terrain is modeled with a triangular mesh (2 triangles, 3 vertices per triangle)
@@ -48,14 +37,18 @@ private:
      */
     static constexpr int DATA_PER_LOC = DATA_PER_GL_VERTEX * GL_VERTICES_PER_LOC;
 
+    static constexpr int VERTEX_COUNT = SIZE * SIZE * GL_VERTICES_PER_LOC; 
     unsigned int VAO, VBO;
+    // vec3 of position, vec3 of normal and vec2 of texture mapping
+    std::unique_ptr<GLfloat[]> dataPoints;
+
     unsigned int grassTexture;
     unsigned int pathTexture;
     unsigned int mudTexture;
     unsigned int flowersTexture;
     unsigned int blendMapTexture;
-    Image heightMap;
     Image blendMap;
+    TerrainHeight terrainHeight;
 
     void generateTextures();
     void generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const GLsizeiptr dataPointsSz);
@@ -237,9 +230,10 @@ private:
     }
 
     glm::vec3 calculateNormal(const int x, const int z) const;
-
+    void UpdateVertexData(const std::vector<glm::vec3>& newDataPoints);
+    void BufferTerrainDataPoints();
 public:
-    Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap);
+    Terrain(const std::filesystem::path& blendMap);
     ~Terrain() = default;
     const float GetCountOfVertices() const;
     unsigned int GetVAO() const { return VAO; }
@@ -249,13 +243,11 @@ public:
     unsigned int GetFlowersTexture() const { return flowersTexture; }
     unsigned int GetBlendMapTexture() const { return blendMapTexture; }
     constexpr int GetSize() const noexcept { return SIZE; }
+    TerrainHeight& GetTerrainHeight() { return terrainHeight; }
+    
+    void ReloadTerrain(const std::vector<glm::vec3>& newDataPoints);
     void activateTextures(Shader& shader);
 
-    /**
-     * @param[in] x height map column coordinate
-     * @param[in] z height map negated row coordinate
-     * @return terrain height at (x,z) coordinate
-     */
     float GetHeight(const int x, int z) const;
 
     float GetHeight(const float x, const float z) const;

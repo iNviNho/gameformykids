@@ -139,6 +139,9 @@ add_executable(mygame src/main.cpp
         src/models/StaticModel.h
         src/models/AnimatedModel.cpp
         src/models/AnimatedModel.h
+        src/terrain/TerrainHeight.h
+        src/terrain/TerrainHeight.cpp
+        src/tracing/Tracer.h
 )
 
 target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")
