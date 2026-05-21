@@ -77,7 +77,6 @@ int main() {
     GameState gameState{soundManager};
 
     std::string editModeValue = settingsStorage.getOne("editmode", "0");
-    Log::logInfo("Editmodevalue is:" + editModeValue + "yes");
     gameState.setGameEditMode(editModeValue == "1");
     std::string polygonMode = settingsStorage.getOne("polygonmode", "0");
     if (polygonMode == "1") {
@@ -121,10 +120,22 @@ int main() {
     Terrain terrain(
         data_dir() /= path("resources/images/blendMap4.png")
     );
+    
+    // Player
+    // -------------------
+    std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
+    Player player(
+        camera,
+        terrain,
+        wolf,
+        glm::vec3(0.0f, 0.0f, 0.0f)
+    );
+    PathPlayerMover playerMover(player, terrain);
+
 
     // Menu
     // -----------------
-    Menu menu{gameState, uiRenderer, window, screen};
+    Menu menu{gameState, uiRenderer, window, screen, playerMover};
 
     // Game edit
     // -----------------
@@ -139,17 +150,7 @@ int main() {
     removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
 
 
-    // Player
-    // -------------------
-    std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
-    Player player(
-        camera,
-        terrain,
-        wolf,
-        glm::vec3(0.0f, 0.0f, 0.0f)
-    );
-    PathPlayerMover playerMover(player, terrain);
-
+    
     glEnable(GL_DEPTH_TEST);
 
     glfwSetScrollCallback(window, scroll_callback);

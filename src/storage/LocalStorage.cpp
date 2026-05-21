@@ -132,13 +132,10 @@ std::unordered_map<std::string, std::string> LocalStorage::GetAll() {
 
 std::string LocalStorage::getOne(const std::string& key, const std::string& defaultValue) {
     auto keyValueMap = GetAll();
-    Log::logInfo("Searching for: " + key);
     auto it = keyValueMap.find(key);
     if (it != keyValueMap.end()) {
-        Log::logInfo(it->second);
         return it->second;
     }
-    Log::logInfo("Notfound");
     return defaultValue;
 }
 

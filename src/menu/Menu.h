@@ -6,6 +6,7 @@
 #include "../ui/UiRenderer.h"
 #include "../utils/GameState.h"
 #include "GLFW/glfw3.h"
+#include "../objects/movers/PathPlayerMover.h"
 
 using path = std::filesystem::path;
 
@@ -15,13 +16,15 @@ public:
         GameState& gameState,
         UiRenderer& uiRenderer,
         GLFWwindow* window,
-        Screen& screen
+        Screen& screen,
+        PathPlayerMover& pathPlayerMover
     ):
     gameState(gameState),
     uiRenderer(uiRenderer),
     window(window),
     screen(screen),
-    mainDiv(Element{screen})
+    mainDiv(Element{screen}),
+    pathPlayerMover(pathPlayerMover)
     {
         /**
          * CONSTRUCT "MAIN" DIV
@@ -75,6 +78,28 @@ public:
            return gameState.isInMenuAndGameAlreadyStarted();
         });
         mainDiv.AddElement(std::move(resumeDiv));
+        
+        /**
+         * CONSTRUCT "RESTART" BUTTON
+        */
+        Element restartDiv = Element{screen};
+        restartDiv.SetText("RESTART");
+        restartDiv.SetMarginBottom(15.0f);
+        restartDiv.SetOnClick([&pathPlayerMover, &gameState](Element&) {
+            Log::logInfo("[MENU]: Restart clicked");
+            gameState.changeToStartGame();
+            pathPlayerMover.Reset();
+        });
+        restartDiv.SetOnMouseEnter([](Element& e) {
+            e.SetTextScale(1.05f);
+        });
+        restartDiv.SetOnMouseLeave([](Element& e) {
+            e.SetTextScale(1.0f);
+        });
+        restartDiv.SetVisibilityCondition([&gameState] {
+           return gameState.isInMenuAndGameAlreadyStarted();
+        });
+        mainDiv.AddElement(std::move(restartDiv));
 
         /**
          * CONSTRUCT "SETTINGS" BUTTON
@@ -149,6 +174,7 @@ private:
     GLFWwindow* window;
     Screen& screen;
     Element mainDiv;
+    PathPlayerMover& pathPlayerMover;
 };
 
 
