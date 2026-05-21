@@ -23,6 +23,7 @@ public:
     selectedEntityName("grass"),
     selectedScale(1.0f),
     selectedRotation(glm::vec3(1.0f)),
+    selectedRadius(1),
     previewEntity(Entity{
         modelsHolder.GetModel("grass"),
         glm::vec3(1.0f, 1.0f, 1.0f)
@@ -31,6 +32,8 @@ public:
     void placeObject();
     void removeObject();
     void ChangeSelectedEntityName();
+    void ModifyTerrainHeight(int direction);
+    
     std::string GetSelectedEntityName() const {
         return selectedEntityName;
     }
@@ -67,6 +70,15 @@ public:
     void decreaseRotationZ() {
         selectedRotation.z -= 2.0f;
     }
+    void ModifySelectedRadius(int direction) {
+        selectedRadius += 1 * direction;
+        if (selectedRadius < 1) {
+            selectedRadius = 1;
+        }
+    }
+    int getSelectedRadius() {
+        return selectedRadius;
+    }
     Entity& GetSelectedEntityPreviewEntity();
 
 private:
@@ -79,10 +91,12 @@ private:
     float selectedScale;
     glm::vec3 selectedRotation;
     Entity previewEntity;
+    int selectedRadius;
 
     void persist(Entity& entity, const std::string& name);
     void applySelectedTransform(Entity& entity) const;
     std::optional<glm::vec3> raycastToTerrain(float stepSize = 0.05f, int maxIterations = 10000) const;
+    bool removeEntityByPosition(glm::vec3 foundPosition, float epsilon = 1e-4f);
 };
 
 

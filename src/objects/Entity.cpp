@@ -55,7 +55,7 @@ std::string Entity::toString() {
             std::to_string(rotation.y) + "," +
             std::to_string(rotation.z) + ",";
     // then scale
-    data += std::to_string(scale) + "\n";
+    data += std::to_string(scale);
 
     return data;
 }

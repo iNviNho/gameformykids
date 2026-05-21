@@ -1,4 +1,6 @@
 #include "Terrain.h"
+#include <memory>
+#include <unordered_map>
 #include <vector>
 #include <stdexcept>
 #include <cmath>
@@ -13,15 +15,15 @@
 #include <glm/glm.hpp>
 #include <data_dir.h>
 
+#include "../tracing/Tracer.h"
 #include "../utils/Log.h"
 
 using path = std::filesystem::path;
 
-Terrain::Terrain(const std::filesystem::path& heightMap, const std::filesystem::path& blendMap)
-    : heightMap(heightMap), blendMap(blendMap) {
+Terrain::Terrain(const std::filesystem::path& blendMap)
+    : blendMap(blendMap), terrainHeight(SIZE) {
     const GLsizeiptr dataPointsSz = SIZE * SIZE * DATA_PER_LOC;
-    // We allocate a fixed-size array on the heap so there is no dynamic recalculation
-    const std::unique_ptr<GLfloat[]> dataPoints(new GLfloat[dataPointsSz]);
+    dataPoints = std::make_unique<GLfloat[]>(dataPointsSz);
     generateTextures();
     generateTerrain(dataPoints);
     generateVaoVbo(dataPoints, dataPointsSz);
@@ -41,10 +43,7 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glBufferData(GL_ARRAY_BUFFER, dataPointsSz * sizeof(GLfloat), dataPoints.get(), GL_STATIC_DRAW);
-
+    BufferTerrainDataPoints();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, DATA_PER_GL_VERTEX * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
@@ -53,23 +52,61 @@ void Terrain::generateVaoVbo(const std::unique_ptr<GLfloat[]>& dataPoints, const
     glEnableVertexAttribArray(2);
 }
 
+void Terrain::BufferTerrainDataPoints() {
+    TRACE_ME();
+    const int dataPointsSize =  SIZE * SIZE * DATA_PER_LOC;
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, dataPointsSize * sizeof(GLfloat), dataPoints.get(), GL_STATIC_DRAW);
+}
+
+void Terrain::ReloadTerrain(const std::vector<glm::vec3>& newDataPoints) {
+    terrainHeight.loadDataFromStorage();
+    UpdateVertexData(newDataPoints);
+    BufferTerrainDataPoints();
+}
+
+void Terrain::UpdateVertexData(const std::vector<glm::vec3>& newDataPoints) {
+    std::unordered_set<int> dirty;
+
+    auto index = [](int x, int z) {
+        return z * SIZE + x;
+    };
+
+    // mark dirty + neighbors
+    for (const auto& p : newDataPoints)
+    {
+        int x = (int)p.x;
+        int z = (int)(-p.z);
+
+        for (int dz = 0; dz <= 1; dz++)
+        for (int dx = 0; dx <= 1; dx++)
+        {
+            int nx = x + dx;
+            int nz = z + dz;
+
+            if (nx >= 0 && nz >= 0 && nx < SIZE && nz < SIZE)
+                dirty.insert(index(nx, nz));
+        }
+    }
+
+    // rebuild in safe order
+    for (int z = 0; z < SIZE; z++)
+        for (int x = 0; x < SIZE; x++)
+        {
+            if (dirty.find(index(x, z)) != dirty.end())
+                setVertexData<false,false>(dataPoints, x, z);
+        }
+}
+
 float Terrain::GetHeight(const int x, int z) const {
-    // negate z because opengl is righthanded system
-    // and z is negative when we generate terrain in from of us
-    z = -z;
-    if (x < 0 || z < 0 || x >= SIZE || z >= SIZE) {
+    // we negate SIZE becuase OpenGL is right handed system
+    // so the more forward we go, the more negative z will be
+    if (x < 0 || z > 0 || x >= SIZE || z <= SIZE * -1) {
         return 0;
     }
 
-    // gives value from 0 to 255
-    float grayscaleValue = heightMap.getGrayscaleValue(x, z);
-    // range from 0 to 1
-    grayscaleValue /= 255.0f;
-    // range from -0.5 to 0.5
-    grayscaleValue -= 0.5f;
-    // range from -MAX_HEIGHT/2.0f to MAX_HEIGHT/2.0f
-    grayscaleValue *= MAX_HEIGHT;
-    return grayscaleValue;
+    return terrainHeight.get(x, z);
 }
 
 glm::vec3 Terrain::calculateNormal(const int x, const int z) const {
@@ -123,7 +160,6 @@ std::array<glm::vec3, 3> Terrain::GetTriangle(const float x, const float z) cons
         return { c, d, a };
 }
 
-// TODO: Understand this
 glm::vec4 Terrain::GetTrianglePlane(const std::array<glm::vec3, 3>& triangle) noexcept
 {
     const auto& [p1, p2, p3] = triangle;
@@ -160,8 +196,9 @@ bool Terrain::IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const g
            (glm::dot(glm::cross(v3, ptVec3), n) >= 0);
 }
 
-void Terrain::generateTerrain(const std::unique_ptr<GLfloat[]>& dataPoints) {
-
+void Terrain::generateTerrain(
+        const std::unique_ptr<GLfloat[]>& dataPoints) {
+    TRACE_ME();
     // generate data for location (0,0)
     setVertexData<true, true>(dataPoints, 0, 0);
 

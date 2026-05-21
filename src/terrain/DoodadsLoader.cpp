@@ -1,6 +1,4 @@
 #include "DoodadsLoader.h"
-
-#include "data_dir.h"
 #include "EntitiesHolder.h"
 #include "../storage/LocalStorage.h"
 #include "../utils/Log.h"
@@ -11,12 +9,11 @@ void DoodadsLoader::LoadDoodads(
     EntitiesHolder& entitiesHolder)
 {
     Log::logInfo("Loading doodads");
-    auto lines = storage.GetLines();
-    for (const std::string&line : lines) {
+    for (const auto& [key, value] : storage.GetAll()) {
         // first part is name
         // second part is unique id (we can ignore it)
         // rest is entity data
-        auto parts = split(line, ',');
+        auto parts = split(value, ',');
         Entity entity{
             modelsHolder.GetModel(parts[0]),
             glm::vec3(

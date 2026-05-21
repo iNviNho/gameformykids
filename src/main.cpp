@@ -16,6 +16,7 @@
 #include "terrain/TerrainRenderer.h"
 #include "text/TextRenderer.h"
 #include <data_dir.h>
+#include <string>
 
 #include "audio/SoundManager.h"
 #include "gameedit/SceneModifier.h"
@@ -37,6 +38,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier);
 void calculateDelta();
 bool smallDelayPassed();
+bool extraSmallDelayPassed();
 
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
@@ -46,7 +48,9 @@ Camera camera = Camera{glm::vec3(0.0f, 2.0f, 3.0f) };
 glm::vec3 lightPos{1.2f, 1.0f, 2.0f};
 constexpr glm::vec3 whiteColor{1.0f, 1.0f, 1.0f};
 float lastClickedAt = 0.0f;
+float lastPressetAtForExtraSmallDelay = 0.0f; 
 float lastPressetAt = 0.0f;
+float extraSmallDeadTime = 0.1f;
 float deadTime = 0.25f;
 long startTimeInMillis = glfwGetTime() * 1000;
 
@@ -65,23 +69,24 @@ int main() {
 
     // Sound engine
     // ----------------
-    bool soundEnabled = settingsStorage.getKeyValue("soundenabled", "0") == "0" ? false : true;
+    bool soundEnabled = settingsStorage.getOne("soundenabled", "0") == "0" ? false : true;
     SoundManager soundManager{soundEnabled};
 
     // Game state
     // ----------------
     GameState gameState{soundManager};
 
-    std::string editModeValue = settingsStorage.getKeyValue("editmode", "0");
+    std::string editModeValue = settingsStorage.getOne("editmode", "0");
+    Log::logInfo("Editmodevalue is:" + editModeValue + "yes");
     gameState.setGameEditMode(editModeValue == "1");
-    std::string polygonMode = settingsStorage.getKeyValue("polygonmode", "0");
+    std::string polygonMode = settingsStorage.getOne("polygonmode", "0");
     if (polygonMode == "1") {
         // enabling this will draw only lines
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
     
     // Create and configure window
-    std::string fullscreenMode = settingsStorage.getKeyValue("fullscreen", "0");
+    std::string fullscreenMode = settingsStorage.getOne("fullscreen", "0");
     GLFWwindow* window = createAndConfigureWindow(
         screen,
         fullscreenMode == "1"
@@ -114,7 +119,6 @@ int main() {
     );
     Skybox skybox{"cloudy"};
     Terrain terrain(
-        data_dir() /= path("resources/images/heightmaps/heightmap.png"),
         data_dir() /= path("resources/images/blendMap4.png")
     );
 
@@ -210,6 +214,7 @@ int main() {
                 }
 
                 // misc texts
+                textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 70.0f, 0.25f, whiteColor);
                 textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.25f, whiteColor);
                 textRenderer.BufferText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.25f, whiteColor);
                 textRenderer.BufferText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.25f, whiteColor);
@@ -323,6 +328,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 }
 
 
+// TODO: It is too big, time to move this to separate class just handling & orchestrating inputs from the user 
 void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier)
 {
     /**************
@@ -384,6 +390,16 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
                 sceneModifier.increaseScale();
             }
         }
+       
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            if (smallDelayPassed()) {
+                sceneModifier.ModifySelectedRadius(-1);
+            }
+        } else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+            if (smallDelayPassed()) {
+                sceneModifier.ModifySelectedRadius(1);
+            }
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -410,11 +426,20 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             if (smallDelayPassed() && gameState.isGameEditModeEnabled()) {
                 // we handle 2 types of clicks:
                 // first = place object if x is not pressed
-                if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
-                    sceneModifier.placeObject();
+                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+                } else if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
+                   sceneModifier.placeObject();
                 // second = remove object if x is pressed
                 } else {
                     sceneModifier.removeObject();
+                }
+            }
+            if (extraSmallDelayPassed() && gameState.isGameEditModeEnabled()) {
+                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+                    sceneModifier.ModifyTerrainHeight(1);
+                }            
+                if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+                    sceneModifier.ModifyTerrainHeight(-1);
                 }
             }
         }
@@ -441,6 +466,13 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
 bool smallDelayPassed() {
     if (glfwGetTime() - lastPressetAt > deadTime) {
         lastPressetAt = static_cast<float>(glfwGetTime());
+        return true;
+    }
+    return false;
+}
+bool extraSmallDelayPassed() {
+    if (glfwGetTime() - lastPressetAtForExtraSmallDelay > extraSmallDeadTime) {
+        lastPressetAtForExtraSmallDelay = static_cast<float>(glfwGetTime());
         return true;
     }
     return false;
