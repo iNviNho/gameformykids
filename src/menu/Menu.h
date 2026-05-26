@@ -85,6 +85,7 @@ public:
         Element restartDiv = Element{screen};
         restartDiv.SetText("RESTART");
         restartDiv.SetMarginBottom(15.0f);
+        restartDiv.SetMarginLeft(20.0f);
         restartDiv.SetOnClick([&pathPlayerMover, &gameState](Element&) {
             Log::logInfo("[MENU]: Restart clicked");
             gameState.changeToRestartGame();
