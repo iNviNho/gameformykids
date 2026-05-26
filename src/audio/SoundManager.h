@@ -30,6 +30,7 @@ public:
     }
 
     void playSound(SongName songName, bool rewindCurrent = true);
+    void RewindAll();
 
 private:
     ma_result result;

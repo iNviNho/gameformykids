@@ -1,6 +1,7 @@
 #include "SoundManager.h"
 
 #include "data_dir.h"
+#include "../utils/Log.h"
 
 void SoundManager::loadSounds() {
     loadSound(data_dir() / "resources/sounds/menu_intro.mp3", MENU_INTRO);
@@ -16,6 +17,14 @@ void SoundManager::loadSound(const std::string& soundPath, SongName songName) {
     }
     // add sound to the map
     sounds[songName] = std::move(sound);
+}
+
+void SoundManager::RewindAll() {
+    // stop all currently playing sounds
+    for (auto& [name, sound] : sounds) {
+        // we rewind it to the beginning
+        ma_sound_seek_to_pcm_frame(sound.get(), 0);
+    }
 }
 
 void SoundManager::playSound(SongName songName, bool rewindCurrent) {

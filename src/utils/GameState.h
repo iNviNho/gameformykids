@@ -20,6 +20,12 @@ public:
         state = IN_GAME;
         soundManager.playSound(SoundManager::GAME_ELWYNN);
     }
+    void changeToRestartGame() {
+        state = IN_GAME;
+        soundManager.RewindAll();
+        soundManager.playSound(SoundManager::GAME_ELWYNN);
+
+    }
     void toggleSettingsState() {
         settingState = (settingState == OPEN) ? CLOSE : OPEN;
     }
