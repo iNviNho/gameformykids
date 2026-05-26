@@ -23,6 +23,7 @@ private:
     // for higher jumps, increase
     static constexpr glm::vec3 INITIAL_JUMP_VELOCITY{ 0, 5.0f, 0 };
 
+    bool pause = false;
     Player& player;
     const Terrain& terrain;
     Path path;
@@ -53,6 +54,7 @@ private:
     static std::array<float, 2> solveQuadratic(const float a, const float b, const float c);
 
     static float getLandingTime(const std::array<float, 2>& solutions);
+
 
 public:
     explicit PathPlayerMover(Player& player, const Terrain& terrain):
@@ -95,6 +97,12 @@ public:
 		player.updateRotation(dir);
         player.UpdateCameraPose(false);
 
+    }
+    void PauseToggle() {
+        pause = !pause; 
+    }
+    bool IsPaused() {
+        return pause;
     }
     void move(float deltaTime);
     void Jump();

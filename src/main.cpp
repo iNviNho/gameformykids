@@ -225,7 +225,10 @@ int main() {
             } else {
                 // move player
                 playerMover.move(deltaTime);
-                player.UpdateCameraPose();
+                if (!playerMover.IsPaused()) {
+                    player.UpdateCameraPose();
+                }
+                
 
                 // misc texts
                 textRenderer.BufferText(("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z)).c_str(), 25.0f, 25.0f, 0.25f, whiteColor);
@@ -401,11 +404,16 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
                 sceneModifier.ModifySelectedRadius(1);
             }
         }
+    } else {
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            playerMover.Jump();
+        }    
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && smallDelayPassed()) {
+            playerMover.PauseToggle();
+        }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        playerMover.Jump();
-    }
+    
     /**************
      * END OF KEY TO ACTION MAPPINGS
      *************/
@@ -460,6 +468,7 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
         menu.MouseHovered(xPosition, yPosition);
     }
     /**************
+     *
      * END OF HOVER TO ACTION MAPPINGS
      *************/
 }
