@@ -447,8 +447,11 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
                 if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
                     sceneModifier.ModifyTerrainHeight(1);
                 }            
-                if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
                     sceneModifier.ModifyTerrainHeight(-1);
+                }
+                if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+                    sceneModifier.ModifyTerrainHeight(0);
                 }
             }
         }

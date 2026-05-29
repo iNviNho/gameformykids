@@ -84,6 +84,9 @@ void SceneModifier::ModifyTerrainHeight(int direction) {
                 influence = influence * influence;
                 
                 calculatedPosition.y = calculatedPosition.y + (strength * influence * direction);
+                if (direction == 0) {
+                    calculatedPosition.y = 0;
+                }
                 // update terrain height
                 coordinates.emplace_back(calculatedPosition);
             }
