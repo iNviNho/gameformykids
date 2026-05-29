@@ -14,8 +14,13 @@ uniform sampler2D blendMap;
 
 uniform float terrainSize;
 
+uniform vec2 mouseCoord;
+uniform bool editTerrainCircle;
+uniform float editTerrainCircleRadius;
+
 struct Light {
     vec3 position;
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -24,6 +29,7 @@ uniform Light light;
 
 void main()
 {
+    
     vec2 coord = vec2(aPosPass.x / terrainSize, -aPosPass.z / terrainSize);
     vec3 blendMapColour = texture(blendMap, coord).rgb;
     vec3 mudColor = texture(mud, TexCoord).rgb * blendMapColour.r;
@@ -49,5 +55,16 @@ void main()
 
     // TODO: specular
 
-    FragColor = vec4(ambient + diffuse, 1.0);
+    // game edit mode to draw circle where the terrain would be modified
+    vec4 overlayColor = vec4(1.0f, 0.0f, 0.0f, 1);
+    float mask = 0.0f;
+    if (editTerrainCircle) {
+
+        vec2 delta = mouseCoord.xy - aPosPass.xz;
+        float distSq = dot(delta, delta);
+        mask = distSq < editTerrainCircleRadius * editTerrainCircleRadius ? 0.1f : 0.0f;
+    }
+
+    vec4 baseColor = vec4(ambient + diffuse, 1.0);
+    FragColor = mix(baseColor, overlayColor, mask);
 }
