@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "../models/EntityRenderer.h"
 #include <data_dir.h>
+#include <optional>
 
 using path = std::filesystem::path;
 
@@ -16,7 +17,7 @@ TerrainRenderer::TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer,
     screen(screen)
 {}
 
-void TerrainRenderer::render(Terrain& terrain) {
+void TerrainRenderer::render(Terrain& terrain, const std::optional<glm::vec3> mouseCoord, const float editTerrainCircleRadius) {
     shader.use();
 
     // TODO: Does it always have to be generated?
@@ -37,6 +38,19 @@ void TerrainRenderer::render(Terrain& terrain) {
     shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
     shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
     shader.setVec3("light.position", glm::vec3(40.0f, 5.0f, -10.0f));
+
+    // Edit terrain circle on the terrain
+    if (renderEditTerrainCircle) {
+        if (mouseCoord.has_value()) {
+            shader.setFloat("editTerrainCircleRadius", editTerrainCircleRadius);
+            shader.setBool("editTerrainCircle", true);
+            shader.setVec2("mouseCoord", glm::vec2(mouseCoord.value().x, mouseCoord.value().z));
+        } else {
+            shader.setBool("editTerrainCircle", false);
+        }
+    } else {
+        shader.setBool("editTerrainCircle", renderEditTerrainCircle);
+    } 
 
     // enable culling
     glEnable(GL_CULL_FACE);

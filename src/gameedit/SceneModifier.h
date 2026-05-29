@@ -35,6 +35,8 @@ public:
     void ChangeSelectedEntityName();
     void ModifyTerrainHeight(int direction);
     
+    std::optional<glm::vec3> raycastToTerrain(float stepSize = 0.05f, int maxIterations = 10000) const;
+    
     std::string GetSelectedEntityName() const {
         return selectedEntityName;
     }
@@ -96,7 +98,6 @@ private:
 
     void persist(Entity& entity, const std::string& name);
     void applySelectedTransform(Entity& entity) const;
-    std::optional<glm::vec3> raycastToTerrain(float stepSize = 0.05f, int maxIterations = 10000) const;
     bool removeEntityByPosition(glm::vec3 foundPosition, float epsilon = 1e-4f);
 };
 

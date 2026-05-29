@@ -35,7 +35,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 GLFWwindow* createAndConfigureWindow(Screen& screen, bool fullscreen = false);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier);
+void processInput(GLFWwindow *window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier, TerrainRenderer& terrainRenderer);
 void calculateDelta();
 bool smallDelayPassed();
 bool extraSmallDelayPassed();
@@ -149,8 +149,6 @@ int main() {
     };
     removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
 
-
-    
     glEnable(GL_DEPTH_TEST);
 
     glfwSetScrollCallback(window, scroll_callback);
@@ -159,7 +157,7 @@ int main() {
     Log::logInfo("Starting game loop");
     while (!glfwWindowShouldClose(window)) {
         // process input from the keyboard & mouse
-        processInput(window, playerMover, menu, gameState, sceneModifier);
+        processInput(window, playerMover, menu, gameState, sceneModifier, terrainRenderer);
 
         // render
         // ------
@@ -190,7 +188,7 @@ int main() {
             camera.tick(deltaTime);
             // renderers
             skyboxRenderer.render(skybox);
-            terrainRenderer.render(terrain);
+            terrainRenderer.render(terrain, sceneModifier.raycastToTerrain(), sceneModifier.getSelectedRadius());
             entityRenderer.render(player, startTimeInMillis);
             for (const Entity& entity : doodads.GetEntities()) {
                 entityRenderer.render(entity, startTimeInMillis);
@@ -333,7 +331,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 
 // TODO: It is too big, time to move this to separate class just handling & orchestrating inputs from the user 
-void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier)
+void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, GameState& gameState, SceneModifier& sceneModifier, TerrainRenderer& terrainRenderer)
 {
     /**************
      * START OF KEY TO ACTION MAPPINGS
@@ -403,6 +401,12 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             if (smallDelayPassed()) {
                 sceneModifier.ModifySelectedRadius(1);
             }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            terrainRenderer.SetRenderEditTerrainCircle(true);
+        } else {
+            terrainRenderer.SetRenderEditTerrainCircle(false);
         }
     } else {
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
