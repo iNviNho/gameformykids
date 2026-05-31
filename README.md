@@ -45,7 +45,7 @@ features, you can check the related commit that is attached with uploaded screen
 - Player's animal selection [ ]
 - Water placement [ ]
 
-# Having issues with CMake?
+# Having issues with CMake or building?
 
 If you are having issues with CMake, try to set the policy version to 3.5.
 
@@ -54,6 +54,18 @@ Add:
 ```
 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 ```
+
+----
+
+Sometimes after upgrade of xtools, we must rebuild the cmake build debug folder by running
+
+```
+rm -rf cmake-build-debug
+cmake -S . -B cmake-build-debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build cmake-build-debug --target mygame -j 8 && ./cmake-build-debug/mygame
+```
+
+Good luck upgrading ...
 
 # GOTCHA's
 

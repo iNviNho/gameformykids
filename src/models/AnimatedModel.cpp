@@ -1,4 +1,5 @@
 #include "AnimatedModel.h"
+#include "../utils/Log.h"
 
 const aiNodeAnim* AnimatedModel::FindNodeAnimation(const aiAnimation *animation, const std::string &string) {
 
@@ -118,8 +119,7 @@ void AnimatedModel::ReadNodeHierarchy(float animationTime, const aiNode *aiNode,
 
     // Only process animations if they exist
     if (pScene->mNumAnimations > 0) {
-        // TODO: could be different key if we have more animations
-        const aiAnimation* animation = pScene->mAnimations[0];
+        const aiAnimation* animation = pScene->mAnimations[animationIndex];
 
         const aiNodeAnim* pNodeAnimation = FindNodeAnimation(animation, nodeName);
 
@@ -165,18 +165,36 @@ void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm:
 
     glm::mat4 identity = glm::mat4(1.0f);
 
-    // Check if the scene has animations before accessing them
     float animationTime = 0.0f;
     if (pScene->mNumAnimations > 0) {
-        float ticksPerSecond = pScene->mAnimations[0]->mTicksPerSecond != 0 ? pScene->mAnimations[0]->mTicksPerSecond : 25.0f;
+        const aiAnimation* anim = pScene->mAnimations[animationIndex];
+        float ticksPerSecond = anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f;
         float timeInTicks = animationTimeInSec * ticksPerSecond;
-        animationTime = fmod(timeInTicks, static_cast<float>(pScene->mAnimations[0]->mDuration));
+        animationTime = fmod(timeInTicks, static_cast<float>(anim->mDuration));
     }
 
     ReadNodeHierarchy(animationTime, pScene->mRootNode, identity);
 
     for (size_t i = 0; i < vectorOfBones.size(); i++) {
         transforms[i] = vectorOfBones[i].finalTransformation;
+    }
+}
+
+unsigned int AnimatedModel::GetAnimationCount() const {
+    return pScene ? pScene->mNumAnimations : 0;
+}
+
+void AnimatedModel::logAnimations() const {
+    if (!pScene || pScene->mNumAnimations == 0) {
+        Log::logInfo("Model has no animations.");
+        return;
+    }
+    Log::logInfo("Model has " + std::to_string(pScene->mNumAnimations) + " animation(s):");
+    for (unsigned int i = 0; i < pScene->mNumAnimations; i++) {
+        const aiAnimation* anim = pScene->mAnimations[i];
+        Log::logInfo("  [" + std::to_string(i) + "] \"" + std::string(anim->mName.C_Str()) +
+                     "\" duration=" + std::to_string(anim->mDuration) +
+                     " ticks, ticksPerSec=" + std::to_string(anim->mTicksPerSecond));
     }
 }
 

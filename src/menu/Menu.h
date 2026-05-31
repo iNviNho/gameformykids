@@ -41,7 +41,7 @@ public:
          * CONSTRUCT "PLAY" BUTTON
         */
         Element playDiv = Element{screen};
-        playDiv.SetText("PLAY");
+        playDiv.SetText("Play");
         playDiv.SetMarginBottom(15.0f);
         playDiv.SetOnClick([&gameState](Element&) {
             Log::logInfo("[MENU]: Play clicked");
@@ -62,7 +62,7 @@ public:
          * CONSTRUCT "RESUME" BUTTON
         */
         Element resumeDiv = Element{screen};
-        resumeDiv.SetText("RESUME");
+        resumeDiv.SetText("Resume");
         resumeDiv.SetMarginBottom(15.0f);
         resumeDiv.SetOnClick([&gameState](Element&) {
             Log::logInfo("[MENU]: Resume clicked");
@@ -83,7 +83,7 @@ public:
          * CONSTRUCT "RESTART" BUTTON
         */
         Element restartDiv = Element{screen};
-        restartDiv.SetText("RESTART");
+        restartDiv.SetText("Restart");
         restartDiv.SetMarginBottom(15.0f);
         restartDiv.SetMarginLeft(20.0f);
         restartDiv.SetOnClick([&pathPlayerMover, &gameState](Element&) {
@@ -106,7 +106,7 @@ public:
          * CONSTRUCT "SETTINGS" BUTTON
         */
         Element settingsDiv = Element{screen};
-        settingsDiv.SetText("SETTINGS");
+        settingsDiv.SetText("Settings");
         settingsDiv.SetMarginBottom(15.0f);
         settingsDiv.SetMarginLeft(20.0f);
         settingsDiv.SetOnClick([&gameState](Element& settingsDiv) {
@@ -143,7 +143,7 @@ public:
          * CONSTRUCT "QUIT" BUTTON
         */
         Element quitDiv = Element{screen};
-        quitDiv.SetText("QUIT");
+        quitDiv.SetText("Quit");
         quitDiv.SetMarginBottom(15.0f);
         quitDiv.SetMarginLeft(20.0f);
         quitDiv.SetOnClick([window](Element&) {

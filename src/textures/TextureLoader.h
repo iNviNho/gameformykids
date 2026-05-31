@@ -4,13 +4,13 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 #include <filesystem>
-
 #include "../utils/Log.h"
 
 class TextureLoader {
 public:
-    static unsigned int loadTexture(const std::filesystem::path& value) {
+    static unsigned int loadTexture(const std::filesystem::path& value, bool flipVertically = true) {
         Log::logInfo("Loading texture: " + std::string(value));
+        stbi_set_flip_vertically_on_load(flipVertically);
         int width, height, nrChannels;
         unsigned char *data = stbi_load(value.c_str(), &width, &height,
         &nrChannels, 0);
@@ -45,8 +45,6 @@ public:
             Log::logError("Failed to load texture: " + std::string(value));
         }
         stbi_image_free(data);
-
-        stbi_set_flip_vertically_on_load(true);
 
         return texture;
     }

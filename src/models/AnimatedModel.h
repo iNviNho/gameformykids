@@ -8,7 +8,8 @@ class AnimatedModel : public AbstractModel {
 public:
     explicit AnimatedModel(const std::filesystem::path& modelPath)
         : AbstractModel() {
-    loadModel(modelPath);
+        loadModel(modelPath, false);
+        logAnimations();
     }
 
     const aiNodeAnim* FindNodeAnimation(const aiAnimation* animation, const std::string& string);
@@ -20,9 +21,13 @@ public:
     void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, const aiNodeAnim* aiNodeAnimation);
     void ReadNodeHierarchy(float animationTime, const aiNode* aiNode, glm::mat4 parentTransform);
     void GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4>& transforms);
+    void SetAnimationIndex(unsigned int index) { animationIndex = index; }
+    unsigned int GetAnimationCount() const;
+    void logAnimations() const;
 
     bool IsAnimated() const override { return true; }
 protected:
+    unsigned int animationIndex = 0;
     std::map<std::string, unsigned int> boneNameToIndexMap;
     std::vector<BoneInformation> vectorOfBones;
     int getBoneId(const aiBone* bone);

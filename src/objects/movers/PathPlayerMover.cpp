@@ -1,5 +1,3 @@
-
-
 #include "PathPlayerMover.h"
 #include <algorithm>
 #include <variant>
@@ -12,9 +10,6 @@ static constexpr float AT_TARGET = 1e-5f;
 static constexpr float GRAVITY = -9.8f;
 
 void PathPlayerMover::move(float deltaTime) {
-    if (pause) {
-        return;
-    }
     while (deltaTime > 0.0f) {
         Player::State& state = player.getState();
         if (std::holds_alternative<Player::Moving>(state))

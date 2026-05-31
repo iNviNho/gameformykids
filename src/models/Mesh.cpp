@@ -4,6 +4,7 @@
 
 #include "VertexBoneData.h"
 #include "../utils/OpenGlErrorChecker.h"
+#include <string>
 
 Mesh::Mesh(
     std::vector<Vertex>&& vertices,
@@ -56,13 +57,21 @@ void Mesh::setupMesh() {
         glBindBuffer(GL_ARRAY_BUFFER, VBOB);
         glBufferData(GL_ARRAY_BUFFER, sizeof(verticesWithBoneData[0]) * verticesWithBoneData.size(), &verticesWithBoneData[0], GL_STATIC_DRAW);
 
-        // bones & weights
+        // bones & weights — send only first 4 per vertex (shader uses ivec4/vec4)
         glEnableVertexAttribArray(3);
-        glVertexAttribIPointer(3, MAX_NUM_BONES_PER_VERTEX, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
+        glVertexAttribIPointer(3, 4, GL_UNSIGNED_INT, sizeof(VertexBoneData), (const GLvoid*)0);
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, MAX_NUM_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
-                              (const GLvoid*)(MAX_NUM_BONES_PER_VERTEX * sizeof(int32_t)));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData),
+                              (const GLvoid*)(MAX_NUM_BONES_PER_VERTEX * sizeof(unsigned int)));
         OpenGlErrorChecker::checkGLError("Mesh::setupMesh - after bone buffer setup");
+    }
+
+    hasOpacityTexture = false;
+    for (const auto& texture : textures) {
+        if (texture.type == "texture_opacity") {
+           hasOpacityTexture = true; 
+           break;
+        }
     }
 
     glBindVertexArray(0);
@@ -71,21 +80,31 @@ void Mesh::setupMesh() {
 
 void Mesh::Draw(Shader& shader) const
 {
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    for(unsigned int i = 0; i < textures.size(); i++)
+    GLuint diffuseID = 0;
+    GLuint opacityID = 0;
+    // TODO: Add support for specular textures
+    
+    for (auto& tex : textures)
     {
-        glActiveTexture(GL_TEXTURE0 + i); // activate texture unit first
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
-        std::string name = textures.at(i).type;
-        if(name == "texture_diffuse")
-            number = std::to_string(diffuseNr++);
-        else if(name == "texture_specular")
-            number = std::to_string(specularNr++);
-        shader.setFloat(("material." + name + number).c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures.at(i).id);
+        if (tex.type == "texture_diffuse")
+            diffuseID = tex.id;
+        else if (tex.type == "texture_opacity")
+            opacityID = tex.id;
     }
+    
+    // bind diffuse
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuseID);
+    shader.setInt("texture_diffuse1", 0);
+    
+    // bind opacity
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, opacityID);
+    shader.setInt("texture_opacity1", 1);
+    
+    // Pass the flag whether material has opacity so we can remove some pixels based on A channel
+    shader.setBool("material_has_opacity", hasOpacityTexture);
+
     // TODO: create sun class and move it there
     shader.setVec3("light.ambient", 0.45f, 0.45f, 0.45f);
     shader.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
