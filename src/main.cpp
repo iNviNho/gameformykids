@@ -8,6 +8,8 @@
 
 #include "camera/camera.h"
 #include "fps/Fps.h"
+#include "models/AbstractModel.h"
+#include "models/AnimatedModel.h"
 #include "models/EntityRenderer.h"
 #include "objects/Player.h"
 #include "objects/movers/PathPlayerMover.h"
@@ -17,6 +19,7 @@
 #include "text/TextRenderer.h"
 #include <data_dir.h>
 #include <string>
+#include <variant>
 
 #include "audio/SoundManager.h"
 #include "gameedit/SceneModifier.h"
@@ -123,13 +126,15 @@ int main() {
     
     // Player
     // -------------------
-    std::shared_ptr<StaticModel> wolf = std::make_shared<StaticModel>(data_dir() /= path("resources/objects/animals/wolf2/Wolf_One_obj.obj"));
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/wolf3/Wolf.fbx"));
+    wolf->SetAnimationIndex(3);
     Player player(
         camera,
         terrain,
         wolf,
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
+    player.SetScale(0.02f);
     PathPlayerMover playerMover(player, terrain);
 
 
@@ -223,13 +228,10 @@ int main() {
             } else {
                 // move player
                 playerMover.move(deltaTime);
-                if (!playerMover.IsPaused()) {
+                if (!std::holds_alternative<Player::Stationary>(player.getState())) {
+                    // set to stand and just sniff
                     player.UpdateCameraPose();
-                }
-                
-
-                // misc texts
-                textRenderer.BufferText(("player x:" + std::to_string(player.GetPosition().x) + " y:" + std::to_string(player.GetPosition().y) + " z:" + std::to_string(player.GetPosition().z)).c_str(), 25.0f, 25.0f, 0.25f, whiteColor);
+                } 
             }
         }
         // We render whatever is in the text buffer

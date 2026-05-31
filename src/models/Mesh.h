@@ -44,8 +44,10 @@ public:
     std::vector<Vertex>& getVertices() {return vertices;}
     std::vector<unsigned int>& GetIndices() {return indices;}
     bool HasBones() const {return hasBones;}
+    bool HasOpacityTexture() const {return hasOpacityTexture;}
 private:
     unsigned int VAO, VBO, EBO, VBOB;
+    bool hasOpacityTexture;
     bool hasBones;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;

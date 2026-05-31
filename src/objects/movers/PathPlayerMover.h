@@ -14,6 +14,7 @@
 #include "../../terrain/Terrain.h"
 #include "Intersection.h"
 #include "MeshIntersecter.h"
+#include "../../models/AnimatedModel.h"
 
 class PathPlayerMover {
 private:
@@ -23,7 +24,6 @@ private:
     // for higher jumps, increase
     static constexpr glm::vec3 INITIAL_JUMP_VELOCITY{ 0, 5.0f, 0 };
 
-    bool pause = false;
     Player& player;
     const Terrain& terrain;
     Path path;
@@ -99,13 +99,25 @@ public:
 
     }
     void PauseToggle() {
-        pause = !pause; 
-    }
-    bool IsPaused() {
-        return pause;
+        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
+        Player::State& state = player.getState();
+        if (std::holds_alternative<Player::Moving>(state)) {
+            Log::logInfo("Player will stay stationary now");
+            player.setState(Player::Stationary());
+            model.SetAnimationIndex(2);
+        } else if (std::holds_alternative<Player::Stationary>(state)) {
+            Log::logInfo("Player will move again");
+            const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
+            const glm::vec3 dir = target - player.GetPosition();
+            player.setState(Player::Moving{DEFAULT_SPEED, dir});
+            model.SetAnimationIndex(3);
+        }
     }
     void move(float deltaTime);
     void Jump();
+    Player& GetPlayer() {
+        return player;
+    }
 };
 
 

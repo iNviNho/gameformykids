@@ -32,7 +32,7 @@ void AbstractModel::Draw(Shader& shader) {
     }
 }
 
-void AbstractModel::loadModel(const std::filesystem::path& modelPath)
+void AbstractModel::loadModel(const std::filesystem::path& modelPath, bool flipUVs)
 {
     // few other post processing options are
     //     aiProcess_GenNormals: creates normal vectors for each vertex if the model doesn't
@@ -45,29 +45,44 @@ void AbstractModel::loadModel(const std::filesystem::path& modelPath)
     //
     // if aiProcess_Triangulate is removed, also Mesh.cpp has to be updated as each face could have potentially
     // more vertices
-    pScene = importer.ReadFile(modelPath.native(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices);
+    unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices;
+    if (flipUVs) flags |= aiProcess_FlipUVs;
+    flipTexturesVertically = !flipUVs;
+    pScene = importer.ReadFile(modelPath.native(), flags);
 
     if(!pScene || pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
         return;
     }
 
-    // So for commented out as it gives wrong position on the first model
+    // So far commented out as it gives wrong position on the first model
     // pScene->mRootNode->mTransformation.Inverse();
 
     directory = modelPath.parent_path();
 
-    processNode(pScene);
+    processNode(pScene->mRootNode, pScene);
 }
 
-void AbstractModel::processNode(const aiScene *scene) {
+void AbstractModel::processNode(aiNode* node, const aiScene* scene)
+{
+    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        meshes.push_back(processMesh(mesh, scene));
+    }
 
-    // process all the scene's meshes
-    for(unsigned int i = 0; i < scene->mNumMeshes; i++)
-    {
-        meshes.push_back(processMesh(scene->mMeshes[i], scene));
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+        processNode(node->mChildren[i], scene);
     }
 }
+
+//void AbstractModel::processNode(const aiScene *scene) {
+//
+//    // process all the scene's meshes
+//    for(unsigned int i = 0; i < scene->mNumMeshes; i++)
+//    {
+//        meshes.push_back(processMesh(scene->mMeshes[i], scene));
+//    }
+//}
 
 
 
@@ -99,8 +114,35 @@ Mesh AbstractModel::processMesh(aiMesh *mesh, const aiScene *scene) {
     }
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+
+        // Enable to debug what kind of texture types do I receive
+        //static const std::vector<aiTextureType> types = {
+        //    aiTextureType_DIFFUSE,
+        //    aiTextureType_SPECULAR,
+        //    aiTextureType_AMBIENT,
+        //    aiTextureType_EMISSIVE,
+        //    aiTextureType_HEIGHT,
+        //    aiTextureType_NORMALS,
+        //    aiTextureType_SHININESS,
+        //    aiTextureType_OPACITY,
+        //    aiTextureType_DISPLACEMENT,
+        //    aiTextureType_LIGHTMAP,
+        //    aiTextureType_REFLECTION,
+        //    aiTextureType_BASE_COLOR,
+        //    aiTextureType_UNKNOWN
+        //};
+        //
+        //for (auto type : types) {
+        //    unsigned int count = material->GetTextureCount(type);
+        //    if (count > 0) {
+        //        std::cout << "Type " << type << " has " << count << " textures\n";
+        //    }
+        //}
+
         loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures);
-        loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
+        // TODO: Specular texture is disabled for now
+        //loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures);
+        loadMaterialTextures(material, aiTextureType_OPACITY, "texture_opacity", textures);
     } else {
         Log::logWarning("Mesh has no material assigned to it.");
     }
@@ -117,7 +159,9 @@ void AbstractModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, co
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
-        const std::filesystem::path textureFilename(str.C_Str());
+        std::string rawTexturePath(str.C_Str());
+        std::replace(rawTexturePath.begin(), rawTexturePath.end(), '\\', '/');
+        const std::filesystem::path textureFilename(rawTexturePath);
         const std::filesystem::path textureFilenameFullpath = std::filesystem::path(this->directory) /= textureFilename;
         if (!std::filesystem::exists(textureFilenameFullpath)) {
             Log::logError("Texture path does not exist on filesystem: " + textureFilenameFullpath.string());
@@ -132,7 +176,7 @@ void AbstractModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, co
         }
         if (!skip) {
             Texture texture;
-            texture.id = TextureLoader::loadTexture(textureFilenameFullpath);
+            texture.id = TextureLoader::loadTexture(textureFilenameFullpath, flipTexturesVertically);
             texture.type = typeName;
             texture.path = textureFilename;
             textures.push_back(texture);

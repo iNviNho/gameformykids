@@ -39,6 +39,13 @@ FetchContent_MakeAvailable(stb)
 # Download and include Assimp
 FetchContent_Declare(assimp GIT_REPOSITORY https://github.com/assimp/assimp.git)
 FetchContent_MakeAvailable(assimp)
+if(TARGET assimp)
+    target_compile_options(assimp PRIVATE
+        -Wno-error
+        -Wno-unsafe-buffer-usage
+        -Wno-unsafe-buffer-usage-in-libc-call
+    )
+endif()
 
 # Download and include lunasvg
 FetchContent_Declare(lunasvg GIT_REPOSITORY https://github.com/sammycage/lunasvg.git GIT_TAG master)

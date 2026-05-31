@@ -8,6 +8,8 @@ flat in ivec4 BoneIDsPass;
 in vec4 WeightsPass;
 
 uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_opacity1;
+uniform bool material_has_opacity;
 
 struct Light {
     vec3 position;
@@ -23,6 +25,15 @@ void main()
 
     if (textureColor.a < 0.5) {
         discard;
+    }
+
+    if (material_has_opacity == true) {
+        float r = texture(texture_opacity1, TexCoords).r;
+        if (r > 0.5) {
+            discard;
+        } else {
+            textureColor = vec4(r, r, r, 1.0f);
+        }
     }
 
     // ambient
@@ -41,5 +52,10 @@ void main()
 
     // TODO: specular
 
-    FragColor = vec4(ambient + diffuse, textureColor.a);
+    // fur detail (ONLY modulation)
+    
+    vec3 color = ambient + diffuse;
+    
+
+    FragColor = vec4(color, 1.0);
 }

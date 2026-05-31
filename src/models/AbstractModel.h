@@ -28,13 +28,15 @@ protected:
     std::vector<Mesh> meshes;
     std::vector<Texture> texturesLoaded;
     std::filesystem::path directory;
+    bool flipTexturesVertically = true;
 
     std::vector<glm::mat4> transforms;
     Assimp::Importer importer;
     const aiScene* pScene;
 
-    void loadModel(const std::filesystem::path& path);
-    void processNode(const aiScene *scene);
+    void loadModel(const std::filesystem::path& path, bool flipUVs = true);
+
+    void processNode(aiNode* node, const aiScene* scene);
     void loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures);
     void loadSingleTexture(const std::filesystem::path& texturePath);
     void loadSingleTexture(Texture& texture);

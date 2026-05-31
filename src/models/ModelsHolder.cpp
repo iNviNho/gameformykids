@@ -22,6 +22,13 @@ void ModelsHolder::LoadModels() {
         data_dir() /= std::filesystem::path("resources/objects/animals/bob/boblampclean.md5mesh"))
     ;
     loadedModels.emplace("bobwithlamp", bobWithLamp);
+    // wolf
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(
+        data_dir() /= std::filesystem::path("resources/objects/animals/wolf3/Wolf.fbx"))
+    ;
+    wolf->SetAnimationIndex(2);
+    loadedModels.emplace("wolf", wolf);
+
 }
 
 std::shared_ptr<AbstractModel>& ModelsHolder::GetModel(const std::string &modelName) {
