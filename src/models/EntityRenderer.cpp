@@ -28,7 +28,7 @@ void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
 
     // view/projection transformations
     // TODO: Does it always have to be generated?
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 362.0f);
     const glm::mat4& view = camera.GetViewMatrix();
     singleInstanceShader.setMat4("projection", projection);
     singleInstanceShader.setMat4("view", view);
