@@ -21,7 +21,8 @@ void TerrainRenderer::render(Terrain& terrain, const std::optional<glm::vec3> mo
     shader.use();
 
     // TODO: Does it always have to be generated?
-    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 100.0f);
+    // TODO: Make this static calculated based on the terrain size
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), static_cast<float>(screen.GetWidth() / screen.GetHeight()), 0.1f, 362.0f);
     shader.setMat4("projection", projection);
 
     shader.setMat4("view", camera.GetViewMatrix());
