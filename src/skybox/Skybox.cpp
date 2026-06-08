@@ -13,10 +13,11 @@ void Skybox::loadCubemap(const char* skyboxName) {
 
     // prepare faces
     std::vector<std::filesystem::path> faces;
+    faces.reserve(6);
     faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("left.png")));
     faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("right.png")));
-    faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("top.png")));
     faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("bottom.png")));
+    faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("top.png")));
     faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("front.png")));
     faces.push_back(std::move(data_dir() /= path("resources/images/skybox") /= path(skyboxName) /= path("back.png")));
 
@@ -26,14 +27,20 @@ void Skybox::loadCubemap(const char* skyboxName) {
 
     for (unsigned int i = 0; i < faces.size(); i++) {
         auto image = Image{faces.at(i)};
+        GLenum format; 
+        if (image.getNrChannels() > 3) {
+            format = GL_RGBA;
+        } else {
+            format = GL_RGB;
+        }
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,
-            GL_RGB,
+            GL_RGBA,
             image.getWidth(),
             image.getHeight(),
             0,
-            GL_RGB,
+            format,
             GL_UNSIGNED_BYTE,
             image.getData()
         );

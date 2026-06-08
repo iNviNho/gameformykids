@@ -23,6 +23,7 @@ public:
     int getWidth() const { return width; }
     int getHeight() const { return height; }
     const unsigned char* getData() const { return data; }
+    const int getNrChannels() { return nrChannels; }
 };
 
 
