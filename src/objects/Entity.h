@@ -3,14 +3,18 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 #include "../../../src/models/AbstractModel.h"
+#include "../terrain/Terrain.h"
 
 // Represents any renderable object in the game
 // (tree, grass, bridge, house, player, animal etc)
 class Entity {
 public:
     // TODO: Does this have to be shrd pointer?
-    Entity(const std::shared_ptr<AbstractModel> &model, glm::vec3 position):
-        model(model), position(position), rotation(glm::vec3(0.0f)), scale(1.0f) {}
+    Entity(const std::shared_ptr<AbstractModel> &model, const std::shared_ptr<Terrain>& terrain, glm::vec3 position):
+        model(model), position(position), terrain(terrain), rotation(glm::vec3(0.0f)), scale(1.0f) {
+        pointOnTerrainInFront = position;
+        pointOnTerrainInBack = position;
+    }
     ~Entity() = default;
 
     void RotateX(float angle) { rotation.x += angle; }
@@ -37,6 +41,12 @@ private:
     glm::vec3 position;
     glm::vec3 rotation;
     float scale;
+    glm::vec3 pointOnTerrainInFront;
+    glm::vec3 pointOnTerrainInBack;
+    glm::vec3 pointOnTerrainInLeft;
+    glm::vec3 pointOnTerrainInRight;
+protected:
+    std::shared_ptr<Terrain> terrain;
 };
 
 

@@ -2,8 +2,11 @@
 #include "EntitiesHolder.h"
 #include "../storage/LocalStorage.h"
 #include "../utils/Log.h"
+#include "Terrain.h"
+#include <memory>
 
 void DoodadsLoader::LoadDoodads(
+    std::shared_ptr<Terrain>& terrain,
     ModelsHolder& modelsHolder,
     LocalStorage& storage,
     EntitiesHolder& entitiesHolder)
@@ -16,6 +19,7 @@ void DoodadsLoader::LoadDoodads(
         auto parts = split(value, ',');
         Entity entity{
             modelsHolder.GetModel(parts[0]),
+            terrain,
             glm::vec3(
                 std::stof(parts[2]), std::stof(parts[3]), std::stof(parts[4])
             )};

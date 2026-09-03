@@ -5,6 +5,7 @@
 
 constexpr float cameraDistance = 12.0f;
 constexpr float cameraHeight = 6.5f;
+constexpr float minimumCameraOffsetFromTheTerrain = 1.0f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
 void Player::UpdateCameraPosition(bool animated) {
@@ -29,8 +30,16 @@ void Player::UpdateCameraPosition(bool animated) {
 
     newPosition.y = cameraHeight + GetPosition().y;
 
-    // Update the camera's position
-    camera.UpdatePosition(newPosition, animated);
+    const float terrainSurface = terrain->GetHeight(newPosition.x, newPosition.z);
+
+    if (newPosition.y < terrainSurface + minimumCameraOffsetFromTheTerrain ) {
+        // set camera position to calculate state but with modified y component
+        // so that camera stays above the terrain
+        camera.UpdatePosition(glm::vec3{newPosition.x, terrainSurface + minimumCameraOffsetFromTheTerrain, newPosition.z}, animated);    
+    } else {
+        // Update the camera's position
+        camera.UpdatePosition(newPosition, animated);
+    }
 }
 
 void Player::updateCameraPitch() {

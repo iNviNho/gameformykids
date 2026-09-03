@@ -29,17 +29,7 @@ public:
 
 private:
     Camera& camera;
-    Terrain& terrain;
-
-    /**
-     * The previous state of the player. Needed for temporary states, such as jumping, that are
-     * intended to return to the previous state upon completion.
-     */
     State prevState;
-
-    /**
-     * The current state of the player.
-     */
     State state;
 
     /**
@@ -105,8 +95,8 @@ private:
     void UpdateCameraYaw(bool animated = true);
 
 public:
-    Player(Camera &camera, Terrain &terrain, const std::shared_ptr<AbstractModel> &model, glm::vec3 position):
-        Entity(model, position), terrain(terrain), camera(camera), prevState{ Stationary{} }, state{ Stationary{} } {
+    Player(Camera &camera, const std::shared_ptr<Terrain>& terrain, const std::shared_ptr<AbstractModel> &model, glm::vec3 position):
+        Entity(model, terrain, position), camera(camera), prevState{ Stationary{} }, state{ Stationary{}} {
     }
 
     constexpr const State& getState() const noexcept { return state; }

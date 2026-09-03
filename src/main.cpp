@@ -113,20 +113,21 @@ int main() {
     modelsHolder.LoadModels();
     EntitiesHolder doodads{};
     LocalStorage storageForDoodads{data_dir() /= path("resources/map/doodads.txt")};
+
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(data_dir() /= path("resources/images/blendMap4.png"));
+
     // load persisted doodads
     DoodadsLoader::LoadDoodads(
+        terrain,
         modelsHolder,
         storageForDoodads,
         doodads
     );
     Skybox skybox{"cloudy"};
-    Terrain terrain(
-        data_dir() /= path("resources/images/blendMap4.png")
-    );
     
     // Player
     // -------------------
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/wolf3/Wolf.fbx"));
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/dragon/dragonazurgoz_dragonskin1azuregoz.gltf"));
     // running is 3
     wolf->SetAnimationIndex(3);
     Player player(
@@ -136,7 +137,7 @@ int main() {
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
     player.SetScale(0.02f);
-    PathPlayerMover playerMover(player, terrain);
+    PathPlayerMover playerMover(player, *terrain);
 
 
     // Menu
@@ -194,7 +195,7 @@ int main() {
             camera.tick(deltaTime);
             // renderers
             skyboxRenderer.render(skybox);
-            terrainRenderer.render(terrain, sceneModifier.raycastToTerrain(), sceneModifier.getSelectedRadius());
+            terrainRenderer.render(*terrain, sceneModifier.raycastToTerrain(), sceneModifier.getSelectedRadius());
             entityRenderer.render(player, startTimeInMillis);
             for (const Entity& entity : doodads.GetEntities()) {
                 entityRenderer.render(entity, startTimeInMillis);
@@ -230,7 +231,6 @@ int main() {
                 // move player
                 playerMover.move(deltaTime);
                 if (!std::holds_alternative<Player::Stationary>(player.getState())) {
-                    // set to stand and just sniff
                     player.UpdateCameraPose();
                 } 
             }
@@ -412,6 +412,18 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             terrainRenderer.SetRenderEditTerrainCircle(false);
         }
     } else {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+        }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             playerMover.Jump();
         }    
