@@ -6,12 +6,13 @@
 #include "../terrain/Terrain.h"
 #include "../objects/Entity.h"
 #include "../terrain/EntitiesHolder.h"
+#include <memory>
 
 class SceneModifier {
 public:
     SceneModifier(
         Camera& camera,
-        Terrain& terrain,
+        std::shared_ptr<Terrain>& terrain,
         EntitiesHolder& entitiesHolder,
         LocalStorage& localStorage,
         ModelsHolder& modelsHolder
@@ -27,6 +28,7 @@ public:
     selectedRadius(1),
     previewEntity(Entity{
         modelsHolder.GetModel("grass"),
+        terrain,
         glm::vec3(1.0f, 1.0f, 1.0f)
     }){}
 
@@ -86,7 +88,7 @@ public:
 
 private:
     Camera& camera;
-    Terrain& terrain;
+    std::shared_ptr<Terrain>& terrain;
     EntitiesHolder& entitiesHolder;
     LocalStorage& localStorage;
     ModelsHolder& modelsHolder;

@@ -22,7 +22,7 @@ std::optional<glm::vec3> SceneModifier::raycastToTerrain(
     for (int i = 1; i < maxIterations; ++i) {
         const float distAlongRay = static_cast<float>(i) * stepSize;
         glm::vec3 pos = camPos + camDir * distAlongRay;
-        float terrainHeight = terrain.GetHeight(pos.x, pos.z);
+        float terrainHeight = terrain->GetHeight(pos.x, pos.z);
 
         if (pos.y <= terrainHeight) {
             // we found the intersection point
@@ -65,9 +65,9 @@ void SceneModifier::ModifyTerrainHeight(int direction) {
     // we create a unordered map of points we will modify
     std::vector<glm::vec3> coordinates;
 
-    for (int x = 0; x < terrain.GetSize(); x++) {
-        for (int z = 0; z < terrain.GetSize(); z++) {
-            float y = terrain.GetHeight(x, z * -1);
+    for (int x = 0; x < terrain->GetSize(); x++) {
+        for (int z = 0; z < terrain->GetSize(); z++) {
+            float y = terrain->GetHeight(x, z * -1);
             glm::vec3 calculatedPosition = glm::vec3{x, y, z * -1};
 
             float dx = calculatedPosition.x - position.x;
@@ -92,9 +92,9 @@ void SceneModifier::ModifyTerrainHeight(int direction) {
             }
         }
     }
-    terrain.GetTerrainHeight().setMultiple(coordinates);   
+    terrain->GetTerrainHeight().setMultiple(coordinates);   
     // reload terrain 
-    terrain.ReloadTerrain(coordinates); 
+    terrain->ReloadTerrain(coordinates); 
 
 }
 void SceneModifier::placeObject() {
@@ -115,6 +115,7 @@ void SceneModifier::placeObject() {
 
     Entity entity{
         modelsHolder.GetModel(selectedEntityName),
+        terrain,
         position
     };
 
@@ -245,6 +246,7 @@ void SceneModifier::ChangeSelectedEntityName() {
     // we must recreate preview entity
     previewEntity = Entity{
         modelsHolder.GetModel(selectedEntityName),
+        terrain,
         glm::vec3(1.0f, 1.0f, 1.0f)
     };
     selectedScale = 1.0f;

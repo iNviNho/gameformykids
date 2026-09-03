@@ -3,11 +3,15 @@
 #include "EntitiesHolder.h"
 #include "../models/ModelsHolder.h"
 #include "../storage/LocalStorage.h"
+#include "Terrain.h"
+#include <memory>
 
 
 class DoodadsLoader {
 public:
-    static void LoadDoodads(ModelsHolder& modelsHolder,
+    static void LoadDoodads(
+        std::shared_ptr<Terrain>& terrain,
+        ModelsHolder& modelsHolder,
         LocalStorage& storage,
         EntitiesHolder& entitiesHolder);
 private:
