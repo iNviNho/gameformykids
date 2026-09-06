@@ -126,8 +126,6 @@ int main() {
     // Player
     // -------------------
     std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/wolf3/Wolf.fbx"));
-    // running is 3
-    wolf->SetAnimationIndex(3);
     Player player(
         camera,
         terrain,
@@ -136,7 +134,7 @@ int main() {
     );
     player.SetScale(0.02f);
     PathPlayerMover playerMover(player, *terrain);
-
+    playerMover.Run(); 
 
     // Menu
     // -----------------
@@ -411,22 +409,14 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
         }
     } else {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            camera.ProcessKeyboard(FORWARD, deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            camera.ProcessKeyboard(BACKWARD, deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            camera.ProcessKeyboard(LEFT, deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            camera.ProcessKeyboard(RIGHT, deltaTime);
-        }
+            playerMover.Walk();        }
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            playerMover.Run();        }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             playerMover.Jump();
         }    
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && smallDelayPassed()) {
-            playerMover.PauseToggle();
+            playerMover.Idle();
         }
     }
 

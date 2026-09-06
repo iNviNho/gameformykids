@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <stdexcept>
 #include <glm/vec3.hpp>
-#include <optional>
 #include <array>
 #include <glm/vec4.hpp>
 #include "../Player.h"
@@ -20,7 +19,7 @@ class PathPlayerMover {
 private:
 
     static constexpr float DEFAULT_SPEED = 4.0f;
-
+    static constexpr float WALKING_SPEED = 1.5f;
     // for higher jumps, increase
     static constexpr glm::vec3 INITIAL_JUMP_VELOCITY{ 0, 5.0f, 0 };
 
@@ -98,20 +97,25 @@ public:
         player.UpdateCameraPose(false);
 
     }
-    void PauseToggle() {
+    void Idle() {
         AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
-        Player::State& state = player.getState();
-        if (std::holds_alternative<Player::Moving>(state)) {
-            Log::logInfo("Player will stay stationary now");
-            player.setState(Player::Stationary());
-            model.SetAnimationIndex(2);
-        } else if (std::holds_alternative<Player::Stationary>(state)) {
-            Log::logInfo("Player will move again");
-            const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
-            const glm::vec3 dir = target - player.GetPosition();
-            player.setState(Player::Moving{DEFAULT_SPEED, dir});
-            model.SetAnimationIndex(3);
-        }
+        player.setState(Player::Stationary());
+        model.SetAnimationIndex(2);
+    }
+
+    void Walk() {
+        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
+        const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
+        const glm::vec3 dir = target - player.GetPosition();
+        player.setState(Player::Moving{WALKING_SPEED, dir});
+        model.SetAnimationIndex(5);
+    }
+    void Run() {
+        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
+        const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
+        const glm::vec3 dir = target - player.GetPosition();
+        player.setState(Player::Moving{DEFAULT_SPEED, dir});
+        model.SetAnimationIndex(3);
     }
     void move(float deltaTime);
     void Jump();
