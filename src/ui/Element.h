@@ -65,6 +65,7 @@ public:
     void SetMarginLeft(const float newMarginLeft) { this->marginLeft = newMarginLeft; }
     void SetMarginRight(const float newMarginRight) { this->marginRight = newMarginRight; }
     void SetHorizontalPosition(const HorizontalPositions& newHorizontalPosition) {this->horizontalPosition = newHorizontalPosition;}
+    void SetVerticalPosition(const VerticalPositions& newVerticalPosition) {this->verticalPosition = newVerticalPosition;}
     void SetOnClick(const std::function<void(Element&)>& onClickNew) { this->onClick = onClickNew; }
     void SetOnMouseEnter(const std::function<void(Element&)>& onMouseEnterNew) { this->onMouseEnter = onMouseEnterNew; }
     void SetOnMouseLeave(const std::function<void(Element&)>& onMouseLeaveNew) { this->onMouseLeave = onMouseLeaveNew; }

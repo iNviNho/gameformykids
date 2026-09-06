@@ -47,46 +47,56 @@ void Element::MouseHovered(double xPosition, double yPosition) {
 
 void Element::RecalculateElementsPositions() {
 
-    // something on the element changed
-    // that means we need to recalculate x and y position of this
-    // and all other elements
-
-    // if horizontal position is CENTER,
-    // we simply calculate width of all elements and put them to the middle
     if (this->horizontalPosition == CENTER) {
-        float mid = screen.GetWidth() / 2.0f;
-        float midOffset = 0.0f;
-        float nextElementMarginRight = 0.0f;
-        for (auto& element: GetSubElements()) {
-            // not for invisible elements
+        const float midX = screen.GetWidth() / 2.0f;
+
+        float totalWidth = 0.0f;
+        float previousMarginRight = 0.0f;
+
+        // Calculate total rendered width of all visible elements
+        for (auto& element : GetSubElements()) {
             if (!element.GetVisibilityCondition()()) {
                 continue;
             }
 
-            midOffset += element.GetTextProportion().GetWidth() + nextElementMarginRight + element.GetMarginLeft();
-            nextElementMarginRight = element.GetMarginRight();
+            totalWidth += previousMarginRight
+                        + element.GetMarginLeft()
+                        + element.GetTextProportion().GetWidth();
+
+            previousMarginRight = element.GetMarginRight();
         }
-        nextElementMarginRight = 0.0f;
 
         float renderedWidth = 0.0f;
+        previousMarginRight = 0.0f;
 
-        // When rendering text, x:0 means left and y:0 means bottom
-        // y:0 also means text is built from BOTTOM to TOP so it will be fully rendered
         for (auto& element : GetSubElements()) {
-            // not for invisible elements
             if (!element.GetVisibilityCondition()()) {
                 continue;
+            }
+
+            float yPosition = element.GetMarginBottom();
+
+            if (this->verticalPosition == MIDDLE) {
+                yPosition += screen.GetHeight() / 2.0f;
             }
 
             element.SetPosition(glm::vec2{
-                mid + element.GetMarginLeft() + nextElementMarginRight + renderedWidth - midOffset / 2,
-                // When rendering text, x:0 means left and y:0 means bottom
-                // y:0 also means text is built from BOTTOM to TOP so it will be fully rendered
-               element.GetMarginBottom(),
+                midX
+                    - totalWidth / 2.0f
+                    + renderedWidth
+                    + previousMarginRight
+                    + element.GetMarginLeft(),
+
+                yPosition
             });
-            nextElementMarginRight = element.GetMarginRight();
-            renderedWidth += element.GetTextProportion().GetWidth() + nextElementMarginRight + element.GetMarginLeft();
+
+            renderedWidth += previousMarginRight
+                           + element.GetMarginLeft()
+                           + element.GetTextProportion().GetWidth();
+
+            previousMarginRight = element.GetMarginRight();
         }
+
     } else {
         Log::logError("Only HorizontalPosition::CENTER implemented.");
     }

@@ -79,8 +79,6 @@ int main() {
     // ----------------
     GameState gameState{soundManager};
 
-    std::string editModeValue = settingsStorage.getOne("editmode", "0");
-    gameState.setGameEditMode(editModeValue == "1");
     std::string polygonMode = settingsStorage.getOne("polygonmode", "0");
     if (polygonMode == "1") {
         // enabling this will draw only lines
@@ -127,7 +125,7 @@ int main() {
     
     // Player
     // -------------------
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/dragon/dragonazurgoz_dragonskin1azuregoz.gltf"));
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/wolf3/Wolf.fbx"));
     // running is 3
     wolf->SetAnimationIndex(3);
     Player player(
