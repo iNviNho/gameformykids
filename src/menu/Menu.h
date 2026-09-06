@@ -2,7 +2,6 @@
 #define MYGAME_MENU_H
 #include "data_dir.h"
 #include "../models/StaticShape.h"
-#include "../textures/TextureLoader.h"
 #include "../ui/UiRenderer.h"
 #include "../utils/GameState.h"
 #include "GLFW/glfw3.h"
@@ -24,6 +23,7 @@ public:
     window(window),
     screen(screen),
     mainDiv(Element{screen}),
+    settingsDiv(Element{screen}),
     pathPlayerMover(pathPlayerMover)
     {
         /**
@@ -102,42 +102,30 @@ public:
         });
         mainDiv.AddElement(std::move(restartDiv));
 
+        
+
         /**
          * CONSTRUCT "SETTINGS" BUTTON
         */
-        Element settingsDiv = Element{screen};
-        settingsDiv.SetText("Settings");
-        settingsDiv.SetMarginBottom(15.0f);
-        settingsDiv.SetMarginLeft(20.0f);
-        settingsDiv.SetOnClick([&gameState](Element& settingsDiv) {
+        Element settingsText = Element{screen};
+        settingsText.SetText("Settings");
+        settingsText.SetMarginBottom(15.0f);
+        settingsText.SetMarginLeft(20.0f);
+        settingsText.SetOnClick([&gameState, this](Element& settingsText) {
             Log::logInfo("[MENU]: Settings clicked");
             gameState.toggleSettingsState();
             settingsDiv.RecalculateElementsPositions();
         });
-        settingsDiv.SetOnMouseEnter([](Element& e) {
+        settingsText.SetOnMouseEnter([](Element& e) {
             e.SetTextScale(1.05f);
         });
-        settingsDiv.SetOnMouseLeave([](Element& e) {
+        settingsText.SetOnMouseLeave([](Element& e) {
             e.SetTextScale(1.0f);
         });
 
-        // add settings elements for game edit mode
-        // Element settingsDivGameEditMode = Element{screen};
-        // settingsDivGameEditMode.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
-        // settingsDivGameEditMode.SetMarginBottom(200.0f);
-        // settingsDivGameEditMode.SetMarginLeft(20.0f);
-        // settingsDivGameEditMode.SetOnClick([&gameState](Element& element) {
-        //     Log::logInfo("[MENU]: Game Edit Mode clicked");
-        //     gameState.toggleGameEditMode();
-        //     element.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
-        // });
-        // settingsDivGameEditMode.SetVisibilityCondition([&gameState] {
-        //    return gameState.isSettingOpen();
-        // });
-        // settingsDiv.AddElement(std::move(settingsDivGameEditMode));
-        settingsDiv.RecalculateElementsPositions();
+        settingsText.RecalculateElementsPositions();
 
-        mainDiv.AddElement(std::move(settingsDiv));
+        mainDiv.AddElement(std::move(settingsText));
 
         /**
          * CONSTRUCT "QUIT" BUTTON
@@ -162,6 +150,37 @@ public:
          * Calculate all positions of div and children divs
         */
         mainDiv.RecalculateElementsPositions();
+
+
+        /**
+         * SETTINGS DIV
+         */
+        /** 
+         *
+         */
+        settingsDiv.SetHorizontalPosition(Element::HorizontalPositions::CENTER);
+        settingsDiv.SetVerticalPosition(Element::VerticalPositions::MIDDLE);
+        
+        Element gameEditModeToggle = Element{screen};
+        gameEditModeToggle.SetText("Enable game edit mode");
+        gameEditModeToggle.SetTextScale(0.8f);
+        gameEditModeToggle.SetOnClick([&gameState](Element& e) {
+            Log::logInfo("[MENU][SETTINGS]: Toggle game edit mode");
+            gameState.toggleGameEditMode();
+            e.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+        });
+        gameEditModeToggle.SetOnMouseEnter([](Element& e) {
+            e.SetTextScale(0.85f);
+        });
+        gameEditModeToggle.SetOnMouseLeave([](Element& e) {
+            e.SetTextScale(0.8f);
+        });
+        gameEditModeToggle.SetVisibilityCondition([&gameState] {
+           return gameState.isSettingOpen();
+        });
+        settingsDiv.AddElement(std::move(gameEditModeToggle));
+
+        settingsDiv.RecalculateElementsPositions();
     }
 
     void MouseButtonLeftClicked(double xPosition, double yPosition);
@@ -175,6 +194,7 @@ private:
     GLFWwindow* window;
     Screen& screen;
     Element mainDiv;
+    Element settingsDiv;
     PathPlayerMover& pathPlayerMover;
 };
 
