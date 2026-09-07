@@ -8,6 +8,7 @@
 
 #include "camera/camera.h"
 #include "fps/Fps.h"
+#include "gameedit/GameEditHelpElement.h"
 #include "models/AbstractModel.h"
 #include "models/AnimatedModel.h"
 #include "models/EntityRenderer.h"
@@ -151,7 +152,8 @@ int main() {
         data_dir() /= path("resources/images/pointers/removePointer.png")
     };
     removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
-
+    GameEditHelpElement gameEditHelpElement = GameEditHelpElement{screen};
+    
     glEnable(GL_DEPTH_TEST);
 
     glfwSetScrollCallback(window, scroll_callback);
@@ -216,11 +218,13 @@ int main() {
                 }
 
                 // misc texts
-                textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 70.0f, 0.25f, whiteColor);
-                textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.25f, whiteColor);
-                textRenderer.BufferText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.25f, whiteColor);
-                textRenderer.BufferText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.25f, whiteColor);
+                textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 70.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.4f, whiteColor);
 
+                // we render help text so modder can quickly check how to alter the game
+                uiRenderer.Render(gameEditHelpElement.GetElement());
             // ****************************
             // third = GAME MODE
             } else {

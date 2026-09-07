@@ -10,6 +10,20 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
+
+struct SubElementText {
+public:
+    SubElementText(
+        const std::string text,
+        glm::vec2 position
+    ): text(text), position(position){}
+    std::string& GetText() {return text;}
+    glm::vec2& GetPosition() {return position;}
+private:
+    std::string text;
+    glm::vec2 position;
+};
+
 /**
  * The main point of this class is to imitate the functionality of <div> element in HTML5 syntax
  *
@@ -60,6 +74,7 @@ public:
     void SetText(const std::string& newText) {
         this->text = newText;
         this->textProportion = TextProportion{newText, GetTextScale()};
+        calculateSubElementTextsToRender();
     }
     void SetMarginBottom(const float newMarginBottom) { this->marginBottom = newMarginBottom; }
     void SetMarginLeft(const float newMarginLeft) { this->marginLeft = newMarginLeft; }
@@ -76,6 +91,7 @@ public:
         }
         this->textScale = newTextScale;
         this->textProportion = TextProportion{text, GetTextScale()};
+        calculateSubElementTextsToRender();
     }
     void AddElement(Element&& element) {
         subElements.emplace_back(std::move(element));
@@ -83,7 +99,6 @@ public:
     bool HasSubElements() const { return !subElements.empty(); }
 
     void MouseButtonLeftClicked(double xPosition, double yPosition);
-
 
     void MouseHovered(double xPosition, double yPosition);
 
@@ -95,12 +110,26 @@ public:
 
     std::function<bool()>& GetVisibilityCondition() { return visibilityCondition; }
 
+    void SetMaxWidth(float newMaxWidth) {
+        maxWidth = newMaxWidth;
+        calculateSubElementTextsToRender();
+    }
+
+    std::vector<SubElementText>& GetSubElementTextsToRender() { return subElementTextsToRender;}
+    void calculateSubElementTextsToRender();
+
+    void SetIsBlock(bool newIsBlock) {
+        isBlock = newIsBlock;
+    }
+    bool IsBlock() { return isBlock;}
 private:
     Screen& screen;
 
-    std::optional<StaticShape> backgroundImage;
+    bool isBlock = false; 
 
+    std::optional<StaticShape> backgroundImage;
     std::string text{};
+    std::vector<SubElementText> subElementTextsToRender;
     TextProportion textProportion;
     glm::vec3 textColor{1.0f, 1.0f, 1.0f};
     float textScale{1.0f};
@@ -108,9 +137,12 @@ private:
     glm::vec2 position{0.0f, 0.0f};
     HorizontalPositions horizontalPosition{CENTER};
     VerticalPositions verticalPosition{TOP};
+
     float marginBottom{};
     float marginLeft{};
     float marginRight{};
+
+    float maxWidth = 0.0f;
 
     std::vector<Element> subElements{};
 
