@@ -8,13 +8,15 @@ void UiRenderer::Render(Element& element) {
     }
 
     if (element.GetVisibilityCondition()()) {
-        textRenderer.BufferText(
-            element.GetText().c_str(),
-            element.GetPosition().x,
-            element.GetPosition().y,
-            element.GetTextScale(),
-            element.GetTextColor()
-        );
+        for (auto& subElementTextToRender: element.GetSubElementTextsToRender()) {
+            textRenderer.BufferText(
+                subElementTextToRender.GetText().c_str(),
+                element.GetPosition().x + subElementTextToRender.GetPosition().x,
+                element.GetPosition().y - subElementTextToRender.GetPosition().y,
+                element.GetTextScale(),
+                element.GetTextColor()
+            );     
+        }
     }
 
     // we need to do recursive rendering
