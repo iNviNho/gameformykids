@@ -59,13 +59,13 @@ void Terrain::BufferTerrainDataPoints() {
     glBufferData(GL_ARRAY_BUFFER, dataPointsSize * sizeof(GLfloat), dataPoints.get(), GL_STATIC_DRAW);
 }
 
-void Terrain::ReloadTerrain(const std::vector<glm::vec3>& newDataPoints) {
-    terrainHeight.loadDataFromStorage();
+void Terrain::UpdateTerrainHeightData(const std::vector<Coordinate>& newDataPoints) {
+    terrainHeight.SetMultiple(newDataPoints);
     UpdateVertexData(newDataPoints);
     BufferTerrainDataPoints();
 }
 
-void Terrain::UpdateVertexData(const std::vector<glm::vec3>& newDataPoints) {
+void Terrain::UpdateVertexData(const std::vector<Coordinate>& newDataPoints) {
     std::unordered_set<int> dirty;
 
     auto index = [](int x, int z) {
@@ -105,7 +105,7 @@ float Terrain::GetHeight(const int x, int z) const {
         return 0;
     }
 
-    return terrainHeight.get(x, z);
+    return terrainHeight.Get(x, z);
 }
 
 glm::vec3 Terrain::calculateNormal(const int x, const int z) const {

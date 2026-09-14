@@ -229,7 +229,7 @@ private:
     }
 
     glm::vec3 calculateNormal(const int x, const int z) const;
-    void UpdateVertexData(const std::vector<glm::vec3>& newDataPoints);
+    void UpdateVertexData(const std::vector<Coordinate>& newDataPoints);
     void BufferTerrainDataPoints();
 public:
     Terrain(const std::filesystem::path& blendMap);
@@ -244,7 +244,7 @@ public:
     constexpr int GetSize() const noexcept { return SIZE; }
     TerrainHeight& GetTerrainHeight() { return terrainHeight; }
     
-    void ReloadTerrain(const std::vector<glm::vec3>& newDataPoints);
+    void UpdateTerrainHeightData(const std::vector<Coordinate>& newDataPoints);
     void activateTextures(Shader& shader);
 
     float GetHeight(const int x, int z) const;
