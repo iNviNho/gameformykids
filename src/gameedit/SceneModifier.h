@@ -85,6 +85,28 @@ public:
         return selectedRadius;
     }
     Entity& GetSelectedEntityPreviewEntity();
+    void toggleModifyTerrainHeight() {
+        if (resetTerrainHeight) {
+            resetTerrainHeight = false;
+            modifyTerrainHeight = true;
+        } else {
+            modifyTerrainHeight = !modifyTerrainHeight;
+        }
+    }
+    bool getModifyTerrainHeight() {
+        return modifyTerrainHeight;
+    }
+    void toggleResetTerrainHeight() {
+        if (modifyTerrainHeight) {
+            modifyTerrainHeight = false;
+            resetTerrainHeight = true;
+        } else {
+            resetTerrainHeight = !resetTerrainHeight;
+        }
+    }
+    bool getResetTerrainHeight() {
+        return resetTerrainHeight;
+    }
 
 private:
     Camera& camera;
@@ -97,7 +119,8 @@ private:
     glm::vec3 selectedRotation;
     Entity previewEntity;
     int selectedRadius;
-
+    bool modifyTerrainHeight = false;
+    bool resetTerrainHeight = false;
     void persist(Entity& entity, const std::string& name);
     void applySelectedTransform(Entity& entity) const;
     bool removeEntityByPosition(glm::vec3 foundPosition, float epsilon = 1e-4f);

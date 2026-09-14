@@ -17,6 +17,7 @@ uniform float terrainSize;
 uniform vec2 mouseCoord;
 uniform bool editTerrainCircle;
 uniform float editTerrainCircleRadius;
+uniform vec3 terrainCircleColor;
 
 struct Light {
     vec3 position;
@@ -56,7 +57,7 @@ void main()
     // TODO: specular
 
     // game edit mode to draw circle where the terrain would be modified
-    vec4 overlayColor = vec4(1.0f, 0.0f, 0.0f, 1);
+    vec4 overlayColor = vec4(terrainCircleColor, 1);
     float mask = 0.0f;
     if (editTerrainCircle) {
 
