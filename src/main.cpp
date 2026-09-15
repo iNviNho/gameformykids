@@ -1,3 +1,4 @@
+#include <cinttypes>
 #include <iostream>
 #include <filesystem>
 #include <glad/glad.h>
@@ -193,7 +194,7 @@ int main() {
             camera.tick(deltaTime);
             // renderers
             skyboxRenderer.render(skybox);
-            terrainRenderer.render(*terrain, sceneModifier.raycastToTerrain(), sceneModifier.getSelectedRadius());
+            terrainRenderer.render(*terrain, sceneModifier);
             entityRenderer.render(player, startTimeInMillis);
             for (const Entity& entity : doodads.GetEntities()) {
                 entityRenderer.render(entity, startTimeInMillis);
@@ -202,21 +203,22 @@ int main() {
             // ****************************
             // second = EDIT MODE
             if (gameState.isGameEditModeEnabled()) {
-
-                // do we plan to place or remove an object?
-                if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
-                    // we render crosshair in the middle of the screen
-                    staticShapeRenderer.Render(placeObjectCrosshair);
-                    // render selected entity preview
-                    entityRenderer.render(
-                        sceneModifier.GetSelectedEntityPreviewEntity(),
-                        startTimeInMillis
-                    );
-                } else {
-                    // we render x in the middle of the screen
-                    staticShapeRenderer.Render(removeObjectCrosshair);
+                if (!sceneModifier.getModifyTerrainHeight() && !sceneModifier.getResetTerrainHeight()) {
+                    // do we plan to place or remove an object?
+                    if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
+                        // we render crosshair in the middle of the screen
+                        staticShapeRenderer.Render(placeObjectCrosshair);
+                        // render selected entity preview
+                        entityRenderer.render(
+                            sceneModifier.GetSelectedEntityPreviewEntity(),
+                            startTimeInMillis
+                        );
+                    } else {
+                        // we render x in the middle of the screen
+                        staticShapeRenderer.Render(removeObjectCrosshair);
+                    }
                 }
-
+                 
                 // misc texts
                 textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 70.0f, 0.4f, whiteColor);
                 textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.4f, whiteColor);
@@ -406,11 +408,17 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             }
         }
 
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-            terrainRenderer.SetRenderEditTerrainCircle(true);
-        } else {
-            terrainRenderer.SetRenderEditTerrainCircle(false);
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+            if (smallDelayPassed()) {
+                sceneModifier.toggleModifyTerrainHeight();
+            } 
         }
+        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            if (smallDelayPassed()) {
+                sceneModifier.toggleResetTerrainHeight();
+            } 
+        }
+
     } else {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             playerMover.Walk();        }
@@ -443,26 +451,37 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             }
         // in game we only handle clicks in game edit mode
         } else {
-            if (smallDelayPassed() && gameState.isGameEditModeEnabled()) {
-                // we handle 2 types of clicks:
-                // first = place object if x is not pressed
-                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
-                } else if (glfwGetKey(window, GLFW_KEY_X) != GLFW_PRESS) {
-                   sceneModifier.placeObject();
-                // second = remove object if x is pressed
-                } else {
+            if (!gameState.isGameEditModeEnabled()) {
+                return;
+            }
+            
+            // Object placement/removal
+            // Only if we do not modify terrain height
+            if (smallDelayPassed() &&
+                !sceneModifier.getModifyTerrainHeight() &&
+                !sceneModifier.getResetTerrainHeight()) {
+            
+                if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
                     sceneModifier.removeObject();
+                } else {
+                    sceneModifier.placeObject();
                 }
             }
-            if (extraSmallDelayPassed() && gameState.isGameEditModeEnabled()) {
-                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-                    sceneModifier.ModifyTerrainHeight(1);
-                }            
-                if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-                    sceneModifier.ModifyTerrainHeight(-1);
-                }
-                if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            
+            // Terrain modification
+            if (extraSmallDelayPassed() &&
+                (sceneModifier.getModifyTerrainHeight() ||
+                 sceneModifier.getResetTerrainHeight())) {
+            
+                // zero out the terrain
+                if (sceneModifier.getResetTerrainHeight()) {
                     sceneModifier.ModifyTerrainHeight(0);
+                // decrease the terrain height
+                } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+                    sceneModifier.ModifyTerrainHeight(-1);
+                // increase the terrain height
+                } else {
+                    sceneModifier.ModifyTerrainHeight(1);
                 }
             }
         }

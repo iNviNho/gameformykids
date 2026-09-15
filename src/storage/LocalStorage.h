@@ -8,7 +8,6 @@
 
 class LocalStorage {
 public:
-
     explicit LocalStorage(std::string filename): filename(std::move(filename)) {}
 
     // Persist value of any string (no opinionated)  

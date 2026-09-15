@@ -17,7 +17,7 @@ TerrainRenderer::TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer,
     screen(screen)
 {}
 
-void TerrainRenderer::render(Terrain& terrain, const std::optional<glm::vec3> mouseCoord, const float editTerrainCircleRadius) {
+void TerrainRenderer::render(Terrain& terrain, SceneModifier& sceneModifier) {
     shader.use();
 
     // TODO: Does it always have to be generated?
@@ -41,16 +41,26 @@ void TerrainRenderer::render(Terrain& terrain, const std::optional<glm::vec3> mo
     shader.setVec3("light.position", glm::vec3(40.0f, 5.0f, -10.0f));
 
     // Edit terrain circle on the terrain
-    if (renderEditTerrainCircle) {
+    if (sceneModifier.getResetTerrainHeight() || sceneModifier.getModifyTerrainHeight()) {
+        auto mouseCoord = sceneModifier.raycastToTerrain();
         if (mouseCoord.has_value()) {
-            shader.setFloat("editTerrainCircleRadius", editTerrainCircleRadius);
+            shader.setFloat("editTerrainCircleRadius", sceneModifier.getSelectedRadius());
             shader.setBool("editTerrainCircle", true);
             shader.setVec2("mouseCoord", glm::vec2(mouseCoord.value().x, mouseCoord.value().z));
+            // we want to see BLUE when modifying terrain height
+            if (sceneModifier.getModifyTerrainHeight()) {
+                shader.setVec3("terrainCircleColor", glm::vec3(0.0f, 0.0f, 1.0f));
+            // we want to see red when zeroing the terrain out
+            } else {
+                shader.setVec3("terrainCircleColor", glm::vec3(1.0f, 0.0f, 0.0f));
+            }
         } else {
+            shader.setVec3("terrainCircleColor", glm::vec3(0.0f, 0.0f, 0.0f));
             shader.setBool("editTerrainCircle", false);
         }
     } else {
-        shader.setBool("editTerrainCircle", renderEditTerrainCircle);
+        shader.setVec3("terrainCircleColor", glm::vec3(0.0f, 0.0f, 0.0f));
+        shader.setBool("editTerrainCircle", false);
     } 
 
     // enable culling

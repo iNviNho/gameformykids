@@ -63,15 +63,15 @@ void SceneModifier::ModifyTerrainHeight(int direction) {
     const float strength = 0.5f;
 
     // we create a unordered map of points we will modify
-    std::vector<glm::vec3> coordinates;
+    std::vector<Coordinate> coordinates;
 
     for (int x = 0; x < terrain->GetSize(); x++) {
         for (int z = 0; z < terrain->GetSize(); z++) {
             float y = terrain->GetHeight(x, z * -1);
-            glm::vec3 calculatedPosition = glm::vec3{x, y, z * -1};
+            Coordinate calculatedPosition = Coordinate{x, z * -1, y};
 
-            float dx = calculatedPosition.x - position.x;
-            float dz = calculatedPosition.z * -1 - position.z * -1;
+            int dx = calculatedPosition.x - position.x;
+            int dz = calculatedPosition.z * -1 - position.z * -1;
 
             float distSq = dx * dx + dz * dz;
 
@@ -92,10 +92,7 @@ void SceneModifier::ModifyTerrainHeight(int direction) {
             }
         }
     }
-    terrain->GetTerrainHeight().setMultiple(coordinates);   
-    // reload terrain 
-    terrain->ReloadTerrain(coordinates); 
-
+    terrain->UpdateTerrainHeightData(coordinates);
 }
 void SceneModifier::placeObject() {
     auto hitPoint = raycastToTerrain();

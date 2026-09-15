@@ -31,6 +31,9 @@ public:
     static void logInfo(const float& message) {
         std::cout << "[" << getIsoTime() << "] " <<  "INFO: " << message << std::endl;
     }
+    static void logInfo(const bool& message) {
+        std::cout << "[" << getIsoTime() << "] " <<  "INFO: " << message << std::endl;
+    }
 };
 
 
