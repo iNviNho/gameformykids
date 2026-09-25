@@ -4,6 +4,7 @@
 #include <cmath>
 #include <glm/geometric.hpp>
 #include "../../utils/Log.h"
+#include <optional>
 
 static constexpr float AT_TARGET = 1e-5f;
 
