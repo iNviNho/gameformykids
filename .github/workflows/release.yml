@@ -41,7 +41,7 @@ jobs:
           ditto -c -k \
             --sequesterRsrc \
             --keepParent \
-            "${{ github.workspace }}/dist/MyGame.app" \
+            "${{ github.workspace }}/dist/bin/MyGame.app" \
             "${{ github.workspace }}/MyGame-${{ github.ref_name }}-macOS.zip"
 
       - name: Create GitHub Release
