@@ -110,61 +110,7 @@ private:
         { }
     };
 
-    template<>
-    struct SetVertexDataHelper<true, true>
-    {
-        static constexpr int xPlus1 = 1;
-        static constexpr float floatX = 0.0f;
-        static constexpr float floatXPlus1 = 1.0f;
-
-        static constexpr int zPlus1 = 1;
-        static constexpr float floatZ = 0.0f;
-        static constexpr float floatZPlus1 = -1.0f;
-
-        constexpr
-        SetVertexDataHelper(const GLfloat * const, const int, const int)
-        noexcept
-        { }
-    };
-
-    template<>
-    struct SetVertexDataHelper<false, true>
-    {
-        const int xPlus1;
-        const float floatXPlus1;
-
-        static constexpr int zPlus1 = 1;
-        static constexpr float floatZ = 0.0f;
-        static constexpr float floatZPlus1 = -1.0f;
-
-        const GLfloat* const dataPtrXMinus1;
-
-        constexpr
-        SetVertexDataHelper(const GLfloat * const dataPoints, const int x, const int)
-        noexcept
-        : xPlus1(x + 1), floatXPlus1(static_cast<float>(xPlus1)), dataPtrXMinus1(dataPoints + ((x - 1) * DATA_PER_LOC))
-        { }
-    };
-
-    template<>
-    struct SetVertexDataHelper<true, false>
-    {
-        static constexpr int xPlus1 = 1;
-        static constexpr float floatX = 0.0f;
-        static constexpr float floatXPlus1 = 1.0f;
-
-        const GLfloat* const dataPtrZMinus1;
-
-        const int zPlus1;
-        const float floatZPlus1;
-
-        constexpr
-        SetVertexDataHelper(const GLfloat * const dataPoints, const int, const int z)
-        noexcept
-        : zPlus1(z + 1), floatZPlus1(-static_cast<float>(zPlus1)), dataPtrZMinus1(dataPoints + ((z - 1) * SIZE * DATA_PER_LOC))
-        { }
-    };
-
+    
     template<bool X_IS_ZERO, bool Z_IS_ZERO>
     void setVertexData(const std::unique_ptr<GLfloat[]>& dataPoints, const int x, const int z) const
     {
@@ -257,6 +203,60 @@ public:
     static bool IsInsideTriangle(const std::array<glm::vec3, 3>& triangle, const glm::vec3& n, const glm::vec3& ptInPlane) noexcept;
 };
 
+template<>
+struct Terrain::SetVertexDataHelper<true, true>
+{
+    static constexpr int xPlus1 = 1;
+    static constexpr float floatX = 0.0f;
+    static constexpr float floatXPlus1 = 1.0f;
+
+    static constexpr int zPlus1 = 1;
+    static constexpr float floatZ = 0.0f;
+    static constexpr float floatZPlus1 = -1.0f;
+
+    constexpr
+    SetVertexDataHelper(const GLfloat * const, const int, const int)
+    noexcept
+    { }
+};
+
+template<>
+struct Terrain::SetVertexDataHelper<false, true>
+{
+    const int xPlus1;
+    const float floatXPlus1;
+
+    static constexpr int zPlus1 = 1;
+    static constexpr float floatZ = 0.0f;
+    static constexpr float floatZPlus1 = -1.0f;
+
+    const GLfloat* const dataPtrXMinus1;
+
+    constexpr
+    SetVertexDataHelper(const GLfloat * const dataPoints, const int x, const int)
+    noexcept
+    : xPlus1(x + 1), floatXPlus1(static_cast<float>(xPlus1)), dataPtrXMinus1(dataPoints + ((x - 1) * DATA_PER_LOC))
+    { }
+};
+
+template<>
+struct Terrain::SetVertexDataHelper<true, false>
+{
+    static constexpr int xPlus1 = 1;
+    static constexpr float floatX = 0.0f;
+    static constexpr float floatXPlus1 = 1.0f;
+
+    const GLfloat* const dataPtrZMinus1;
+
+    const int zPlus1;
+    const float floatZPlus1;
+
+    constexpr
+    SetVertexDataHelper(const GLfloat * const dataPoints, const int, const int z)
+    noexcept
+    : zPlus1(z + 1), floatZPlus1(-static_cast<float>(zPlus1)), dataPtrZMinus1(dataPoints + ((z - 1) * SIZE * DATA_PER_LOC))
+    { }
+};
 
 
 #endif //TERRAIN_H

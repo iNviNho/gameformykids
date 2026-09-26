@@ -3,6 +3,9 @@
 
 
 #include <vector>
+#include <cstdint>
+#include <string>
+#include <utility>
 
 // we will use int32_t to make sure it is stored as 4 bytes (32 bits)
 struct Coordinate {

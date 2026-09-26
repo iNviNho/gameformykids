@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CMAKE_POLICY_VERSION_MINIMUM: 3.5
+
+jobs:
+  release-macos:
+    runs-on: macos-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build \
+            --target mygame \
+            --config Release \
+            --parallel
+
+      - name: Install
+        run: |
+          cmake --install build \
+            --prefix "${{ github.workspace }}/dist"
+
+      - name: Package macOS app
+        run: |
+          ditto -c -k \
+            --sequesterRsrc \
+            --keepParent \
+            "${{ github.workspace }}/dist/MyGame.app" \
+            "${{ github.workspace }}/MyGame-${{ github.ref_name }}-macOS.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MyGame-${{ github.ref_name }}-macOS.zip
+          generate_release_notes: true

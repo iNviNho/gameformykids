@@ -39,14 +39,13 @@ FetchContent_MakeAvailable(stb)
 # Download and include Assimp
 FetchContent_Declare(assimp GIT_REPOSITORY https://github.com/assimp/assimp.git)
 FetchContent_MakeAvailable(assimp)
-if(TARGET assimp)
+if(TARGET assimp AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(assimp PRIVATE
         -Wno-error
         -Wno-unsafe-buffer-usage
         -Wno-unsafe-buffer-usage-in-libc-call
     )
 endif()
-
 # Download and include lunasvg
 FetchContent_Declare(lunasvg GIT_REPOSITORY https://github.com/sammycage/lunasvg.git GIT_TAG master)
 FetchContent_MakeAvailable(lunasvg)
@@ -157,3 +156,12 @@ target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BIN
 
 target_link_libraries(mygame glfw glm::glm freetype glad assimp lunasvg::lunasvg)
 
+install(TARGETS mygame
+    BUNDLE DESTINATION .
+)
+
+set_target_properties(mygame PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_BUNDLE_NAME "MyGame"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourname.mygame"
+)
