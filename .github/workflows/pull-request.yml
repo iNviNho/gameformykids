@@ -45,7 +45,7 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build
-        run: cmake --build build --target mygame --config Release --parallel 2 --verbose
+        run: cmake --build build --target mygame --config Release --parallel 2
 
       - name: Install
         run: |
