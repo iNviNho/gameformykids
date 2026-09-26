@@ -60,7 +60,7 @@ public:
         player(player),
         terrain(terrain),
         path(Path{
-            data_dir() /= std::filesystem::path("resources/paths/path.svg"),
+            data_dir() /= std::filesystem::path("paths/path.svg"),
             1024.0f,
             90.0f,
             110.0f,

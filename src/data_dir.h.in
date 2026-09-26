@@ -1,13 +1,27 @@
 #ifndef DATA_DIR_H
 #define DATA_DIR_H
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <filesystem>
 
-inline
-std::filesystem::path
-data_dir()
+inline std::filesystem::path data_dir()
 {
-	return std::filesystem::path("${DATA_DIR}");
+    CFBundleRef bundle = CFBundleGetMainBundle();
+
+    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(bundle);
+
+    char path[PATH_MAX];
+
+    CFURLGetFileSystemRepresentation(
+        resourcesURL,
+        true,
+        reinterpret_cast<UInt8*>(path),
+        sizeof(path)
+    );
+
+    CFRelease(resourcesURL);
+
+    return std::filesystem::path(path);
 }
 
 #endif

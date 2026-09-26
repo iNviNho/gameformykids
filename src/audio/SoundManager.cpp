@@ -4,8 +4,8 @@
 #include "../utils/Log.h"
 
 void SoundManager::loadSounds() {
-    loadSound(data_dir() / "resources/sounds/menu_intro.mp3", MENU_INTRO);
-    loadSound(data_dir() / "resources/sounds/game_elwynn.mp3", GAME_ELWYNN);
+    loadSound(data_dir() / "sounds/menu_intro.mp3", MENU_INTRO);
+    loadSound(data_dir() / "sounds/game_elwynn.mp3", GAME_ELWYNN);
 }
 
 void SoundManager::loadSound(const std::string& soundPath, SongName songName) {

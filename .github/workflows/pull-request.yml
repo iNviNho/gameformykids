@@ -42,10 +42,10 @@ jobs:
 
       - name: Configure CMake
         shell: bash
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --target mygame --config Release --parallel 2
+        run: cmake --build build --target gameformykids --config Release --parallel 2
 
       - name: Install
         run: |

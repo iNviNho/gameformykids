@@ -1,5 +1,5 @@
-cmake-build-debug
-glfw/*
+build/*
+dist/*
 resources/images/.DS_Store
 .idea/*
 .DS_Store

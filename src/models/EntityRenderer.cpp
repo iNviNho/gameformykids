@@ -13,12 +13,12 @@ using path = std::filesystem::path;
 
 EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
     singleInstanceShader(Shader{
-    data_dir() /= path("src/shaders/files/singleInstanceShader.vs"),
-    data_dir() /= path("src/shaders/files/modelShader.fs")
+    data_dir() /= path("shaders/files/singleInstanceShader.vs"),
+    data_dir() /= path("shaders/files/modelShader.fs")
     }),
     multiInstanceShader(Shader{
-        data_dir() /= path("src/shaders/files/multiInstanceShader.vs"),
-        data_dir() /= path("src/shaders/files/modelShader.fs")
+        data_dir() /= path("shaders/files/multiInstanceShader.vs"),
+        data_dir() /= path("shaders/files/modelShader.fs")
     }),
     camera(camera),
     screen(screen) {}

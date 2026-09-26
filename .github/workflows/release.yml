@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: |
           cmake --build build \
-            --target mygame \
+            --target gameformykids \
             --config Release \
             --parallel 2
 
@@ -41,11 +41,11 @@ jobs:
           ditto -c -k \
             --sequesterRsrc \
             --keepParent \
-            "${{ github.workspace }}/dist/bin/MyGame.app" \
-            "${{ github.workspace }}/MyGame-${{ github.ref_name }}-macOS.zip"
+            "${{ github.workspace }}/dist/gameformykids.app" \
+            "${{ github.workspace }}/gameformykids-${{ github.ref_name }}-macOS.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: MyGame-${{ github.ref_name }}-macOS.zip
+          files: gameformykids-${{ github.ref_name }}-macOS.zip
           generate_release_notes: true

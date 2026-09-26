@@ -112,9 +112,9 @@ int main() {
     ModelsHolder modelsHolder{};
     modelsHolder.LoadModels();
     EntitiesHolder doodads{};
-    LocalStorage storageForDoodads{data_dir() /= path("resources/map/doodads.txt")};
+    LocalStorage storageForDoodads{data_dir() /= path("map/doodads.txt")};
 
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(data_dir() /= path("resources/images/blendMap4.png"));
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(data_dir() /= path("images/blendMap4.png"));
 
     // load persisted doodads
     DoodadsLoader::LoadDoodads(
@@ -127,7 +127,7 @@ int main() {
     
     // Player
     // -------------------
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("resources/objects/animals/wolf3/Wolf.fbx"));
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("objects/animals/wolf3/Wolf.fbx"));
     Player player(
         camera,
         terrain,
@@ -146,11 +146,11 @@ int main() {
     // -----------------
     SceneModifier sceneModifier{camera, terrain, doodads, storageForDoodads, modelsHolder};
     StaticShape placeObjectCrosshair{
-        data_dir() /= path("resources/images/pointers/pointer.png")
+        data_dir() /= path("images/pointers/pointer.png")
     };
     placeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
     StaticShape removeObjectCrosshair{
-        data_dir() /= path("resources/images/pointers/removePointer.png")
+        data_dir() /= path("images/pointers/removePointer.png")
     };
     removeObjectCrosshair.SetScale(glm::vec2{0.05f, 0.05f});
     GameEditHelpElement gameEditHelpElement = GameEditHelpElement{screen};

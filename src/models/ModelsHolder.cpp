@@ -7,24 +7,24 @@
 void ModelsHolder::LoadModels() {
     // GRASS
     std::shared_ptr<AbstractModel> grass = std::make_shared<StaticModel>(
-        data_dir() /= std::filesystem::path("resources/objects/grass6/grass.obj")
+        data_dir() /= std::filesystem::path("objects/grass6/grass.obj")
     );
     loadedModels.emplace("grass", grass);
 
     // PINE TREE
     std::shared_ptr<AbstractModel> pineTree = std::make_shared<StaticModel>(
-        data_dir() /= std::filesystem::path("resources/objects/pinetree/pinetree.obj")
+        data_dir() /= std::filesystem::path("objects/pinetree/pinetree.obj")
     );
     loadedModels.emplace("pinetree", pineTree);
 
     // BOB WITH LAMP
     std::shared_ptr<AbstractModel> bobWithLamp = std::make_shared<AnimatedModel>(
-        data_dir() /= std::filesystem::path("resources/objects/animals/bob/boblampclean.md5mesh"))
+        data_dir() /= std::filesystem::path("objects/animals/bob/boblampclean.md5mesh"))
     ;
     loadedModels.emplace("bobwithlamp", bobWithLamp);
     // wolf
     std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(
-        data_dir() /= std::filesystem::path("resources/objects/animals/wolf3/Wolf.fbx"))
+        data_dir() /= std::filesystem::path("objects/animals/wolf3/Wolf.fbx"))
     ;
     wolf->SetAnimationIndex(2);
     loadedModels.emplace("wolf", wolf);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 cmake_policy(VERSION 3.5...3.30)
-project(mygame)
+project(gameformykids)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -46,7 +46,7 @@ if(TARGET assimp AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         -Wno-unsafe-buffer-usage-in-libc-call
     )
 endif()
-# Download and include lunasvg
+
 FetchContent_Declare(lunasvg GIT_REPOSITORY https://github.com/sammycage/lunasvg.git GIT_TAG master)
 FetchContent_MakeAvailable(lunasvg)
 
@@ -60,7 +60,8 @@ file(DOWNLOAD
     TLS_VERIFY ON
 )
 
-add_executable(mygame src/main.cpp
+add_executable(gameformykids
+        src/main.cpp
         src/shaders/shader.h
         src/stbimage/stb.cpp
         src/camera/camera.h
@@ -152,16 +153,42 @@ add_executable(mygame src/main.cpp
         src/storage/BinaryLocalStorage.cpp
 )
 
-target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")
-
-target_link_libraries(mygame glfw glm::glm freetype glad assimp lunasvg::lunasvg)
-
-install(TARGETS mygame
-    BUNDLE DESTINATION .
+target_include_directories(gameformykids
+    PRIVATE ${stb_SOURCE_DIR}
+    "${CMAKE_CURRENT_BINARY_DIR}/src"
+    "${CMAKE_CURRENT_BINARY_DIR}/external"
 )
 
-set_target_properties(mygame PROPERTIES
+target_link_libraries(gameformykids
+    glfw
+    glm::glm
+    freetype
+    glad
+    assimp
+    lunasvg::lunasvg
+)
+
+set_target_properties(gameformykids PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_BUNDLE_NAME "MyGame"
-    MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourname.mygame"
+    MACOSX_BUNDLE_BUNDLE_NAME "gameformykids"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.invinho.gameformykids"
+)
+
+if(APPLE)
+    install(
+        TARGETS gameformykids
+        BUNDLE DESTINATION .
+    )
+
+else()
+    install(
+        TARGETS gameformykids
+        RUNTIME DESTINATION .
+    )
+
+endif()
+
+install(DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/"
+    DESTINATION "./gameformykids.app/Contents/Resources"
 )
