@@ -19,6 +19,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+      
+      - name: Configure R2
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf <<EOF
+          [r2]
+          type = s3
+          provider = Cloudflare
+          access_key_id = ${{ secrets.ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.SECRET_ACCESS_KEY }}
+          endpoint = https://b378d1f96efa355e3733177c37f0c9e7.eu.r2.cloudflarestorage.com
+          EOF
+      
+      - name: Download game assets
+        run: |
+          rclone sync r2:gameformykids/resources/ resources/
+
       - name: Configure CMake
         run: |
           cmake -S . -B build \
@@ -27,7 +47,7 @@ jobs:
       - name: Build
         run: |
           cmake --build build \
-            --target mygame \
+            --target gameformykids \
             --config Release \
             --parallel 2
 
@@ -41,11 +61,11 @@ jobs:
           ditto -c -k \
             --sequesterRsrc \
             --keepParent \
-            "${{ github.workspace }}/dist/bin/MyGame.app" \
-            "${{ github.workspace }}/MyGame-${{ github.ref_name }}-macOS.zip"
+            "${{ github.workspace }}/dist/gameformykids.app" \
+            "${{ github.workspace }}/gameformykids-${{ github.ref_name }}-macOS.zip"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: MyGame-${{ github.ref_name }}-macOS.zip
+          files: gameformykids-${{ github.ref_name }}-macOS.zip
           generate_release_notes: true

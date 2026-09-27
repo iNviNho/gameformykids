@@ -11,8 +11,8 @@ TerrainRenderer::TerrainRenderer(Camera& camera, EntityRenderer& entityRenderer,
     camera(camera),
     entityRenderer(entityRenderer),
     shader(Shader{
-        data_dir() /= path("src/shaders/files/terrainShader.vs"),
-        data_dir() /= path("src/shaders/files/terrainShader.fs")
+        data_dir() /= path("shaders/files/terrainShader.vs"),
+        data_dir() /= path("shaders/files/terrainShader.fs")
     }),
     screen(screen)
 {}

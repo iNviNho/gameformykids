@@ -30,11 +30,11 @@ Terrain::Terrain(const std::filesystem::path& blendMap)
 }
 
 void Terrain::generateTextures() {
-    this->grassTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/green-grass4.png"));
-    this->pathTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/path.png"));
-    this->mudTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/mud.png"));
-    this->flowersTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/grassFlowers.png"));
-    this->blendMapTexture = TextureLoader::loadTexture(data_dir() /= path("resources/images/blendMap4.png"));
+    this->grassTexture = TextureLoader::loadTexture(data_dir() /= path("images/green-grass4.png"));
+    this->pathTexture = TextureLoader::loadTexture(data_dir() /= path("images/path.png"));
+    this->mudTexture = TextureLoader::loadTexture(data_dir() /= path("images/mud.png"));
+    this->flowersTexture = TextureLoader::loadTexture(data_dir() /= path("images/grassFlowers.png"));
+    this->blendMapTexture = TextureLoader::loadTexture(data_dir() /= path("images/blendMap4.png"));
 }
 
 

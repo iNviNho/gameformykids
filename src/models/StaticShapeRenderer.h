@@ -10,8 +10,8 @@ class StaticShapeRenderer {
 public:
     explicit StaticShapeRenderer():
     shader(Shader{
-    (data_dir() /= path("src/shaders/files/staticShader.vs")).string().c_str(),
-    (data_dir() /= path("src/shaders/files/staticShader.fs")).string().c_str()
+    (data_dir() /= path("shaders/files/staticShader.vs")).string().c_str(),
+    (data_dir() /= path("shaders/files/staticShader.fs")).string().c_str()
     })
     {}
 

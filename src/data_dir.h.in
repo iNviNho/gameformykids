@@ -3,11 +3,36 @@
 
 #include <filesystem>
 
-inline
-std::filesystem::path
-data_dir()
+#ifdef LOCAL_DATA_DIR
+
+inline std::filesystem::path data_dir()
 {
-	return std::filesystem::path("${DATA_DIR}");
+    return LOCAL_DATA_DIR;
 }
 
-#endif
+#else
+
+#include <CoreFoundation/CoreFoundation.h>
+
+inline std::filesystem::path data_dir()
+{
+    CFBundleRef bundle = CFBundleGetMainBundle();
+
+    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(bundle);
+
+    char path[PATH_MAX];
+
+    CFURLGetFileSystemRepresentation(
+        resourcesURL,
+        true,
+        reinterpret_cast<UInt8*>(path),
+        sizeof(path)
+    );
+
+    CFRelease(resourcesURL);
+
+    return std::filesystem::path(path);
+}
+
+#endif // LOCAL_DATA_DIR
+#endif // DATA_DIR_H

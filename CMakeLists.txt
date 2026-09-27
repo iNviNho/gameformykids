@@ -1,18 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 cmake_policy(VERSION 3.5...3.30)
-project(mygame)
-
-set(CMAKE_CXX_STANDARD 17)
+project(gameformykids)
 
 find_library(COCOA_FRAMEWORK Cocoa)
 find_library(IOKIT_FRAMEWORK IOKit)
 mark_as_advanced(COCOA_FRAMEWORK IOKIT_FRAMEWORK)
 
+
 # Find OpenGL
 find_package(OpenGL REQUIRED)
-if (NOT OpenGL_FOUND)
-    message("ERROR: OpenGL not found")
-endif()
 
 include(FetchContent)
 
@@ -46,7 +42,7 @@ if(TARGET assimp AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         -Wno-unsafe-buffer-usage-in-libc-call
     )
 endif()
-# Download and include lunasvg
+
 FetchContent_Declare(lunasvg GIT_REPOSITORY https://github.com/sammycage/lunasvg.git GIT_TAG master)
 FetchContent_MakeAvailable(lunasvg)
 
@@ -60,108 +56,59 @@ file(DOWNLOAD
     TLS_VERIFY ON
 )
 
-add_executable(mygame src/main.cpp
-        src/shaders/shader.h
-        src/stbimage/stb.cpp
-        src/camera/camera.h
-        src/terrain/Terrain.cpp
-        src/terrain/Terrain.h
-        src/text/TextRenderer.cpp
-        src/text/TextRenderer.h
-        src/terrain/TerrainRenderer.cpp
-        src/terrain/TerrainRenderer.h
-        src/textures/TextureLoader.h
-        src/textures/TextureLoader.h
-        src/fps/Fps.cpp
-        src/fps/Fps.h
-        src/images/Image.cpp
-        src/images/Image.h
-        src/models/Mesh.cpp
-        src/models/Mesh.h
-        src/models/AbstractModel.cpp
-        src/models/AbstractModel.h
-        src/models/EntityRenderer.cpp
-        src/models/EntityRenderer.h
-        src/models/ModelGenerator.cpp
-        src/models/ModelGenerator.h
-        src/terrain/EntitiesHolder.h
-        src/objects/Entity.cpp
-        src/objects/Entity.h
-        src/terrain/Grasses.cpp
-        src/terrain/Grasses.h
-        src/objects/Player.cpp
-        src/objects/Player.h
-        src/objects/movers/RandomPlayerMover.cpp
-        src/objects/movers/RandomPlayerMover.h
-        src/skybox/Skybox.cpp
-        src/skybox/Skybox.h
-        src/skybox/SkyboxRenderer.cpp
-        src/skybox/SkyboxRenderer.h
-        src/pathing/Path.cpp
-        src/pathing/Path.h
-        src/objects/movers/PathPlayerMover.cpp
-        src/objects/movers/PathPlayerMover.h
-        src/utils/Log.h
-        src/utils/Log.cpp
-        src/pathing/SvgDElementPathParser.h
-        src/utils/GameState.cpp
-        src/utils/GameState.h
-        src/menu/Menu.cpp
-        src/menu/Menu.h
-        src/text/TextProportion.cpp
-        src/text/TextProportion.h
-        src/text/Character.h
-        src/models/StaticShape.cpp
-        src/models/StaticShape.h
-        src/ui/Element.cpp
-        src/ui/Element.h
-        src/ui/UiRenderer.cpp
-        src/ui/UiRenderer.h
-        src/models/StaticShapeRenderer.cpp
-        src/models/StaticShapeRenderer.h
-        src/ui/Screen.h
-        src/audio/audio.cpp
-        src/audio/SoundManager.cpp
-        src/audio/SoundManager.h
-        src/objects/movers/Intersection.h
-        src/objects/movers/NoDuplicatesAdapter.h
-        src/utils/lerp.h
-        src/objects/movers/MeshIntersecter.h
-        src/objects/movers/MeshIntersecter.cpp
-        src/gameedit/SceneModifier.cpp
-        src/gameedit/SceneModifier.h
-        src/storage/LocalStorage.cpp
-        src/storage/LocalStorage.h
-        src/terrain/DoodadsLoader.cpp
-        src/terrain/DoodadsLoader.h
-        src/models/ModelsHolder.cpp
-        src/models/ModelsHolder.h
-        src/models/VertexBoneData.cpp
-        src/models/VertexBoneData.h
-        src/utils/OpenGlErrorChecker.h
-        src/models/BoneInformation.cpp
-        src/models/BoneInformation.h
-        src/models/StaticModel.cpp
-        src/models/StaticModel.h
-        src/models/AnimatedModel.cpp
-        src/models/AnimatedModel.h
-        src/terrain/TerrainHeight.h
-        src/terrain/TerrainHeight.cpp
-        src/tracing/Tracer.h
-        src/storage/BinaryLocalStorage.h
-        src/storage/BinaryLocalStorage.cpp
+file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
-target_include_directories(mygame PRIVATE ${stb_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/src" "${CMAKE_CURRENT_BINARY_DIR}/external")
+add_executable(gameformykids ${GAME_SOURCES})
 
-target_link_libraries(mygame glfw glm::glm freetype glad assimp lunasvg::lunasvg)
-
-install(TARGETS mygame
-    BUNDLE DESTINATION .
+target_include_directories(gameformykids
+    PRIVATE ${stb_SOURCE_DIR}
+    "${CMAKE_CURRENT_BINARY_DIR}/src"
+    "${CMAKE_CURRENT_BINARY_DIR}/external"
 )
 
-set_target_properties(mygame PROPERTIES
+target_link_libraries(gameformykids
+    PRIVATE
+        glfw
+        glm::glm
+        freetype
+        glad
+        assimp
+        lunasvg::lunasvg
+        OpenGL::GL
+)
+
+target_compile_features(gameformykids PRIVATE cxx_std_17)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(gameformykids PRIVATE
+        LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/resources"
+    )
+endif()
+
+set_target_properties(gameformykids PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_BUNDLE_NAME "MyGame"
-    MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourname.mygame"
+    MACOSX_BUNDLE_BUNDLE_NAME "gameformykids"
+    MACOSX_BUNDLE_GUI_IDENTIFIER "com.invinho.gameformykids"
+)
+
+if(APPLE)
+    install(
+        TARGETS gameformykids
+        BUNDLE DESTINATION .
+    )
+
+else()
+    install(
+        TARGETS gameformykids
+        RUNTIME DESTINATION .
+    )
+
+endif()
+
+install(DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}/resources/"
+    DESTINATION "./gameformykids.app/Contents/Resources"
 )

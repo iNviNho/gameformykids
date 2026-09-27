@@ -16,15 +16,15 @@ using path = std::filesystem::path;
 
 TextRenderer::TextRenderer(const Screen& screen):
     shader(Shader{
-    data_dir() /= path("src/shaders/files/textShader.vs"),
-    data_dir() /= path("src/shaders/files/textShader.fs")
+    data_dir() /= path("shaders/files/textShader.vs"),
+    data_dir() /= path("shaders/files/textShader.fs")
     }) {
     if (FT_Init_FreeType(&ft)) {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" <<std::endl;
     }
     if (FT_New_Face(
         ft,
-        (data_dir() /= path("resources/fonts/Arial.ttf")).c_str(),
+        (data_dir() /= path("fonts/Arial.ttf")).c_str(),
         0,
         &face)) {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;

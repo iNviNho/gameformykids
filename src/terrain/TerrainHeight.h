@@ -10,7 +10,7 @@ using path = std::filesystem::path;
 class TerrainHeight {
 public: 
     TerrainHeight(int size)
-        : size(size), data(size * size), storage(data_dir() /= path("resources/map/terrain_height.txt")) {
+        : size(size), data(size * size), storage(data_dir() /= path("map/terrain_height.txt")) {
         loadDataFromStorage();
     }; 
     void SetMultiple(const std::vector<Coordinate>& coordinates);

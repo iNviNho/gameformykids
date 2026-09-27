@@ -17,7 +17,7 @@ void TextProportion::loadCharacters() {
     }
     if (FT_New_Face(
         ft,
-        (data_dir() /= path("resources/fonts/Arial.ttf")).c_str(),
+        (data_dir() /= path("fonts/Arial.ttf")).c_str(),
         0,
         &face)) {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;

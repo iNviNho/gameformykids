@@ -31,7 +31,7 @@ public:
         */
         mainDiv.SetHorizontalPosition(Element::HorizontalPositions::CENTER);
         StaticShape staticShape{
-            data_dir() /= path("resources/images/backgroundImage/wolf2.png"),
+            data_dir() /= path("images/backgroundImage/wolf2.png"),
         };
         mainDiv.SetBackgroundImage(std::move(staticShape));
         // 3 elements: play, settings and quit

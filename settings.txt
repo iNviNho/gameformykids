@@ -1,3 +1,0 @@
-polygonmode=0
-fullscreen=1
-soundenabled=0
