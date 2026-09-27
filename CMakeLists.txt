@@ -82,6 +82,12 @@ target_link_libraries(gameformykids
 
 target_compile_features(gameformykids PRIVATE cxx_std_17)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(gameformykids PRIVATE
+        LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/resources"
+    )
+endif()
+
 set_target_properties(gameformykids PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_BUNDLE_NAME "gameformykids"

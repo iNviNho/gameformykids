@@ -1,8 +1,18 @@
 #ifndef DATA_DIR_H
 #define DATA_DIR_H
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <filesystem>
+
+#ifdef LOCAL_DATA_DIR
+
+inline std::filesystem::path data_dir()
+{
+    return LOCAL_DATA_DIR;
+}
+
+#else
+
+#include <CoreFoundation/CoreFoundation.h>
 
 inline std::filesystem::path data_dir()
 {
@@ -24,4 +34,5 @@ inline std::filesystem::path data_dir()
     return std::filesystem::path(path);
 }
 
-#endif
+#endif // LOCAL_DATA_DIR
+#endif // DATA_DIR_H
