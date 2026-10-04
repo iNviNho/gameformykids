@@ -162,12 +162,12 @@ public:
         settingsDiv.SetVerticalPosition(Element::VerticalPositions::MIDDLE);
         
         Element gameEditModeToggle = Element{screen};
-        gameEditModeToggle.SetText("Enable game edit mode");
+        gameEditModeToggle.SetText("Game edit mode: disabled");
         gameEditModeToggle.SetTextScale(0.8f);
         gameEditModeToggle.SetOnClick([&gameState](Element& e) {
             Log::logInfo("[MENU][SETTINGS]: Toggle game edit mode");
             gameState.toggleGameEditMode();
-            e.SetText(gameState.isGameEditModeEnabled() ? "Disable game edit mode" : "Enable game edit mode");
+            e.SetText(gameState.isGameEditModeEnabled() ? "Game edit mode: enabled" : "Game edit mode: disabled");
         });
         gameEditModeToggle.SetOnMouseEnter([](Element& e) {
             e.SetTextScale(0.85f);

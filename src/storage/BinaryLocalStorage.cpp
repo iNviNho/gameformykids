@@ -3,7 +3,7 @@
 
 
 void BinaryLocalStorage::SetMultiple(const std::vector<Coordinate>& coordinates) {
-    std::ofstream file(filename, std::ios::binary);
+    std::ofstream file(filename, std::ios::binary | std::ios::app);
 
     for (const auto &coordinate : coordinates) {
         file.write(reinterpret_cast<const char *>(&coordinate), sizeof(Coordinate));
