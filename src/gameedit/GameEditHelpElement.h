@@ -20,13 +20,26 @@ public:
         element.AddElement(std::move(welcomeText));
 
         Element objectsText = Element{screen};
-        objectsText.SetText("Select an object you wish to place by pressing Q.\n"
-                "Rotate an object in any axis by pressing R, T or Y.\n"
-                "To counter-rotate in any axis press and hold ctrl and then pres R, T or Y.\n"
-                "To place an object press left mouse button.\n"
-                "To remove an object, hold X and press left mouse button.\n"
-                "To scale up an object, press E.\n"
-                "To scale down an object, press ctrl E.\n");
+        objectsText.SetText(
+            "OBJECT PLACEMENT\n"
+            "Q              Cycle through objects to place\n"
+            "Left Click     Place the selected object\n"
+            "X + Left Click Remove an object\n"
+            "\n"
+            "OBJECT TRANSFORM\n"
+            "R / T / Y      Rotate on each axis\n"
+            "Ctrl + R/T/Y   Rotate in the opposite direction\n"
+            "E              Scale up\n"
+            "Ctrl + E       Scale down\n"
+            "\n"
+            "TERRAIN EDITING\n"
+            "F              Enter terrain editing mode\n"
+            "Left Click     Raise terrain\n"
+            "Ctrl + Left Click Lower terrain\n"
+            "G              Reset terrain height\n"
+            "O              Increase brush radius\n"
+            "Ctrl + O       Decrease brush radius\n"
+        );       
         objectsText.SetTextScale(0.4f);
         objectsText.SetMaxWidth(400.0f);
         objectsText.SetIsBlock(true);
