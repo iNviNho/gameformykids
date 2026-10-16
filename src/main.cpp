@@ -127,7 +127,7 @@ int main() {
     
     // Player
     // -------------------
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("objects/animals/wolf3/Wolf.fbx"));
+    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("objects/animals/wolf/Wolf.fbx"));
     Player player(
         camera,
         terrain,

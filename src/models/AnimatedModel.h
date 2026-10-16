@@ -33,7 +33,7 @@ protected:
     int getBoneId(const aiBone* bone);
 
     Mesh processMesh(aiMesh *mesh, const aiScene *scene) override;
-
+    glm::mat4 globalInverseTransform = glm::mat4(1.0f);
 };
 
 
