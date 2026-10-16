@@ -35,4 +35,23 @@ inline std::filesystem::path data_dir()
 }
 
 #endif // LOCAL_DATA_DIR
+
+inline std::filesystem::path shader_dir()
+{
+#ifdef LOCAL_SHADER_DIR
+    return LOCAL_SHADER_DIR;
+#else
+    CFBundleRef bundle = CFBundleGetMainBundle();
+    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(bundle);
+    char path[PATH_MAX];
+    CFURLGetFileSystemRepresentation(
+        resourcesURL,
+        true,
+        reinterpret_cast<UInt8*>(path),
+        sizeof(path)
+    );
+    CFRelease(resourcesURL);
+    return std::filesystem::path(path) / "shaders" / "files";
+#endif
+}
 #endif // DATA_DIR_H

@@ -20,8 +20,8 @@ private:
 public:
     explicit SkyboxRenderer(Camera& camera, Screen& screen):
     shader(Shader{
-        data_dir() /= path("shaders/files/skyboxShader.vs"),
-        data_dir() /= path("shaders/files/skyboxShader.fs")
+        shader_dir() /= path("skyboxShader.vs"),
+        shader_dir() /= path("skyboxShader.fs")
     }),
     camera(camera),
     screen(screen) {}

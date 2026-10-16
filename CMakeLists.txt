@@ -85,6 +85,7 @@ target_compile_features(gameformykids PRIVATE cxx_std_17)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(gameformykids PRIVATE
         LOCAL_DATA_DIR="${CMAKE_SOURCE_DIR}/resources"
+        LOCAL_SHADER_DIR="${CMAKE_SOURCE_DIR}/src/shaders/files"
     )
 endif()
 
@@ -111,4 +112,9 @@ endif()
 install(DIRECTORY
     "${CMAKE_CURRENT_SOURCE_DIR}/resources/"
     DESTINATION "./gameformykids.app/Contents/Resources"
+)
+
+install(DIRECTORY
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/files/"
+    DESTINATION "./gameformykids.app/Contents/Resources/shaders/files"
 )

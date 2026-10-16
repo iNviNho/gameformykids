@@ -16,8 +16,8 @@ using path = std::filesystem::path;
 
 TextRenderer::TextRenderer(const Screen& screen):
     shader(Shader{
-    data_dir() /= path("shaders/files/textShader.vs"),
-    data_dir() /= path("shaders/files/textShader.fs")
+    shader_dir() /= path("textShader.vs"),
+    shader_dir() /= path("textShader.fs")
     }) {
     if (FT_Init_FreeType(&ft)) {
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" <<std::endl;
