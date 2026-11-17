@@ -4,9 +4,11 @@
 #define LOG_H
 
 #include <iostream>
+#include <string>
 
 class Log {
     static std::string getIsoTime();
+
 public:
     static void log(const std::string& message) {
         std::cout << message << std::endl;
@@ -29,9 +31,6 @@ public:
     }
 
     static void logInfo(const float& message) {
-        std::cout << "[" << getIsoTime() << "] " <<  "INFO: " << message << std::endl;
-    }
-    static void logInfo(const bool& message) {
         std::cout << "[" << getIsoTime() << "] " <<  "INFO: " << message << std::endl;
     }
 };

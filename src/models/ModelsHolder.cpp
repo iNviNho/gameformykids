@@ -4,36 +4,47 @@
 #include "data_dir.h"
 #include "StaticModel.h"
 
+#include <algorithm>
+#include <cctype>
+#include <iostream>
+
 void ModelsHolder::LoadModels() {
-    // GRASS
-    std::shared_ptr<AbstractModel> grass = std::make_shared<StaticModel>(
-        data_dir() /= std::filesystem::path("objects/grass6/grass.obj")
-    );
-    loadedModels.emplace("grass", grass);
+    const auto modelsDirectory = data_dir() / "objects" / "wow.export";
+    if (!std::filesystem::exists(modelsDirectory)) {
+        std::cerr << "Model directory does not exist: " << modelsDirectory << '\n';
+        return;
+    }
 
-    // PINE TREE
-    std::shared_ptr<AbstractModel> pineTree = std::make_shared<StaticModel>(
-        data_dir() /= std::filesystem::path("objects/pinetree/pinetree.obj")
-    );
-    loadedModels.emplace("pinetree", pineTree);
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(
+             modelsDirectory, std::filesystem::directory_options::skip_permission_denied)) {
+        if (!entry.is_regular_file()) continue;
 
-    // BOB WITH LAMP
-    std::shared_ptr<AbstractModel> bobWithLamp = std::make_shared<AnimatedModel>(
-        data_dir() /= std::filesystem::path("objects/animals/bob/boblampclean.md5mesh"))
-    ;
-    loadedModels.emplace("bobwithlamp", bobWithLamp);
-    // wolf
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(
-        data_dir() /= std::filesystem::path("objects/animals/wolf/Wolf.fbx"))
-    ;
-    wolf->SetAnimationIndex(2);
-    loadedModels.emplace("wolf", wolf);
-    // cow
-    std::shared_ptr<AnimatedModel> cow = std::make_shared<AnimatedModel>(
-        data_dir() /= std::filesystem::path("objects/animals/cow/cow.gltf"))
-    ;
-    cow->SetAnimationIndex(0);
-    loadedModels.emplace("cow", cow);
+        auto extension = entry.path().extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        const bool isGltf = extension == ".gltf";
+        const bool isObj = extension == ".obj";
+        if (!isGltf && !isObj) continue;
+
+        // Prefer a short key such as "cow". Use the relative path if another
+        // folder contains a model with the same filename.
+        auto key = entry.path().stem().string();
+        if (loadedModels.find(key) != loadedModels.end()) {
+            key = std::filesystem::relative(entry.path(), modelsDirectory)
+                      .replace_extension().generic_string();
+        }
+        std::shared_ptr<AbstractModel> model;
+        if (isGltf) {
+            model = std::make_shared<AnimatedModel>(entry.path());
+        } else {
+            model = std::make_shared<StaticModel>(entry.path());
+        }
+        if (model->GetMeshes().empty()) {
+            std::cerr << "Skipping glTF that did not load: " << entry.path() << '\n';
+            continue;
+        }
+        loadedModels.emplace(std::move(key), std::move(model));
+    }
 }
 
 std::shared_ptr<AbstractModel>& ModelsHolder::GetModel(const std::string &modelName) {

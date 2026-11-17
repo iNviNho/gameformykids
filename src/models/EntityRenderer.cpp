@@ -2,7 +2,9 @@
 
 #include "EntityRenderer.h"
 
+#include <algorithm>
 #include <filesystem>
+#include <iostream>
 #include "../objects/Entity.h"
 #include <data_dir.h>
 
@@ -10,6 +12,9 @@
 #include "GLFW/glfw3.h"
 
 using path = std::filesystem::path;
+namespace {
+constexpr GLsizeiptr MAX_BONE_MATRICES = 142;
+}
 
 EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
     singleInstanceShader(Shader{
@@ -21,7 +26,25 @@ EntityRenderer::EntityRenderer(const Camera& camera, const Screen& screen):
         shader_dir() /= path("modelShader.fs")
     }),
     camera(camera),
-    screen(screen) {}
+    screen(screen) {
+    const GLuint boneMatricesBlock = glGetUniformBlockIndex(singleInstanceShader.ID, "BoneMatrices");
+    if (boneMatricesBlock != GL_INVALID_INDEX) {
+        glUniformBlockBinding(singleInstanceShader.ID, boneMatricesBlock, 0);
+    }
+
+    // TODO: I don't like that this buffer is loaded in entity renderer ... This should be loaded up in AnimatedModel or AbstractModel  
+    glGenBuffers(1, &boneMatricesUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, boneMatricesUBO);
+    glBufferData(GL_UNIFORM_BUFFER, MAX_BONE_MATRICES * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, boneMatricesUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+EntityRenderer::~EntityRenderer() {
+    if (boneMatricesUBO != 0) {
+        glDeleteBuffers(1, &boneMatricesUBO);
+    }
+}
 
 void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
     singleInstanceShader.use();
@@ -38,7 +61,8 @@ void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
     model = glm::translate(model, entity.GetPosition());
 
     model = glm::rotate(model, glm::radians(entity.GetRotationXAngle()), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(entity.GetRotationYAngle()), glm::vec3(0.0f, 1.0f, 0.0f));
+    // TODO: This should be some kind of before render rotation y angle offset 
+    model = glm::rotate(model, glm::radians(entity.GetRotationYAngle() - 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(entity.GetRotationZAngle()), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // TODO: create sun class and move it there
@@ -56,8 +80,17 @@ void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
         std::vector<glm::mat4> transforms;
         auto& animatedModel = static_cast<AnimatedModel&>(entity.GetModel());
         animatedModel.GetBoneTransforms(animationTimeInSec, transforms);
-        for (unsigned int i = 0; i < transforms.size(); i++) {
-            singleInstanceShader.setMat4("gBones[" + std::to_string(i) + "]", transforms[i]);
+
+        const size_t boneCount = std::min<size_t>(transforms.size(), MAX_BONE_MATRICES);
+        if (boneCount > 0) {
+            glBindBuffer(GL_UNIFORM_BUFFER, boneMatricesUBO);
+            glBufferSubData(
+                GL_UNIFORM_BUFFER,
+                0,
+                static_cast<GLsizeiptr>(boneCount * sizeof(glm::mat4)),
+                glm::value_ptr(transforms.front())
+            );
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
     }
 

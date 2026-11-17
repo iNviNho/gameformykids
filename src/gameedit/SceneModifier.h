@@ -22,12 +22,12 @@ public:
     entitiesHolder(entitiesHolder),
     localStorage(localStorage),
     modelsHolder(modelsHolder),
-    selectedEntityName("grass"),
+    selectedEntityName("cow"),
     selectedScale(1.0f),
     selectedRotation(glm::vec3(1.0f)),
     selectedRadius(1),
     previewEntity(Entity{
-        modelsHolder.GetModel("grass"),
+        modelsHolder.GetModel("cow"),
         terrain,
         glm::vec3(1.0f, 1.0f, 1.0f)
     }){}

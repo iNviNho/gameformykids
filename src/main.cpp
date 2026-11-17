@@ -127,14 +127,13 @@ int main() {
     
     // Player
     // -------------------
-    std::shared_ptr<AnimatedModel> wolf = std::make_shared<AnimatedModel>(data_dir() /= path("objects/animals/wolf/Wolf.fbx"));
+    auto& wolf = modelsHolder.GetModel("frostwolfpup_nocollar");
     Player player(
         camera,
         terrain,
         wolf,
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
-    player.SetScale(0.02f);
     PathPlayerMover playerMover(player, *terrain);
     playerMover.Run(); 
 

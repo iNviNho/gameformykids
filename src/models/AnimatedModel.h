@@ -8,7 +8,8 @@ class AnimatedModel : public AbstractModel {
 public:
     explicit AnimatedModel(const std::filesystem::path& modelPath)
         : AbstractModel() {
-        loadModel(modelPath, false);
+        // Preserve coincident vertices when their bone weights differ.
+        loadModel(modelPath, false, false);
         logAnimations();
     }
 

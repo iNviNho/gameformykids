@@ -101,6 +101,7 @@ void Entity::updateRotation(const glm::vec3& direction) {
     float angleRadians = std::atan(deltaY / distance);
     float angleDegrees = glm::degrees(angleRadians);
     
+    
     SetRotateX(angleDegrees);
 
     frontXZ = glm::vec2(pointOnTerrainInLeft.x, pointOnTerrainInLeft.z);
