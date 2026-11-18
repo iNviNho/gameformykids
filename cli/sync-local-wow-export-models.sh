@@ -1,4 +1,18 @@
 #!/bin/sh
 
-rsync -av ~/wow.export/creature/ ~/www/gameformykids/resources/objects/wow.export/
-rsync -av ~/wow.export/world/ ~/www/gameformykids/resources/objects/wow.export/
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+destination="$script_dir/../resources/objects/wow.export"
+printf 'Copying WoW export files into %s\n' "$destination"
+mkdir -p "$destination"
+
+for folder in creature world; do
+	source="$HOME/wow.export/$folder"
+	if [ -d "$source" ]; then
+		printf 'Copying %s to %s\n' "$source" "$destination"
+		cp -a "$source/." "$destination/"
+	else
+		printf 'Skipping missing folder: %s\n' "$source"
+	fi
+done
+
+printf 'WoW export copy finished.\n'

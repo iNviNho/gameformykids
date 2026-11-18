@@ -1,6 +1,5 @@
 build/*
 dist/*
-resources/*
 .idea/*
 .DS_Store
 .cache/*

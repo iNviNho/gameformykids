@@ -114,7 +114,7 @@ int main() {
     EntitiesHolder doodads{};
     LocalStorage storageForDoodads{data_dir() /= path("map/doodads.txt")};
 
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(data_dir() /= path("images/blendMap4.png"));
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(data_dir() /= path("images/terrain/blendMap4.png"));
 
     // load persisted doodads
     DoodadsLoader::LoadDoodads(
