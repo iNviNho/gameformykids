@@ -32,8 +32,13 @@ void AbstractModel::Draw(Shader& shader) {
     }
 }
 
-void AbstractModel::loadModel(const std::filesystem::path& modelPath, bool flipUVs)
+void AbstractModel::loadModel(
+    const std::filesystem::path& modelPath,
+    bool flipUVs,
+    bool joinIdenticalVertices
+)
 {
+    Log::logInfo("Starting to load " + modelPath.string() + " model");
     // few other post processing options are
     //     aiProcess_GenNormals: creates normal vectors for each vertex if the model doesn't
     // contain normal vectors
@@ -45,7 +50,8 @@ void AbstractModel::loadModel(const std::filesystem::path& modelPath, bool flipU
     //
     // if aiProcess_Triangulate is removed, also Mesh.cpp has to be updated as each face could have potentially
     // more vertices
-    unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_JoinIdenticalVertices;
+    unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals;
+    if (joinIdenticalVertices) flags |= aiProcess_JoinIdenticalVertices;
     if (flipUVs) flags |= aiProcess_FlipUVs;
     flipTexturesVertically = !flipUVs;
     pScene = importer.ReadFile(modelPath.native(), flags);
@@ -56,37 +62,32 @@ void AbstractModel::loadModel(const std::filesystem::path& modelPath, bool flipU
     }
 
     // So far commented out as it gives wrong position on the first model
+    // TODO: I dont know if this should be commented out or not
     // pScene->mRootNode->mTransformation.Inverse();
-
     directory = modelPath.parent_path();
 
     processNode(pScene->mRootNode, pScene);
+    Log::logInfo("Model successfully loaded");
 }
 
 void AbstractModel::processNode(aiNode* node, const aiScene* scene)
 {
+    // process all meshes of this node
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
     }
 
+    // process all children nodes of this node
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
         processNode(node->mChildren[i], scene);
     }
 }
 
-//void AbstractModel::processNode(const aiScene *scene) {
-//
-//    // process all the scene's meshes
-//    for(unsigned int i = 0; i < scene->mNumMeshes; i++)
-//    {
-//        meshes.push_back(processMesh(scene->mMeshes[i], scene));
-//    }
-//}
-
-
-
 Mesh AbstractModel::processMesh(aiMesh *mesh, const aiScene *scene) {
+    
+    //Log::logInfo("Processing mesh " + std::string(mesh->mName.C_Str()));
+
     std::vector<Vertex> vertices;
     vertices.reserve(mesh->mNumVertices);
     std::vector<unsigned int> indices;

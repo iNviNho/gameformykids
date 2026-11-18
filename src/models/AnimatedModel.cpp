@@ -1,6 +1,7 @@
 #include "AnimatedModel.h"
 #include "../utils/Log.h"
 #include <algorithm>
+#include <cstdlib>
 #include <utility>
 
 const aiNodeAnim* AnimatedModel::FindNodeAnimation(const aiAnimation *animation, const std::string &string) {
@@ -43,37 +44,47 @@ void AnimatedModel::CalcInterpolatedScaling(aiVector3D& out, float animationTime
         return;
     }
 
+    const auto& keys = pNodeAnimation->mScalingKeys;
+    if (animationTimeTicks <= static_cast<float>(keys[0].mTime)) {
+        out = keys[0].mValue;
+        return;
+    }
+    if (animationTimeTicks >= static_cast<float>(keys[pNodeAnimation->mNumScalingKeys - 1].mTime)) {
+        out = keys[pNodeAnimation->mNumScalingKeys - 1].mValue;
+        return;
+    }
+
     uint ScalingIndex = FindScaling(animationTimeTicks, pNodeAnimation);
     uint NextScalingIndex = ScalingIndex + 1;
     assert(NextScalingIndex < pNodeAnimation->mNumScalingKeys);
     float t1 = (float)pNodeAnimation->mScalingKeys[ScalingIndex].mTime;
     float t2 = (float)pNodeAnimation->mScalingKeys[NextScalingIndex].mTime;
     float DeltaTime = t2 - t1;
-    float Factor = (animationTimeTicks - (float)t1) / DeltaTime;
-    assert(Factor >= 0.0f && Factor <= 1.0f);
+    if (DeltaTime <= 0.0f) {
+        out = pNodeAnimation->mScalingKeys[NextScalingIndex].mValue;
+        return;
+    }
+    float Factor = std::clamp((animationTimeTicks - t1) / DeltaTime, 0.0f, 1.0f);
     const aiVector3D& Start = pNodeAnimation->mScalingKeys[ScalingIndex].mValue;
     const aiVector3D& End   = pNodeAnimation->mScalingKeys[NextScalingIndex].mValue;
     aiVector3D Delta = End - Start;
     out = Start + Factor * Delta;
 }
 
-unsigned int AnimatedModel::FindRotation(
-float animationTimeTicks,
-const aiNodeAnim* pNodeAnimation
-) {
-assert(pNodeAnimation->mNumRotationKeys > 0);
+unsigned int AnimatedModel::FindRotation(float animationTimeTicks, const aiNodeAnim* pNodeAnimation) {
+    assert(pNodeAnimation->mNumRotationKeys > 0);
 
-for (uint i = 0; i < pNodeAnimation->mNumRotationKeys - 1; i++) {
-    float t = static_cast<float>(
-        pNodeAnimation->mRotationKeys[i + 1].mTime
-    );
+    for (uint i = 0; i < pNodeAnimation->mNumRotationKeys - 1; i++) {
+        float t = static_cast<float>(
+            pNodeAnimation->mRotationKeys[i + 1].mTime
+        );
 
-    if (animationTimeTicks < t) {
-        return i;
+        if (animationTimeTicks < t) {
+            return i;
+        }
     }
-}
 
-return pNodeAnimation->mNumRotationKeys - 2;
+    return pNodeAnimation->mNumRotationKeys - 2;
 }
 
 void AnimatedModel::CalcInterpolatedRotation(aiQuaternion& out, float animationTimeTicks, const aiNodeAnim *pNodeAnimation) {
@@ -83,14 +94,27 @@ void AnimatedModel::CalcInterpolatedRotation(aiQuaternion& out, float animationT
         return;
     }
 
+    const auto& keys = pNodeAnimation->mRotationKeys;
+    if (animationTimeTicks <= static_cast<float>(keys[0].mTime)) {
+        out = keys[0].mValue;
+        return;
+    }
+    if (animationTimeTicks >= static_cast<float>(keys[pNodeAnimation->mNumRotationKeys - 1].mTime)) {
+        out = keys[pNodeAnimation->mNumRotationKeys - 1].mValue;
+        return;
+    }
+
     uint RotationIndex = FindRotation(animationTimeTicks, pNodeAnimation);
     uint NextRotationIndex = RotationIndex + 1;
     assert(NextRotationIndex < pNodeAnimation->mNumRotationKeys);
     float t1 = (float)pNodeAnimation->mRotationKeys[RotationIndex].mTime;
     float t2 = (float)pNodeAnimation->mRotationKeys[NextRotationIndex].mTime;
     float DeltaTime = t2 - t1;
-    float Factor = (animationTimeTicks - t1) / DeltaTime;
-    assert(Factor >= 0.0f && Factor <= 1.0f);
+    if (DeltaTime <= 0.0f) {
+        out = pNodeAnimation->mRotationKeys[NextRotationIndex].mValue;
+        return;
+    }
+    float Factor = std::clamp((animationTimeTicks - t1) / DeltaTime, 0.0f, 1.0f);
     const aiQuaternion& StartRotationQ = pNodeAnimation->mRotationKeys[RotationIndex].mValue;
     const aiQuaternion& EndRotationQ   = pNodeAnimation->mRotationKeys[NextRotationIndex].mValue;
     aiQuaternion::Interpolate(out, StartRotationQ, EndRotationQ, Factor);
@@ -121,14 +145,28 @@ void AnimatedModel::CalcInterpolatedPosition(aiVector3D& Out, float animationTim
         return;
     }
 
+    const auto& keys = pNodeAnimation->mPositionKeys;
+    if (animationTimeTicks <= static_cast<float>(keys[0].mTime)) {
+        Out = keys[0].mValue;
+        return;
+    }
+    if (animationTimeTicks >= static_cast<float>(keys[pNodeAnimation->mNumPositionKeys - 1].mTime)) {
+        Out = keys[pNodeAnimation->mNumPositionKeys - 1].mValue;
+        return;
+    }
+
     uint PositionIndex = FindPosition(animationTimeTicks, pNodeAnimation);
     uint NextPositionIndex = PositionIndex + 1;
     assert(NextPositionIndex < pNodeAnimation->mNumPositionKeys);
     float t1 = (float)pNodeAnimation->mPositionKeys[PositionIndex].mTime;
     float t2 = (float)pNodeAnimation->mPositionKeys[NextPositionIndex].mTime;
     float DeltaTime = t2 - t1;
-    float Factor = (animationTimeTicks - t1) / DeltaTime;
-    assert(Factor >= 0.0f && Factor <= 1.0f);
+    if (DeltaTime <= 0.0f) {
+        Out = pNodeAnimation->mPositionKeys[NextPositionIndex].mValue;
+        return;
+    }
+    const float rawFactor = (animationTimeTicks - t1) / DeltaTime;
+    float Factor = std::clamp(rawFactor, 0.0f, 1.0f);
     const aiVector3D& Start = pNodeAnimation->mPositionKeys[PositionIndex].mValue;
     const aiVector3D& End = pNodeAnimation->mPositionKeys[NextPositionIndex].mValue;
     aiVector3D Delta = End - Start;
@@ -141,7 +179,7 @@ void AnimatedModel::ReadNodeHierarchy(float animationTime, const aiNode *aiNode,
     glm::mat4 nodeTransformation = glm::transpose(glm::make_mat4(&aiNode->mTransformation.a1));
 
     // Only process animations if they exist
-    if (pScene->mNumAnimations > 0) {
+    if (pScene->mNumAnimations > 0 ) {
         const aiAnimation* animation = pScene->mAnimations[animationIndex];
 
         const aiNodeAnim* pNodeAnimation = FindNodeAnimation(animation, nodeName);
@@ -191,9 +229,9 @@ void AnimatedModel::ReadNodeHierarchy(float animationTime, const aiNode *aiNode,
 
 void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4> &transforms) {
     globalInverseTransform =
-    glm::inverse(glm::transpose(
-        glm::make_mat4(&pScene->mRootNode->mTransformation.a1)
-    ));
+        glm::inverse(glm::transpose(
+            glm::make_mat4(&pScene->mRootNode->mTransformation.a1)
+        ));
     transforms.resize(vectorOfBones.size());
 
     glm::mat4 identity = glm::mat4(1.0f);
@@ -225,12 +263,14 @@ void AnimatedModel::logAnimations() const {
     Log::logInfo("Model has " + std::to_string(pScene->mNumAnimations) + " animation(s):");
     for (unsigned int i = 0; i < pScene->mNumAnimations; i++) {
         const aiAnimation* anim = pScene->mAnimations[i];
+        // duration in seconds is duration in ticks / ticker per second 
         Log::logInfo("  [" + std::to_string(i) + "] \"" + std::string(anim->mName.C_Str()) +
-                     "\" duration=" + std::to_string(anim->mDuration) +
-                     " ticks, ticksPerSec=" + std::to_string(anim->mTicksPerSecond));
+                      "\" duration=" + std::to_string(anim->mDuration) +
+                      " ticks, ticksPerSec=" + std::to_string(anim->mTicksPerSecond));
     }
 }
 
+// We create unique sequential bone ID for each new bone encountered
 int AnimatedModel::getBoneId(const aiBone* bone) {
     std::string boneName(bone->mName.C_Str());
     if (boneNameToIndexMap.find(boneName) == boneNameToIndexMap.end()) {
@@ -246,12 +286,16 @@ int AnimatedModel::getBoneId(const aiBone* bone) {
 }
 
 Mesh AnimatedModel::processMesh(aiMesh* mesh, const aiScene* scene) {
+
+    // first load the mesh as if it had no animations
     Mesh result = AbstractModel::processMesh(mesh, scene);
-Log::logInfo(
-    "Mesh: " + std::string(mesh->mName.C_Str()) +
-    ", vertices=" + std::to_string(mesh->mNumVertices) +
-    ", bones=" + std::to_string(mesh->mNumBones)
-);
+
+    // Log::logInfo(
+    //     "Mesh: " + std::string(mesh->mName.C_Str()) +
+    //     ", vertices=" + std::to_string(mesh->mNumVertices) +
+    //     ", bones=" + std::to_string(mesh->mNumBones)
+    // );
+    //
     // bones parsing
     std::vector<VertexBoneData> boneDataPerVertex;
     if (mesh->HasBones()) {
@@ -279,7 +323,20 @@ Log::logInfo(
                 aiVertexWeight& weight = bone->mWeights[j];
 
                 unsigned int localVertexId = weight.mVertexId;
-                if (localVertexId < influencesPerVertex.size() && weight.mWeight > 0.0f) {
+                if (weight.mWeight < 0.0f) {
+                    throw std::runtime_error("Weight of vertex for this bone can not be less than 0");
+                }
+                // TODO: This IF - does it make sense?
+                if (localVertexId < influencesPerVertex.size()) {
+                    // Example of a data structure of inluencePerVertex variable 
+                    // [vertex_0] -> {
+                    //      bone_0 -> weight1,
+                    //      bone_3 -> weight2
+                    // }
+                    // [vertex_1] -> {
+                    //      bone_1 -> weight1,
+                    //      bone_2 -> weight2
+                    // }
                     influencesPerVertex[localVertexId].emplace_back(
                         static_cast<unsigned int>(boneId), weight.mWeight
                     );
@@ -288,48 +345,36 @@ Log::logInfo(
         }
 
         boneDataPerVertex.resize(influencesPerVertex.size());
+        // TODO: What is size_t?
+        // We will loop through all vertices of the mesh
         for (size_t vertexIndex = 0; vertexIndex < influencesPerVertex.size(); ++vertexIndex) {
-            auto& influences = influencesPerVertex[vertexIndex];
-            std::sort(influences.begin(), influences.end(),
-                      [](const BoneInfluence& left, const BoneInfluence& right) {
-                          return left.second > right.second;
-                      });
-
-            const size_t influenceCount = std::min<size_t>(4, influences.size());
-            float totalWeight = 0.0f;
-            for (size_t i = 0; i < influenceCount; ++i) {
-                totalWeight += influences[i].second;
+            std::vector<BoneInfluence>& influences = influencesPerVertex[vertexIndex];
+            // Keep the strongest influences when a vertex exceeds the shader's
+            // fixed capacity. Writing more than 16 here would overrun the arrays.
+            std::stable_sort(influences.begin(), influences.end(),
+                [](const BoneInfluence& lhs, const BoneInfluence& rhs) {
+                    return lhs.second > rhs.second;
+                });
+            if (influences.size() > MAX_NUM_BONES_PER_VERTEX) {
+                influences.resize(MAX_NUM_BONES_PER_VERTEX);
             }
 
+            float totalWeight = 0.0f;
+            for (const BoneInfluence& influence : influences) {
+                totalWeight += influence.second;
+            }
             if (totalWeight <= 0.0f) {
                 continue;
+            } else if (std::abs(totalWeight - 1.0f) > 0.01f) {
+                // throw std::runtime_error("Animated mesh has vertices whose bone weight do not sum to 1; importer misread them");
             }
-
-            for (size_t i = 0; i < influenceCount; ++i) {
+        
+            for (size_t i = 0; i < influences.size(); ++i) {
                 boneDataPerVertex[vertexIndex].BoneIDs[i] = influences[i].first;
                 boneDataPerVertex[vertexIndex].Weights[i] = influences[i].second / totalWeight;
             }
         }
     }
-size_t weightedVertices = 0;
-
-for (const auto& vertex : boneDataPerVertex) {
-    float totalWeight = 0.0f;
-
-    for (int i = 0; i < 4; i++) {
-        totalWeight += vertex.Weights[i];
-    }
-
-    if (totalWeight > 0.0f) {
-        weightedVertices++;
-    }
-}
-
-Log::logInfo(
-    "Weighted vertices: " +
-    std::to_string(weightedVertices) + "/" +
-    std::to_string(boneDataPerVertex.size())
-);
 
     return Mesh(
         std::move(result.getVertices()),

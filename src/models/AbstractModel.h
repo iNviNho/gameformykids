@@ -34,7 +34,11 @@ protected:
     Assimp::Importer importer;
     const aiScene* pScene;
 
-    void loadModel(const std::filesystem::path& path, bool flipUVs = true);
+    void loadModel(
+        const std::filesystem::path& path,
+        bool flipUVs = true,
+        bool joinIdenticalVertices = true
+    );
 
     void processNode(aiNode* node, const aiScene* scene);
     void loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures);

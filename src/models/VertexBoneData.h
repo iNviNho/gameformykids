@@ -1,7 +1,7 @@
 #ifndef MYGAME_VERTEXBONEDATA_H
 #define MYGAME_VERTEXBONEDATA_H
 
-#define MAX_NUM_BONES_PER_VERTEX 16
+#define MAX_NUM_BONES_PER_VERTEX 4
 
 class VertexBoneData {
 public:

@@ -33,7 +33,10 @@ FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git)
 FetchContent_MakeAvailable(stb)
 
 # Download and include Assimp
-FetchContent_Declare(assimp GIT_REPOSITORY https://github.com/assimp/assimp.git)
+FetchContent_Declare(assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp.git
+    GIT_TAG v6.0.6
+)
 FetchContent_MakeAvailable(assimp)
 if(TARGET assimp AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(assimp PRIVATE

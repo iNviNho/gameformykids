@@ -108,14 +108,14 @@ public:
         const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
         const glm::vec3 dir = target - player.GetPosition();
         player.setState(Player::Moving{WALKING_SPEED, dir});
-        model.SetAnimationIndex(5);
+        model.SetAnimationIndex(0);
     }
     void Run() {
         AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
         const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
         const glm::vec3 dir = target - player.GetPosition();
         player.setState(Player::Moving{DEFAULT_SPEED, dir});
-        model.SetAnimationIndex(3);
+        model.SetAnimationIndex(1);
     }
     void move(float deltaTime);
     void Jump();

@@ -11,12 +11,13 @@ out vec3 FragPos;
 flat out ivec4 BoneIDsPass;
 out vec4 WeightsPass;
 
-const int MAX_BONES = 100;
-
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat4 gBones[MAX_BONES];
+
+layout (std140) uniform BoneMatrices {
+    mat4 gBones[142];
+};
 
 void main()
 {
