@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(glfw)
 # Download and include GLAD
 FetchContent_Declare(glad
     GIT_REPOSITORY https://github.com/Dav1dde/glad.git
-    GIT_TAG v2.0.8
+    GIT_TAG v0.1.36
 )
 FetchContent_MakeAvailable(glad)
 
