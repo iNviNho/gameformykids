@@ -80,6 +80,7 @@ void Mesh::setupMesh() {
 
 void Mesh::Draw(Shader& shader) const
 {
+    shader.setBool("meshHasBones", hasBones);
     GLuint diffuseID = 0;
     GLuint opacityID = 0;
     // TODO: Add support for specular textures

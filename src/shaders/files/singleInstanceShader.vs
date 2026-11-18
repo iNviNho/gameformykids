@@ -14,6 +14,7 @@ out vec4 WeightsPass;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform bool meshHasBones;
 
 layout (std140) uniform BoneMatrices {
     mat4 gBones[142];
@@ -27,21 +28,16 @@ void main()
     BoneIDsPass = boneIDs;
     WeightsPass = weights;
 
-    // Check if this vertex has valid bone data
-    // Rigged models: at least one of first 3 weights is non-zero
-    // Non-rigged models: default weights are (0, 0, 0, 1), so first 3 are zero
-    if (weights[0] > 0.0 ||
-    weights[1] > 0.0 ||
-    weights[2] > 0.0 ||
-    weights[3] > 0.0) {
-        // Has bone data - apply bone transformation
+    // Disabled vertex attributes have OpenGL default values, including a
+    // fourth component of 1.0. Do not infer whether this mesh is rigged from
+    // the weights; use the mesh-level flag set by Mesh::Draw instead.
+    if (meshHasBones) {
         mat4 BoneTransform = gBones[boneIDs[0]] * weights[0];
         BoneTransform += gBones[boneIDs[1]] * weights[1];
         BoneTransform += gBones[boneIDs[2]] * weights[2];
         BoneTransform += gBones[boneIDs[3]] * weights[3];
         gl_Position = projection * view * model * BoneTransform * vec4(aPos, 1.0);
     } else {
-        // No bone data - use vertex position directly
         gl_Position = projection * view * model * vec4(aPos, 1.0);
     }
 }
