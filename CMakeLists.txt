@@ -13,23 +13,38 @@ find_package(OpenGL REQUIRED)
 include(FetchContent)
 
 # Download and include GLFW
-FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw)
+FetchContent_Declare(glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw
+    GIT_TAG 3.5.1
+)
 FetchContent_MakeAvailable(glfw)
 
 # Download and include GLAD
-FetchContent_Declare(glad GIT_REPOSITORY https://github.com/Dav1dde/glad.git)
+FetchContent_Declare(glad
+    GIT_REPOSITORY https://github.com/Dav1dde/glad.git
+    GIT_TAG v2.0.8
+)
 FetchContent_MakeAvailable(glad)
 
 # Download and include GLM
-FetchContent_Declare(glm GIT_REPOSITORY	https://github.com/g-truc/glm.git)
+FetchContent_Declare(glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 1.0.3
+)
 FetchContent_MakeAvailable(glm)
 
 # Download and include FreeType
-FetchContent_Declare(freetype GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git GIT_TAG VER-2-10-4)
+FetchContent_Declare(freetype
+    GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype.git
+    GIT_TAG VER-2-15-0
+)
 FetchContent_MakeAvailable(freetype)
 
 # Download stb_image
-FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git)
+FetchContent_Declare(stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG 9600522de53973336fa033a289858a4354cbb04c
+)
 FetchContent_MakeAvailable(stb)
 
 # Download and include Assimp
@@ -46,7 +61,10 @@ if(TARGET assimp AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     )
 endif()
 
-FetchContent_Declare(lunasvg GIT_REPOSITORY https://github.com/sammycage/lunasvg.git GIT_TAG master)
+FetchContent_Declare(lunasvg
+    GIT_REPOSITORY https://github.com/sammycage/lunasvg.git
+    GIT_TAG v3.5.0
+)
 FetchContent_MakeAvailable(lunasvg)
 
 cmake_path(SET DATA_DIR "${PROJECT_SOURCE_DIR}")
@@ -54,7 +72,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/data_dir.h.in" "${CMAKE_CURRENT_
 
 # Download and include miniaudio
 file(DOWNLOAD
-    https://raw.githubusercontent.com/mackron/miniaudio/master/miniaudio.h
+    https://raw.githubusercontent.com/mackron/miniaudio/0.11.26/miniaudio.h
     ${CMAKE_CURRENT_BINARY_DIR}/external/miniaudio.h
     TLS_VERIFY ON
 )
