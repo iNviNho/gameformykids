@@ -22,12 +22,12 @@ public:
     entitiesHolder(entitiesHolder),
     localStorage(localStorage),
     modelsHolder(modelsHolder),
-    selectedEntityName("cow"),
+    selectedEntityName("frostwolfpup_nocollar"),
     selectedScale(0.60f),
     selectedRotation(glm::vec3(1.0f)),
     selectedRadius(1),
     previewEntity(Entity{
-        modelsHolder.GetModel("cow"),
+        modelsHolder.GetModel("frostwolfpup_nocollar"),
         terrain,
         glm::vec3(1.0f, 1.0f, 1.0f)
     }){}
