@@ -20,15 +20,14 @@ public:
     void CalcInterpolatedRotation(aiQuaternion& aiQuaternion, float animationTime, const aiNodeAnim* aiNodeAnimation);
     unsigned int FindPosition(float animationTimeTicks, const aiNodeAnim* aiNodeAnimation);
     void CalcInterpolatedPosition(aiVector3D& translation, float animationTime, const aiNodeAnim* aiNodeAnimation);
-    void ReadNodeHierarchy(float animationTime, const aiNode* aiNode, glm::mat4 parentTransform);
-    void GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4>& transforms);
-    void SetAnimationIndex(unsigned int index) { animationIndex = index; }
+    void ReadNodeHierarchy(float animationTime, unsigned int animationIndex, const aiNode* aiNode, glm::mat4 parentTransform);
+    void GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4>& transforms, unsigned int animationIndex);
     unsigned int GetAnimationCount() const;
+    std::string GetAnimationName(unsigned int index) const;
     void logAnimations() const;
 
     bool IsAnimated() const override { return true; }
 protected:
-    unsigned int animationIndex = 0;
     std::map<std::string, unsigned int> boneNameToIndexMap;
     std::vector<BoneInformation> vectorOfBones;
     int getBoneId(const aiBone* bone);

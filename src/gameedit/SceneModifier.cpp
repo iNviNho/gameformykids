@@ -1,4 +1,5 @@
 #include "SceneModifier.h"
+#include "../models/AnimatedModel.h"
 
 #include <random>
 #include <string>
@@ -117,6 +118,7 @@ void SceneModifier::placeObject() {
     };
 
     applySelectedTransform(entity);
+    entity.SetAnimationIndex(selectedAnimationIndex);
 
     persist(entity, selectedEntityName);
     Log::logInfo("Object persisted to the storage.");
@@ -177,7 +179,7 @@ bool SceneModifier::removeEntityByPosition(glm::vec3 pos, float epsilon) {
     
     bool anyRemoved = false;
     for (const auto& [key, value] : lines) {
-        // expected format: name,unique_id,entity.toString()
+        // expected format: name,unique_id,entity.toString(),animation_index
         // entity.toString() -> posx,posy,posz,rotx,roty,rotz,scale
         std::size_t firstComma = value.find(',');
         if (firstComma == std::string::npos) {
@@ -240,14 +242,49 @@ void SceneModifier::ChangeSelectedEntityName() {
         }
         selectedEntityName = *it;
     }
+    selectedAnimationIndex = 0;
     // we must recreate preview entity
     previewEntity = Entity{
         modelsHolder.GetModel(selectedEntityName),
         terrain,
         glm::vec3(1.0f, 1.0f, 1.0f)
     };
+    if (modelsHolder.GetModel(selectedEntityName)->IsAnimated()) {
+        previewEntity.SetAnimationIndex(0);
+    }
     selectedScale = 1.0f;
     selectedRotation = glm::vec3(1.0f);
+}
+
+void SceneModifier::CycleSelectedAnimation() {
+    const auto& model = modelsHolder.GetModel(selectedEntityName);
+    if (!model->IsAnimated()) {
+        selectedAnimationIndex = 0;
+        previewEntity.SetAnimationIndex(0);
+        return;
+    }
+
+    auto& animatedModel = static_cast<AnimatedModel&>(*model);
+    const unsigned int animationCount = animatedModel.GetAnimationCount();
+    if (animationCount == 0) {
+        selectedAnimationIndex = 0;
+    } else {
+        selectedAnimationIndex = (selectedAnimationIndex + 1) % animationCount;
+    }
+    previewEntity.SetAnimationIndex(selectedAnimationIndex);
+}
+
+std::string SceneModifier::GetSelectedAnimationName() const {
+    const auto& model = modelsHolder.GetModel(selectedEntityName);
+    if (!model->IsAnimated()) {
+        return {};
+    }
+
+    return static_cast<const AnimatedModel&>(*model).GetAnimationName(selectedAnimationIndex);
+}
+
+unsigned int SceneModifier::GetSelectedAnimationIndex() const {
+    return selectedAnimationIndex;
 }
 
 Entity& SceneModifier::GetSelectedEntityPreviewEntity() {
@@ -268,7 +305,8 @@ void SceneModifier::persist(Entity& entity, const std::string& name) {
     std::uniform_int_distribution<unsigned long long> dist;
 
     unsigned long long id = dist(gen);
-    std::string data = name + "," + std::to_string(id) + "," + entity.toString();
+    std::string data = name + "," + std::to_string(id) + "," + entity.toString() +
+        "," + std::to_string(entity.GetAnimationIndex());
 
     localStorage.insert(std::to_string(id), data);
 }

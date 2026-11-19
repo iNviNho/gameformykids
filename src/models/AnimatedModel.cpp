@@ -173,7 +173,7 @@ void AnimatedModel::CalcInterpolatedPosition(aiVector3D& Out, float animationTim
     Out = Start + Factor * Delta;
 }
 
-void AnimatedModel::ReadNodeHierarchy(float animationTime, const aiNode *aiNode, const glm::mat4 parentTransform) {
+void AnimatedModel::ReadNodeHierarchy(float animationTime, unsigned int animationIndex, const aiNode *aiNode, const glm::mat4 parentTransform) {
     std::string nodeName(aiNode->mName.C_Str());
 
     glm::mat4 nodeTransformation = glm::transpose(glm::make_mat4(&aiNode->mTransformation.a1));
@@ -223,11 +223,11 @@ void AnimatedModel::ReadNodeHierarchy(float animationTime, const aiNode *aiNode,
 
     // recursively on its child node
     for (unsigned int i = 0; i < aiNode->mNumChildren; i++) {
-        ReadNodeHierarchy(animationTime, aiNode->mChildren[i], globalTransformation);
+        ReadNodeHierarchy(animationTime, animationIndex, aiNode->mChildren[i], globalTransformation);
     }
 }
 
-void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4> &transforms) {
+void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm::mat4> &transforms, unsigned int animationIndex) {
     globalInverseTransform =
         glm::inverse(glm::transpose(
             glm::make_mat4(&pScene->mRootNode->mTransformation.a1)
@@ -238,13 +238,14 @@ void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm:
 
     float animationTime = 0.0f;
     if (pScene->mNumAnimations > 0) {
+        animationIndex %= pScene->mNumAnimations;
         const aiAnimation* anim = pScene->mAnimations[animationIndex];
         float ticksPerSecond = anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f;
         float timeInTicks = animationTimeInSec * ticksPerSecond;
         animationTime = fmod(timeInTicks, static_cast<float>(anim->mDuration));
     }
 
-    ReadNodeHierarchy(animationTime, pScene->mRootNode, identity);
+    ReadNodeHierarchy(animationTime, animationIndex, pScene->mRootNode, identity);
 
     for (size_t i = 0; i < vectorOfBones.size(); i++) {
         transforms[i] = vectorOfBones[i].finalTransformation;
@@ -253,6 +254,13 @@ void AnimatedModel::GetBoneTransforms(float animationTimeInSec, std::vector<glm:
 
 unsigned int AnimatedModel::GetAnimationCount() const {
     return pScene ? pScene->mNumAnimations : 0;
+}
+
+std::string AnimatedModel::GetAnimationName(unsigned int index) const {
+    if (!pScene || index >= pScene->mNumAnimations) {
+        return {};
+    }
+    return pScene->mAnimations[index]->mName.C_Str();
 }
 
 void AnimatedModel::logAnimations() const {

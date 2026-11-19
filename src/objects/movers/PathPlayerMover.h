@@ -13,7 +13,6 @@
 #include "../../terrain/Terrain.h"
 #include "Intersection.h"
 #include "MeshIntersecter.h"
-#include "../../models/AnimatedModel.h"
 
 class PathPlayerMover {
 private:
@@ -98,24 +97,21 @@ public:
 
     }
     void Idle() {
-        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
         player.setState(Player::Stationary());
-        model.SetAnimationIndex(2);
+        player.SetAnimationIndex(2);
     }
 
     void Walk() {
-        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
         const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
         const glm::vec3 dir = target - player.GetPosition();
         player.setState(Player::Moving{WALKING_SPEED, dir});
-        model.SetAnimationIndex(0);
+        player.SetAnimationIndex(0);
     }
     void Run() {
-        AnimatedModel& model = static_cast<AnimatedModel&>(player.GetModel()); 
         const glm::vec3 target = (nextIntersection == intersections.cend()) ? movingTowards : nextIntersection->point;
         const glm::vec3 dir = target - player.GetPosition();
         player.setState(Player::Moving{DEFAULT_SPEED, dir});
-        model.SetAnimationIndex(1);
+        player.SetAnimationIndex(1);
     }
     void move(float deltaTime);
     void Jump();

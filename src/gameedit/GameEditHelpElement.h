@@ -23,6 +23,7 @@ public:
         objectsText.SetText(
             "OBJECT PLACEMENT\n"
             "Q              Cycle through objects to place\n"
+            "Tab            Cycle selected object's animation\n"
             "Left Click     Place the selected object\n"
             "X + Left Click Remove an object\n"
             "\n"

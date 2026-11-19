@@ -3,6 +3,7 @@
 #include "../storage/LocalStorage.h"
 #include "../utils/Log.h"
 #include "Terrain.h"
+#include "../models/AnimatedModel.h"
 #include <memory>
 
 void DoodadsLoader::LoadDoodads(
@@ -10,8 +11,7 @@ void DoodadsLoader::LoadDoodads(
     ModelsHolder& modelsHolder,
     LocalStorage& storage,
     EntitiesHolder& entitiesHolder)
-{
-    Log::logInfo("Loading doodads");
+{ Log::logInfo("Loading doodads");
     for (const auto& [key, value] : storage.GetAll()) {
         // first part is name
         // second part is unique id (we can ignore it)
@@ -29,6 +29,18 @@ void DoodadsLoader::LoadDoodads(
         entity.SetRotateZ(std::stof(parts[7]));
 
         entity.SetScale(std::stof(parts[8]));
+        const unsigned int animationIndex = parts.size() > 9
+            ? static_cast<unsigned int>(std::stoul(parts[9]))
+            : 0;
+        if (entity.GetModel().IsAnimated()) {
+            auto& animatedModel = static_cast<AnimatedModel&>(entity.GetModel());
+            const unsigned int animationCount = animatedModel.GetAnimationCount();
+            if (animationCount > 0) {
+                entity.SetAnimationIndex(animationIndex % animationCount);
+            } else {
+                entity.SetAnimationIndex(0);
+            }
+        }
         entitiesHolder.AddEntity(entity);
     }
     Log::logInfo("Doodads loaded");

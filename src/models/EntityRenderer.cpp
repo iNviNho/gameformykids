@@ -79,7 +79,7 @@ void EntityRenderer::render(const Entity& entity, long startTimeInMillis) {
     if (entity.GetModel().IsAnimated()) {
         std::vector<glm::mat4> transforms;
         auto& animatedModel = static_cast<AnimatedModel&>(entity.GetModel());
-        animatedModel.GetBoneTransforms(animationTimeInSec, transforms);
+        animatedModel.GetBoneTransforms(animationTimeInSec, transforms, entity.GetAnimationIndex());
 
         const size_t boneCount = std::min<size_t>(transforms.size(), MAX_BONE_MATRICES);
         if (boneCount > 0) {

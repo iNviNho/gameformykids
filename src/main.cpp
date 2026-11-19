@@ -134,6 +134,7 @@ int main() {
         wolf,
         glm::vec3(0.0f, 0.0f, 0.0f)
     );
+    player.SetScale(0.35f);
     PathPlayerMover playerMover(player, *terrain);
     playerMover.Run(); 
 
@@ -367,6 +368,17 @@ void processInput(GLFWwindow* window, PathPlayerMover& playerMover, Menu& menu, 
             if (smallDelayPassed()) {
                 sceneModifier.ChangeSelectedEntityName();
             }
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && smallDelayPassed()) {
+            sceneModifier.CycleSelectedAnimation();
+            const unsigned int animationIndex = sceneModifier.GetSelectedAnimationIndex();
+            const std::string animationName = sceneModifier.GetSelectedAnimationName();
+            std::string message = "Selected animation [" + std::to_string(animationIndex) + "]";
+            if (!animationName.empty()) {
+                message += ": " + animationName;
+            }
+            Log::logInfo(message);
         }
 
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {

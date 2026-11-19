@@ -23,7 +23,7 @@ public:
     localStorage(localStorage),
     modelsHolder(modelsHolder),
     selectedEntityName("cow"),
-    selectedScale(1.0f),
+    selectedScale(0.60f),
     selectedRotation(glm::vec3(1.0f)),
     selectedRadius(1),
     previewEntity(Entity{
@@ -35,6 +35,7 @@ public:
     void placeObject();
     void removeObject();
     void ChangeSelectedEntityName();
+    void CycleSelectedAnimation();
     void ModifyTerrainHeight(int direction);
     
     std::optional<glm::vec3> raycastToTerrain(float stepSize = 0.05f, int maxIterations = 10000) const;
@@ -42,6 +43,8 @@ public:
     std::string GetSelectedEntityName() const {
         return selectedEntityName;
     }
+    unsigned int GetSelectedAnimationIndex() const;
+    std::string GetSelectedAnimationName() const;
     float GetScale() const {
         return selectedScale;
     }
@@ -115,6 +118,7 @@ private:
     LocalStorage& localStorage;
     ModelsHolder& modelsHolder;
     std::string selectedEntityName;
+    unsigned int selectedAnimationIndex = 0;
     float selectedScale;
     glm::vec3 selectedRotation;
     Entity previewEntity;

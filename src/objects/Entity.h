@@ -34,6 +34,8 @@ public:
     void updateRotation(const glm::vec3& direction);
     float GetScale() const { return scale; }
     void SetScale(float scale) { this->scale = scale; }
+    unsigned int GetAnimationIndex() const { return animationIndex; }
+    void SetAnimationIndex(unsigned int index) { animationIndex = index; }
 
     std::string toString();
 private:
@@ -41,6 +43,7 @@ private:
     glm::vec3 position;
     glm::vec3 rotation;
     float scale;
+    unsigned int animationIndex = 0;
     glm::vec3 pointOnTerrainInFront;
     glm::vec3 pointOnTerrainInBack;
     glm::vec3 pointOnTerrainInLeft;
