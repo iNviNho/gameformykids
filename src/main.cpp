@@ -200,6 +200,10 @@ int main() {
                 entityRenderer.render(entity, startTimeInMillis);
             }
 
+            textRenderer.BufferText("W - walk", 25.0f, 60.0f, 0.4f, whiteColor);
+            textRenderer.BufferText("S - stand still", 25.0f, 40.0f, 0.4f, whiteColor);
+            textRenderer.BufferText("R - run", 25.0f, 20.0f, 0.4f, whiteColor);
+
             // ****************************
             // second = EDIT MODE
             if (gameState.isGameEditModeEnabled()) {
