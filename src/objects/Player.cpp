@@ -4,7 +4,7 @@
 #include <cmath>
 
 constexpr float cameraDistance = 12.0f;
-constexpr float cameraHeight = 6.5f;
+constexpr float cameraHeight = 4.5f;
 constexpr float minimumCameraOffsetFromTheTerrain = 1.0f;
 
 // Ref: /progressScreenshots/14calculateCameraPosition.png
