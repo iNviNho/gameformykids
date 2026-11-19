@@ -91,6 +91,9 @@ public:
     void disableModifyTerrainHeight() {
         modifyTerrainHeight = false;
     }
+    void disableResetTerrainHeight() {
+        resetTerrainHeight = false;
+    }
     void toggleModifyTerrainHeight() {
         if (resetTerrainHeight) {
             resetTerrainHeight = false;

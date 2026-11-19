@@ -220,11 +220,11 @@ int main() {
                 }
                  
                 // misc texts
-                textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 70.0f, 0.4f, whiteColor);
-                textRenderer.BufferText(("selected item: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 10.0f, 0.4f, whiteColor);
-                textRenderer.BufferText(("selected item scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 30.0f, 0.4f, whiteColor);
-                textRenderer.BufferText(("selected rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 50.0f, 0.4f, whiteColor);
-
+                textRenderer.BufferText(("selected radius for increasing height: " + std::to_string(sceneModifier.getSelectedRadius())).c_str(), 25.0f, 100.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected object: " + sceneModifier.GetSelectedEntityName()).c_str(), 25.0f, 80.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected object scale : " + std::to_string(sceneModifier.GetScale())).c_str(), 25.0f, 60.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected object rotation x:" + std::to_string(sceneModifier.GetRotation().x) + " y:" + std::to_string(sceneModifier.GetRotation().y) + " z:" + std::to_string(sceneModifier.GetRotation().z)).c_str(), 25.0f, 40.0f, 0.4f, whiteColor);
+                textRenderer.BufferText(("selected object animation: " + sceneModifier.GetSelectedAnimationName()).c_str(), 25.0f, 20.0f, 0.4f, whiteColor);
                 // we render help text so modder can quickly check how to alter the game
                 uiRenderer.Render(gameEditHelpElement.GetElement());
             // ****************************
@@ -236,6 +236,7 @@ int main() {
                     player.UpdateCameraPose();
                 } 
 
+                textRenderer.BufferText("Spacebar - jump", 25.0f, 80.0f, 0.4f, whiteColor);
                 textRenderer.BufferText("W - walk", 25.0f, 60.0f, 0.4f, whiteColor);
                 textRenderer.BufferText("S - stand still", 25.0f, 40.0f, 0.4f, whiteColor);
                 textRenderer.BufferText("R - run", 25.0f, 20.0f, 0.4f, whiteColor);

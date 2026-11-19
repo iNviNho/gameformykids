@@ -227,9 +227,10 @@ bool SceneModifier::removeEntityByPosition(glm::vec3 pos, float epsilon) {
 }
 
 void SceneModifier::ChangeSelectedEntityName() {
-    // first we disable modifying terrain height
+    // first we disable modifying terrain height and reset terrain height
     disableModifyTerrainHeight();
-    
+    disableResetTerrainHeight(); 
+
     // get available names from models holder
     auto modelNames = modelsHolder.GetModelNames();
     // get index of current

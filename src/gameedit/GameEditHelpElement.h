@@ -21,6 +21,11 @@ public:
 
         Element objectsText = Element{screen};
         objectsText.SetText(
+            "MOVEMENT\n"
+            "W / A / S / D  Move\n"
+            "Space          Move up\n"
+            "Shift          Move down\n"
+            "\n"
             "OBJECT PLACEMENT\n"
             "Q              Cycle through objects to place\n"
             "Tab            Cycle selected object's animation\n"
