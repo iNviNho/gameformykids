@@ -6,10 +6,19 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
 
 void ModelsHolder::LoadModels() {
-    const auto modelsDirectory = data_dir() / "objects" / "wow.export";
+    // Load the export in place so changes made by wow.export are picked up
+    // without copying the assets into the application's resources directory.
+    std::filesystem::path modelsDirectory;
+    if (const char* home = std::getenv("HOME"); home != nullptr && *home != '\0') {
+        modelsDirectory = std::filesystem::path(home) / "wow.export";
+    } else {
+        modelsDirectory = data_dir() / "objects" / "wow.export";
+    }
+
     if (!std::filesystem::exists(modelsDirectory)) {
         std::cerr << "Model directory does not exist: " << modelsDirectory << '\n';
         return;
