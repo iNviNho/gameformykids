@@ -200,10 +200,6 @@ int main() {
                 entityRenderer.render(entity, startTimeInMillis);
             }
 
-            textRenderer.BufferText("W - walk", 25.0f, 60.0f, 0.4f, whiteColor);
-            textRenderer.BufferText("S - stand still", 25.0f, 40.0f, 0.4f, whiteColor);
-            textRenderer.BufferText("R - run", 25.0f, 20.0f, 0.4f, whiteColor);
-
             // ****************************
             // second = EDIT MODE
             if (gameState.isGameEditModeEnabled()) {
@@ -239,6 +235,10 @@ int main() {
                 if (!std::holds_alternative<Player::Stationary>(player.getState())) {
                     player.UpdateCameraPose();
                 } 
+
+                textRenderer.BufferText("W - walk", 25.0f, 60.0f, 0.4f, whiteColor);
+                textRenderer.BufferText("S - stand still", 25.0f, 40.0f, 0.4f, whiteColor);
+                textRenderer.BufferText("R - run", 25.0f, 20.0f, 0.4f, whiteColor);
             }
         }
         // We render whatever is in the text buffer

@@ -88,6 +88,9 @@ public:
         return selectedRadius;
     }
     Entity& GetSelectedEntityPreviewEntity();
+    void disableModifyTerrainHeight() {
+        modifyTerrainHeight = false;
+    }
     void toggleModifyTerrainHeight() {
         if (resetTerrainHeight) {
             resetTerrainHeight = false;
